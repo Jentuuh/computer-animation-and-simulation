@@ -117,13 +117,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\VulkanSDK\1.2.189.1\Include;C:\Users\Jente\Desktop\s i d e            h u s t l e s\Vulkan Minecraft Experiment\Libraries\glm;C:\Users\Jente\Desktop\s i d e            h u s t l e s\Vulkan Minecraft Experiment\Libraries\glfw-3.3.4\include;C:\Users\Jente\Desktop\s i d e            h u s t l e s\Vulkan Minecraft Experiment\Libraries\tinyobjloader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\VulkanSDK\1.2.189.1\Include;C:\Users\Jente\Desktop\cas1\computer-animation-and-simulation\Libraries\glm;C:\Users\Jente\Desktop\cas1\computer-animation-and-simulation\Libraries\glfw-3.3.4\include;C:\Users\Jente\Desktop\cas1\computer-animation-and-simulation\Libraries\tinyobjloader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\VulkanSDK\1.2.189.1\Lib;C:\Users\Jente\Desktop\s i d e            h u s t l e s\Vulkan Minecraft Experiment\Libraries\glfw-3.3.4\lib-vc2019;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.2.189.1\Lib;C:\Users\Jente\Desktop\cas1\computer-animation-and-simulation\Libraries\glfw-3.3.4\lib-vc2019;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -135,7 +135,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\VulkanSDK\1.2.189.1\Include;C:\Users\Jente\Desktop\cas\computer-animation-and-simulation\Libraries\glm;C:\Users\Jente\Desktop\cas\computer-animation-and-simulation\Libraries\glfw-3.3.4\include;C:\Users\Jente\Desktop\cas\computer-animation-and-simulation\Libraries\tinyobjloader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\VulkanSDK\1.2.189.1\Include;C:\Users\Jente\Desktop\cas1\computer-animation-and-simulation\Libraries\glm;C:\Users\Jente\Desktop\cas1\computer-animation-and-simulation\Libraries\glfw-3.3.4\include;C:\Users\Jente\Desktop\cas1\computer-animation-and-simulation\Libraries\tinyobjloader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -143,7 +143,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\VulkanSDK\1.2.189.1\Lib;C:\Users\Jente\Desktop\cas\computer-animation-and-simulation\Libraries\glfw-3.3.4\lib-vc2019;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.2.189.1\Lib;C:\Users\Jente\Desktop\cas1\computer-animation-and-simulation\Libraries\glfw-3.3.4\lib-vc2019;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

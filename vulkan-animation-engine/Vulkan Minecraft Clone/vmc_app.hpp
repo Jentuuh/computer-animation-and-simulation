@@ -27,7 +27,7 @@ namespace vmc {
 		void loadGameObjects();
 
 
-		VmcWindow vmcWindow{ WIDTH, HEIGHT, "Hello Duyên!" };
+		VmcWindow vmcWindow{ WIDTH, HEIGHT, "Vulkan Animation Engine - Jente Vandersanden" };
 		VmcDevice vmcDevice{ vmcWindow };
 		VmcRenderer vmcRenderer{ vmcWindow, vmcDevice };
 
