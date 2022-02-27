@@ -4,6 +4,7 @@
 #include "vmc_pipeline.hpp"
 #include "vmc_device.hpp"
 #include "vmc_game_object.hpp"
+#include "animator.hpp"
 
 // std 
 #include <memory>
@@ -20,7 +21,7 @@ namespace vmc {
 		SimpleRenderSystem(const SimpleRenderSystem&) = delete;
 		SimpleRenderSystem& operator=(const SimpleRenderSystem&) = delete;
 
-		void renderGameObjects(VkCommandBuffer commandBuffer, std::vector<VmcGameObject> &gameObjects, const VmcCamera& camera, const float frameDeltaTime);
+		void renderGameObjects(VkCommandBuffer commandBuffer, std::vector<VmcGameObject> &gameObjects, Animator& animator, const VmcCamera& camera, const float frameDeltaTime);
 
 	private:
 		void createPipelineLayout();

@@ -149,6 +149,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="chunk_component.cpp" />
+    <ClCompile Include="animator.cpp" />
     <ClCompile Include="keyboard_movement_controller.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="simple_render_system.cpp" />
@@ -165,6 +166,7 @@
   <ItemGroup>
     <ClInclude Include="block_model.hpp" />
     <ClInclude Include="chunk_component.hpp" />
+    <ClInclude Include="animator.hpp" />
     <ClInclude Include="enums.hpp" />
     <ClInclude Include="keyboard_movement_controller.hpp" />
     <ClInclude Include="simple_render_system.hpp" />

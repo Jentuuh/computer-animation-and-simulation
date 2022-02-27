@@ -3,6 +3,7 @@
 #include "vmc_device.hpp"
 #include "vmc_window.hpp"
 #include "vmc_game_object.hpp"
+#include "animator.hpp"
 
 // std 
 #include <memory>
@@ -32,6 +33,7 @@ namespace vmc {
 		VmcRenderer vmcRenderer{ vmcWindow, vmcDevice };
 
 		std::vector<VmcGameObject> gameObjects;
+		Animator animator;
 	};
 }
 

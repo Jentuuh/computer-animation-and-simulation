@@ -19,6 +19,7 @@ namespace vmc {
 	struct TestPushConstant {
 		glm::mat4 transform{ 1.f };
 		glm::mat4 normalMatrix{ 1.f };
+		glm::vec3 color{ 1.f };
 	};
 
 	SimpleRenderSystem::SimpleRenderSystem(VmcDevice &device, VkRenderPass renderPass) : vmcDevice{device}
@@ -63,7 +64,7 @@ namespace vmc {
 	}
 
 	// Render loop
-	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<VmcGameObject>& gameObjects, const VmcCamera& camera, const float frameDeltaTime)
+	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<VmcGameObject> &gameObjects, Animator& animator, const VmcCamera& camera, const float frameDeltaTime)
 	{
 		vmcPipeline->bind(commandBuffer);
 
@@ -72,17 +73,18 @@ namespace vmc {
 		// Update clock (for periodical behaviour)
 		clock = fmod(clock + frameDeltaTime, 2);
 		
-
+		// Draw gameobjects
 		for (auto& obj : gameObjects) {
-			
 			// Translate object with id 0 in circles periodically
 			if (obj.getId() == 0)
-				obj.setPosition(glm::vec3(glm::cos(clock * glm::pi<float>()), 0.0f, glm::sin(clock * glm::pi<float>())));
+				obj.setPosition(animator.calculateNextPosition(frameDeltaTime));
+				//obj.setPosition(glm::vec3(glm::cos(clock * glm::pi<float>()), 0.0f, glm::sin(clock * glm::pi<float>())));
 			auto modelMatrix = obj.transform.mat4();
 
 			TestPushConstant push{};
 			push.transform = projectionView * modelMatrix;
 			push.normalMatrix = obj.transform.normalMatrix();
+			push.color = { 1.f, 1.f, 1.f };
 			
 			vkCmdPushConstants(
 				commandBuffer,
@@ -93,6 +95,25 @@ namespace vmc {
 				&push);
 			obj.model->bind(commandBuffer);
 			obj.model->draw(commandBuffer);
+		}
+		
+		
+		// Draw control points
+		for (auto& cp : animator.getControlPoints()) {
+			auto modelMatrix = cp.transform.mat4();
+			TestPushConstant push1{};
+			push1.transform = projectionView * modelMatrix;
+			push1.normalMatrix = cp.transform.normalMatrix();
+			push1.color = { 1.f, 0.f, 0.f };
+
+			vkCmdPushConstants(commandBuffer,
+				pipelineLayout,
+				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+				0,
+				sizeof(TestPushConstant),
+				&push1);
+			cp.model->bind(commandBuffer);
+			cp.model->draw(commandBuffer);
 		}
 	}
 }

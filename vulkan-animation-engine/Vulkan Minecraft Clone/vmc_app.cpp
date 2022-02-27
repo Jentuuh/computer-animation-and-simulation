@@ -61,7 +61,7 @@ namespace vmc {
 			// Render loop
 			if (auto commandBuffer = vmcRenderer.beginFrame()) {
 				vmcRenderer.beginSwapChainRenderPass(commandBuffer);
-				simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, camera, frameTime);
+				simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, animator, camera, frameTime);
 				vmcRenderer.endSwapChainRenderPass(commandBuffer);
 				vmcRenderer.endFrame();
 			}
@@ -72,15 +72,38 @@ namespace vmc {
  
 	void VmcApp::loadGameObjects()
     {
-		// Smooth vase 
+		// Cube
 		std::shared_ptr<VmcModel> vmcModel = VmcModel::createModelFromFile(vmcDevice, "../Models/cube.obj");
 
         auto gameObj = VmcGameObject::createGameObject();
         gameObj.model = vmcModel;
         gameObj.transform.translation = { .0f, .0f, 2.5f };
-        gameObj.transform.scale = { 1.f, 1.f, 1.f };
+        gameObj.transform.scale = { .3f, .3f, .3f };
         gameObjects.push_back(std::move(gameObj));
 
+		std::shared_ptr<VmcModel> sphereModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
+		// Control points for animation path
+		for (int i = 0; i < 4 ; i++)
+		{
+			switch (i)
+			{
+			case 0:
+				animator.addControlPoint({ 1.0f, -1.0f, 2.5f }, sphereModel);
+				break;
+			case 1:
+				animator.addControlPoint({ -1.0f, -1.0f, 2.5f }, sphereModel);
+				break;
+			case 2:
+				animator.addControlPoint({ -1.0f, 1.0f, 2.5f }, sphereModel);
+				break;
+			case 3:
+				animator.addControlPoint({ 1.0f, 1.0f, 2.5f }, sphereModel);
+				break;
+			default:
+				break;
+			}
+			//controlPoints.push_back(std::move(contr_point));
+		}
 
 		// Flat vase
 		//std::shared_ptr<VmcModel> vmcModel1 = VmcModel::createModelFromFile(vmcDevice, "../Models/flat_vase.obj");

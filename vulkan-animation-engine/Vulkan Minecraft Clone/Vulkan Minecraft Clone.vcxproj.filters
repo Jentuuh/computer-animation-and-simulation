@@ -19,6 +19,12 @@
     <Filter Include="Source Files\World System">
       <UniqueIdentifier>{99519dc5-980f-4ec7-aff0-810f80d71a38}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Animation">
+      <UniqueIdentifier>{dc1ca7f5-e84c-4e64-b05e-d8d3c5486c5d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Animation">
+      <UniqueIdentifier>{053b58c0-9efc-47e7-9a9c-a5c80656dc0c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -59,6 +65,9 @@
     </ClCompile>
     <ClCompile Include="chunk_component.cpp">
       <Filter>Source Files\World System</Filter>
+    </ClCompile>
+    <ClCompile Include="animator.cpp">
+      <Filter>Source Files\Animation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -106,6 +115,9 @@
     </ClInclude>
     <ClInclude Include="block_model.hpp">
       <Filter>Header Files\World System</Filter>
+    </ClInclude>
+    <ClInclude Include="animator.hpp">
+      <Filter>Header Files\Animation</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
