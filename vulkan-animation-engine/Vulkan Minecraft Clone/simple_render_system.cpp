@@ -77,7 +77,7 @@ namespace vmc {
 		for (auto& obj : gameObjects) {
 			// Translate object with id 0 in circles periodically
 			if (obj.getId() == 0)
-				obj.setPosition(animator.calculateNextPosition(frameDeltaTime));
+				obj.setPosition(animator.calculateNextPosSpeedControlled(frameDeltaTime));
 				//obj.setPosition(glm::vec3(glm::cos(clock * glm::pi<float>()), 0.0f, glm::sin(clock * glm::pi<float>())));
 			auto modelMatrix = obj.transform.mat4();
 
@@ -97,7 +97,7 @@ namespace vmc {
 			obj.model->draw(commandBuffer);
 		}
 		
-		
+		animator.calculateNextPosSpeedControlled(frameDeltaTime);
 		// Draw control points
 		for (auto& cp : animator.getControlPoints()) {
 			auto modelMatrix = cp.transform.mat4();

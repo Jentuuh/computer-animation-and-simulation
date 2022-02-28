@@ -11,6 +11,8 @@ namespace vmc {
 	{
 		current_cp = 0;
 		pathProgress = 0.0f;
+		timePassed = 0.0f;
+		totalTime = 5.0f;		// 5 seconds ( TODO: put this as a parameter in the constructor)
 		movementSpeed = 30.0f;
 	}
 
@@ -30,7 +32,7 @@ namespace vmc {
 		current_cp = (current_cp + 1) % controlPoints.size();
 	}
 
-	glm::vec3 Animator::calculateNextPosition(float deltaTime)
+	glm::vec3 Animator::calculateNextPositionLinearInterp(float deltaTime)
 	{
 		pathProgress += deltaTime * movementSpeed;
 		std::clamp<float>(pathProgress, 0.0f, 1.0f);
@@ -41,6 +43,21 @@ namespace vmc {
 			advanceToNextControlPoint();
 		}
 		return newPos;
+	}
+
+	glm::vec3 Animator::calculateNextPosSpeedControlled(float deltaTime)
+	{
+		// Sine speed control function
+		float dist_time = distanceTimeFuncSine(deltaTime);
+
+		// Linear speed control function
+		//float dist_time = distanceTimeFuncLinear(deltaTime);
+
+		//	std::cout << dist_time << std::endl;
+		int index = findUpperIndexOfArcLength(dist_time);
+		std::cout << index << std::endl;
+
+		return controlPoints[index].transform.translation;
 	}
 
 
@@ -94,6 +111,55 @@ namespace vmc {
 		}
 		std::cout << "=============================================================" << std::endl;
 	}
+
+	// Calculates the traversed distance (arc length fraction) based on the time that has passed 
+	float Animator::distanceTimeFuncSine(float deltaTime)
+	{
+		timePassed += deltaTime;
+
+		// 1/2 sin(3x + (pi/2)) + 1/2
+		float distanceFraction = 0.5f * glm::sin(3 * (timePassed / totalTime) + (glm::pi<float>() / 2)) + 0.5f;
+		// Reset if we've reached the end of the animation loop
+		if (timePassed > totalTime) {
+			timePassed = 0.0f;
+		}
+		return distanceFraction;
+	}
+
+	float Animator::distanceTimeFuncLinear(float deltaTime)
+	{
+		timePassed += deltaTime;
+
+		// Linear relation between distance and time passed
+		float distanceFraction = timePassed / totalTime;
+
+		// Reset if we've reached the end of the animation loop
+		if (timePassed > totalTime) {
+			timePassed = 0.0f;
+		}
+		return distanceFraction;
+	}
+
+
+	// Finds index in forward differencing table, given a normalized arc length
+	int Animator::findUpperIndexOfArcLength(float arcLength)
+	{
+		// Difference between each value in the forward difference table
+		float delta = 1.0f / (float)forwardDiffTable.size();
+		// i = (v/d) + 0.5
+		int index = (int)((arcLength / delta) + 0.5);
+		return index;
+	}
+
+	int Animator::findLowerIndexOfArcLength(float arcLength)
+	{
+		// Difference between each value in the forward difference table
+		float delta = 1.0f / (float)forwardDiffTable.size();
+		// i = (v/d)
+		int index = (int)((arcLength / delta));
+		return index;
+	}
+
 
 
 }
