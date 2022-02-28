@@ -104,7 +104,7 @@ namespace vmc {
 			TestPushConstant push1{};
 			push1.transform = projectionView * modelMatrix;
 			push1.normalMatrix = cp.transform.normalMatrix();
-			push1.color = { 1.f, 0.f, 0.f };
+			push1.color = cp.color;
 
 			vkCmdPushConstants(commandBuffer,
 				pipelineLayout,

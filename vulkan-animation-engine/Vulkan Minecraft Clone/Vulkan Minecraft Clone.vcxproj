@@ -153,6 +153,7 @@
     <ClCompile Include="keyboard_movement_controller.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="simple_render_system.cpp" />
+    <ClCompile Include="spline_function.cpp" />
     <ClCompile Include="vmc_camera.cpp" />
     <ClCompile Include="vmc_device.cpp" />
     <ClCompile Include="vmc_game_object.cpp" />
@@ -170,6 +171,7 @@
     <ClInclude Include="enums.hpp" />
     <ClInclude Include="keyboard_movement_controller.hpp" />
     <ClInclude Include="simple_render_system.hpp" />
+    <ClInclude Include="spline_function.hpp" />
     <ClInclude Include="vmc_camera.hpp" />
     <ClInclude Include="vmc_app.hpp" />
     <ClInclude Include="vmc_device.hpp" />

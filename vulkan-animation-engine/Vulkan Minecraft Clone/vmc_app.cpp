@@ -83,27 +83,34 @@ namespace vmc {
 
 		std::shared_ptr<VmcModel> sphereModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
 		// Control points for animation path
-		for (int i = 0; i < 4 ; i++)
-		{
-			switch (i)
-			{
-			case 0:
-				animator.addControlPoint({ 1.0f, -1.0f, 2.5f }, sphereModel);
-				break;
-			case 1:
-				animator.addControlPoint({ -1.0f, -1.0f, 2.5f }, sphereModel);
-				break;
-			case 2:
-				animator.addControlPoint({ -1.0f, 1.0f, 2.5f }, sphereModel);
-				break;
-			case 3:
-				animator.addControlPoint({ 1.0f, 1.0f, 2.5f }, sphereModel);
-				break;
-			default:
-				break;
-			}
-			//controlPoints.push_back(std::move(contr_point));
+		//for (int i = 0; i < 4 ; i++)
+		//{
+		//	switch (i)
+		//	{
+		//	case 0:
+		//		animator.addControlPoint({ -1.0f, -1.0f, 2.5f }, { 0.0f, 1.0f, 0.0f }, sphereModel);
+		//		break;
+		//	case 1:
+		//		animator.addControlPoint({ 1.0f, -1.0f, 2.5f }, { 1.0f, 0.0f, 0.0f }, sphereModel);
+		//		break;
+		//	case 2:
+		//		animator.addControlPoint({ 1.0f, 1.0f, 2.5f }, { 1.0f, 1.0f, 1.0f }, sphereModel);
+		//		break;
+		//	case 3:
+		//		animator.addControlPoint({ -1.0f, 1.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
+		//		break;
+		//	default:
+		//		break;
+		//	}
+		//}
+		float delta_x = 0.1;
+		float x = 0.0f;
+		for (int i = 0; i < 200; i++) {
+			animator.addControlPoint({ 0.0f, glm::sin(x), x }, { 1.0f, 0.0f, 0.0f }, sphereModel);
+			x += delta_x;
 		}
+		animator.buildForwardDifferencingTable();
+		animator.printForwardDifferencingTable();
 
 		// Flat vase
 		//std::shared_ptr<VmcModel> vmcModel1 = VmcModel::createModelFromFile(vmcDevice, "../Models/flat_vase.obj");
