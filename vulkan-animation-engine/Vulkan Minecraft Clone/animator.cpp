@@ -3,7 +3,9 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/string_cast.hpp"
 
+// std
 #include <algorithm>
+#include <math.h>
 #include <iostream>
 
 namespace vmc {
@@ -12,14 +14,14 @@ namespace vmc {
 		current_cp = 0;
 		pathProgress = 0.0f;
 		timePassed = 0.0f;
-		totalTime = 5.0f;		// 5 seconds ( TODO: put this as a parameter in the constructor)
+		totalTime = 4.0f;		// 4 seconds ( TODO: put this as a parameter in the constructor)
 		movementSpeed = 30.0f;
 	}
 
 	void Animator::addControlPoint(glm::vec3 pos, glm::vec3 color, std::shared_ptr<VmcModel> model)
 	{
 		auto contr_point = VmcGameObject::createGameObject();
-		contr_point.models["Main"] = model;
+		contr_point.model = model;
 		contr_point.transform.translation = pos;
 		contr_point.transform.scale = { 0.05f, 0.05f, 0.05f };
 		contr_point.color = color;
@@ -31,6 +33,12 @@ namespace vmc {
 	{
 		current_cp = (current_cp + 1) % controlPoints.size();
 	}
+
+	void Animator::advanceTime(float deltaTime)
+	{
+		timePassed += deltaTime;
+	}
+
 
 	glm::vec3 Animator::calculateNextPositionLinearInterp(float deltaTime)
 	{
@@ -45,10 +53,10 @@ namespace vmc {
 		return newPos;
 	}
 
-	glm::vec3 Animator::calculateNextPosSpeedControlled(float deltaTime)
+	glm::vec3 Animator::calculateNextPositionSpeedControlled()
 	{
 		// Sine speed control function
-		float dist_time = distanceTimeFuncSine(deltaTime);
+		float dist_time = distanceTimeFuncSine();
 
 		// Linear speed control function
 		//float dist_time = distanceTimeFuncLinear(deltaTime);
@@ -57,6 +65,15 @@ namespace vmc {
 
 		return controlPoints[index].transform.translation;
 	}
+
+	glm::vec3 Animator::calculateNextRotationParabolic()
+	{
+		// Normalized fraction of time that has passed
+		float timePassedNormalized = distanceTimeFuncParabolic();
+
+		return glm::vec3{ .0f, .0f, timePassedNormalized * 2 * glm::pi<float>() };
+	}
+	
 
 
 	void Animator::buildForwardDifferencingTable()
@@ -111,10 +128,8 @@ namespace vmc {
 	}
 
 	// Calculates the traversed distance (arc length fraction) based on the time that has passed 
-	float Animator::distanceTimeFuncSine(float deltaTime)
+	float Animator::distanceTimeFuncSine()
 	{
-		timePassed += deltaTime;
-
 		// 1/2 sin(3x + (pi/2)) + 1/2
 		float distanceFraction = 0.5f * glm::sin(3 * (timePassed / totalTime) + (glm::pi<float>() / 2)) + 0.5f;
 		// Reset if we've reached the end of the animation loop
@@ -124,10 +139,8 @@ namespace vmc {
 		return distanceFraction;
 	}
 
-	float Animator::distanceTimeFuncLinear(float deltaTime)
+	float Animator::distanceTimeFuncLinear()
 	{
-		timePassed += deltaTime;
-
 		// Linear relation between distance and time passed
 		float distanceFraction = timePassed / totalTime;
 
@@ -135,6 +148,13 @@ namespace vmc {
 		if (timePassed > totalTime) {
 			timePassed = 0.0f;
 		}
+		return distanceFraction;
+	}
+
+	float Animator::distanceTimeFuncParabolic()
+	{
+		// y = x^2
+		float distanceFraction = pow(timePassed / totalTime, 2);
 		return distanceFraction;
 	}
 
@@ -157,7 +177,6 @@ namespace vmc {
 		int index = (int)((arcLength / delta));
 		return index;
 	}
-
 
 
 }

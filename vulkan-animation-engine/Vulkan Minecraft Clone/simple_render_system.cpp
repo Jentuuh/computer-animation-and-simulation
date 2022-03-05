@@ -71,13 +71,19 @@ namespace vmc {
 		auto projectionView = camera.getProjection() * camera.getView();
 		
 		// Update clock (for periodical behaviour)
-		clock = fmod(clock + frameDeltaTime, 2);
-		
+		/*clock = fmod(clock + frameDeltaTime, 2);*/
+
+		// Advance time in animator and calculate the new position based on the current time
+		animator.advanceTime(frameDeltaTime);
+		glm::vec3 nextPosition = animator.calculateNextPositionSpeedControlled();
+
 		// Draw gameobjects
 		for (auto& obj : gameObjects) {
-			// Translate object with id 0 in circles periodically
+			
+			// Translate object with id 0 speed-controlled over a space curve
 			if (obj.getId() == 0)
-				obj.setPosition(animator.calculateNextPosSpeedControlled(frameDeltaTime));
+				obj.setPosition(nextPosition);
+				// Translate object with id 0 in circles periodically
 				//obj.setPosition(glm::vec3(glm::cos(clock * glm::pi<float>()), 0.0f, glm::sin(clock * glm::pi<float>())));
 
 			auto modelMatrix = obj.transform.mat4();
@@ -94,16 +100,36 @@ namespace vmc {
 				0,
 				sizeof(TestPushConstant),
 				&push);
-			for (auto const& [key, val] : obj.models)
-			{
-				val->bind(commandBuffer);
-				val->draw(commandBuffer);
+
+			obj.model->bind(commandBuffer);
+			obj.model->draw(commandBuffer);
+
+			// Draw children
+			for (auto& child : obj.getChildren()) {
+
+				// Rotate arm
+				child.setPosition(nextPosition);
+				child.transform.rotation = animator.calculateNextRotationParabolic();
+				auto childModelMatrix = child.transform.mat4();
+
+				TestPushConstant pushChild{};
+				pushChild.transform = projectionView * childModelMatrix;
+				pushChild.normalMatrix = child.transform.normalMatrix();
+				pushChild.color = { 0.f, 1.f, 0.f };
+
+				vkCmdPushConstants(
+					commandBuffer,
+					pipelineLayout,
+					VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+					0,
+					sizeof(TestPushConstant),
+					&pushChild);
+
+				child.model->bind(commandBuffer);
+				child.model->draw(commandBuffer);
 			}
-		/*	obj.model->bind(commandBuffer);
-			obj.model->draw(commandBuffer);*/
 		}
 		
-		animator.calculateNextPosSpeedControlled(frameDeltaTime);
 		// Draw control points
 		for (auto& cp : animator.getControlPoints()) {
 			auto modelMatrix = cp.transform.mat4();
@@ -119,13 +145,8 @@ namespace vmc {
 				sizeof(TestPushConstant),
 				&push1);
 
-			for (auto const& [key, val] : cp.models)
-			{
-				val->bind(commandBuffer);
-				val->draw(commandBuffer);
-			}
-			/*cp.model->bind(commandBuffer);
-			cp.model->draw(commandBuffer);*/
+			cp.model->bind(commandBuffer);
+			cp.model->draw(commandBuffer);
 		}
 	}
 }

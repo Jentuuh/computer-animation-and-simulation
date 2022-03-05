@@ -75,4 +75,16 @@ namespace vmc {
         transform.translation = newPosition;
     }
 
+    void VmcGameObject::setRotation(glm::vec3 newRotation)
+    {
+        transform.rotation = newRotation;
+    }
+
+
+    void VmcGameObject::addChild(VmcGameObject* child)
+    {
+        children.push_back(std::move(*child));
+    }
+
+
 }

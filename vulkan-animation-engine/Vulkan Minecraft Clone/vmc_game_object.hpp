@@ -8,8 +8,6 @@
 
 // std 
 #include <memory>
-#include <map>
-#include <string>
 
 namespace vmc {
 
@@ -43,14 +41,17 @@ namespace vmc {
         VmcGameObject& operator=(VmcGameObject&&) = default;
 
         id_t getId() { return id; }
+        std::vector<VmcGameObject>& getChildren() { return children; };
 
+        void addChild(VmcGameObject* child);
         void setPosition(glm::vec3 newPosition);
-        void translate(glm::vec3 translationMatrix);
-
-        std::map<std::string, std::shared_ptr<VmcModel>> models{};
-        //std::shared_ptr<VmcModel> model{};
+        void setRotation(glm::vec3 newRotation);
+        
+        std::shared_ptr<VmcModel> model{};
+        std::vector<VmcGameObject> children{};
         glm::vec3 color{};
         TransformComponent transform{};
+        
         ChunkComponent * chunk;
 
     private:

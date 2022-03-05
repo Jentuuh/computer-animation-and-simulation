@@ -86,17 +86,25 @@ namespace vmc {
 		std::shared_ptr<VmcModel> armModel = VmcModel::createModelFromFile(vmcDevice, "../Models/stick_fig/arm_left.obj");
 
 		auto stickObj = VmcGameObject::createGameObject();
-		stickObj.models["Main"] = stickModel;
-		stickObj.models["arm"] = armModel;
+		stickObj.model = stickModel;
 		stickObj.transform.translation = { .0f, .0f, 2.5f };
 		stickObj.transform.rotation = { .0f, .0f, -glm::pi<float>() };
 		stickObj.transform.scale = { .3f, .3f, .3f };
+
+		auto armObj = VmcGameObject::createGameObject();
+		armObj.model = armModel;
+		armObj.transform.translation = { .0f, .0f, 2.5f };
+		armObj.transform.rotation = { .0f, .0f, -glm::pi<float>() };
+		armObj.transform.scale = { .3f, .3f, .3f };
+		stickObj.addChild(&armObj);
+
 		gameObjects.push_back(std::move(stickObj));
+	
 
 		// Chunk object
 		auto chunkObj = VmcGameObject::createGameObject();
 		std::shared_ptr<VmcModel> chunkModel = VmcModel::createChunkModelMesh(vmcDevice, chunkObj.chunk);
-		chunkObj.models["Main"] = chunkModel;
+		chunkObj.model = chunkModel;
 		chunkObj.transform.translation = { 2.0f, .0f, .0f };
 		chunkObj.transform.scale = { .5f, .5f, .5f };
 		gameObjects.push_back(std::move(chunkObj));

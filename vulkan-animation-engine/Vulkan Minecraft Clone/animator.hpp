@@ -14,8 +14,10 @@ namespace vmc {
 		void addControlPoint(glm::vec3 pos, glm::vec3 color, std::shared_ptr<VmcModel> model);
 		std::vector<VmcGameObject>& getControlPoints() { return controlPoints; };
 
+		void advanceTime(float deltaTime);
 		glm::vec3 calculateNextPositionLinearInterp(float deltaTime);
-		glm::vec3 calculateNextPosSpeedControlled(float deltaTime);
+		glm::vec3 calculateNextPositionSpeedControlled();
+		glm::vec3 calculateNextRotationParabolic();
 
 		void buildForwardDifferencingTable();
 		void printForwardDifferencingTable();
@@ -25,8 +27,10 @@ namespace vmc {
 	private:
 		void advanceToNextControlPoint();
 		void normalizeForwardDifferencingTable();
-		float distanceTimeFuncSine(float deltaTime);
-		float distanceTimeFuncLinear(float deltaTime);
+
+		float distanceTimeFuncSine();
+		float distanceTimeFuncLinear();
+		float distanceTimeFuncParabolic();
 
 		int findUpperIndexOfArcLength(float arcLength);
 		int findLowerIndexOfArcLength(float arcLength);
