@@ -8,6 +8,8 @@
 
 // std 
 #include <memory>
+#include <map>
+#include <string>
 
 namespace vmc {
 
@@ -45,7 +47,8 @@ namespace vmc {
         void setPosition(glm::vec3 newPosition);
         void translate(glm::vec3 translationMatrix);
 
-        std::shared_ptr<VmcModel> model{};
+        std::map<std::string, std::shared_ptr<VmcModel>> models{};
+        //std::shared_ptr<VmcModel> model{};
         glm::vec3 color{};
         TransformComponent transform{};
         ChunkComponent * chunk;

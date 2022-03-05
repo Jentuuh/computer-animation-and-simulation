@@ -73,60 +73,45 @@ namespace vmc {
 	void VmcApp::loadGameObjects()
     {
 		// Cube
-		std::shared_ptr<VmcModel> vmcModel = VmcModel::createModelFromFile(vmcDevice, "../Models/cube.obj");
+	/*	std::shared_ptr<VmcModel> vmcModel = VmcModel::createModelFromFile(vmcDevice, "../Models/cube.obj");
 
-        auto gameObj = VmcGameObject::createGameObject();
-        gameObj.model = vmcModel;
-        gameObj.transform.translation = { .0f, .0f, 2.5f };
-        gameObj.transform.scale = { .3f, .3f, .3f };
-        gameObjects.push_back(std::move(gameObj));
+		auto gameObj = VmcGameObject::createGameObject();
+		gameObj.models["Main"] = vmcModel;
+		gameObj.transform.translation = { .0f, .0f, 2.5f };
+		gameObj.transform.scale = { .3f, .3f, .3f };
+		gameObjects.push_back(std::move(gameObj));*/
 
+		// Stick figure
+		std::shared_ptr<VmcModel> stickModel = VmcModel::createModelFromFile(vmcDevice, "../Models/stick_fig/body_stick.obj");
+		std::shared_ptr<VmcModel> armModel = VmcModel::createModelFromFile(vmcDevice, "../Models/stick_fig/arm_left.obj");
+
+		auto stickObj = VmcGameObject::createGameObject();
+		stickObj.models["Main"] = stickModel;
+		stickObj.models["arm"] = armModel;
+		stickObj.transform.translation = { .0f, .0f, 2.5f };
+		stickObj.transform.rotation = { .0f, .0f, -glm::pi<float>() };
+		stickObj.transform.scale = { .3f, .3f, .3f };
+		gameObjects.push_back(std::move(stickObj));
+
+		// Chunk object
+		auto chunkObj = VmcGameObject::createGameObject();
+		std::shared_ptr<VmcModel> chunkModel = VmcModel::createChunkModelMesh(vmcDevice, chunkObj.chunk);
+		chunkObj.models["Main"] = chunkModel;
+		chunkObj.transform.translation = { 2.0f, .0f, .0f };
+		chunkObj.transform.scale = { .5f, .5f, .5f };
+		gameObjects.push_back(std::move(chunkObj));
+
+		// Initialize animator and animation curve
 		std::shared_ptr<VmcModel> sphereModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
-		// Control points for animation path
-		//for (int i = 0; i < 4 ; i++)
-		//{
-		//	switch (i)
-		//	{
-		//	case 0:
-		//		animator.addControlPoint({ -1.0f, -1.0f, 2.5f }, { 0.0f, 1.0f, 0.0f }, sphereModel);
-		//		break;
-		//	case 1:
-		//		animator.addControlPoint({ 1.0f, -1.0f, 2.5f }, { 1.0f, 0.0f, 0.0f }, sphereModel);
-		//		break;
-		//	case 2:
-		//		animator.addControlPoint({ 1.0f, 1.0f, 2.5f }, { 1.0f, 1.0f, 1.0f }, sphereModel);
-		//		break;
-		//	case 3:
-		//		animator.addControlPoint({ -1.0f, 1.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
-		//		break;
-		//	default:
-		//		break;
-		//	}
-		//}
 		float delta_x = 0.1;
 		float x = 0.0f;
+		// Control points for animation path
 		for (int i = 0; i < 200; i++) {
 			animator.addControlPoint({ 0.0f, glm::sin(x), x }, { 1.0f, 0.0f, 0.0f }, sphereModel);
 			x += delta_x;
 		}
 		animator.buildForwardDifferencingTable();
 		animator.printForwardDifferencingTable();
-
-		// Flat vase
-		//std::shared_ptr<VmcModel> vmcModel1 = VmcModel::createModelFromFile(vmcDevice, "../Models/flat_vase.obj");
-
-		//auto gameObj1 = VmcGameObject::createGameObject();
-		//gameObj1.model = vmcModel1;
-		//gameObj1.transform.translation = { .5f, .0f, 2.5f };
-		//gameObj1.transform.scale = { 1.f, 1.f, 1.f };
-		//gameObjects.push_back(std::move(gameObj1));
-
-		// Chunk object
-		auto chunkObj = VmcGameObject::createGameObject();
-		std::shared_ptr<VmcModel> chunkModel = VmcModel::createChunkModelMesh(vmcDevice, chunkObj.chunk);
-		chunkObj.model = chunkModel;
-		chunkObj.transform.translation = { 2.0f, .0f, .0f };
-		chunkObj.transform.scale = { .5f, .5f, .5f };
-		gameObjects.push_back(std::move(chunkObj));
+		
 	}
 }

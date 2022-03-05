@@ -79,6 +79,7 @@ namespace vmc {
 			if (obj.getId() == 0)
 				obj.setPosition(animator.calculateNextPosSpeedControlled(frameDeltaTime));
 				//obj.setPosition(glm::vec3(glm::cos(clock * glm::pi<float>()), 0.0f, glm::sin(clock * glm::pi<float>())));
+
 			auto modelMatrix = obj.transform.mat4();
 
 			TestPushConstant push{};
@@ -93,8 +94,13 @@ namespace vmc {
 				0,
 				sizeof(TestPushConstant),
 				&push);
-			obj.model->bind(commandBuffer);
-			obj.model->draw(commandBuffer);
+			for (auto const& [key, val] : obj.models)
+			{
+				val->bind(commandBuffer);
+				val->draw(commandBuffer);
+			}
+		/*	obj.model->bind(commandBuffer);
+			obj.model->draw(commandBuffer);*/
 		}
 		
 		animator.calculateNextPosSpeedControlled(frameDeltaTime);
@@ -112,8 +118,14 @@ namespace vmc {
 				0,
 				sizeof(TestPushConstant),
 				&push1);
-			cp.model->bind(commandBuffer);
-			cp.model->draw(commandBuffer);
+
+			for (auto const& [key, val] : cp.models)
+			{
+				val->bind(commandBuffer);
+				val->draw(commandBuffer);
+			}
+			/*cp.model->bind(commandBuffer);
+			cp.model->draw(commandBuffer);*/
 		}
 	}
 }

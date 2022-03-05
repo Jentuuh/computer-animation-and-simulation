@@ -19,7 +19,7 @@ namespace vmc {
 	void Animator::addControlPoint(glm::vec3 pos, glm::vec3 color, std::shared_ptr<VmcModel> model)
 	{
 		auto contr_point = VmcGameObject::createGameObject();
-		contr_point.model = model;
+		contr_point.models["Main"] = model;
 		contr_point.transform.translation = pos;
 		contr_point.transform.scale = { 0.05f, 0.05f, 0.05f };
 		contr_point.color = color;
@@ -53,9 +53,7 @@ namespace vmc {
 		// Linear speed control function
 		//float dist_time = distanceTimeFuncLinear(deltaTime);
 
-		//	std::cout << dist_time << std::endl;
 		int index = findUpperIndexOfArcLength(dist_time);
-		std::cout << index << std::endl;
 
 		return controlPoints[index].transform.translation;
 	}

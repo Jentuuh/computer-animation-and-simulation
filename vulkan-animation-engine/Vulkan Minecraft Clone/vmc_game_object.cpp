@@ -70,12 +70,6 @@ namespace vmc {
         };
     }
 
-    void VmcGameObject::translate(glm::vec3 translationMatrix)
-    {
-        transform.translation += translationMatrix;
-    }
-
-
     void VmcGameObject::setPosition(glm::vec3 newPosition)
     {
         transform.translation = newPosition;
