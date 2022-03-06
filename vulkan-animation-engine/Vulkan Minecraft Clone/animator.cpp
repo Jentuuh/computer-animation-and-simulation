@@ -73,7 +73,6 @@ namespace vmc {
 
 		return glm::vec3{ .0f, .0f, timePassedNormalized * 2 * glm::pi<float>() };
 	}
-	
 
 
 	void Animator::buildForwardDifferencingTable()
@@ -177,6 +176,5 @@ namespace vmc {
 		int index = (int)((arcLength / delta));
 		return index;
 	}
-
 
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include "vmc_game_object.hpp"
+#include "spline.hpp"
 
 // std
 #include <utility>
@@ -10,6 +11,7 @@ namespace vmc {
 	{
 	public:
 		Animator();
+		Spline splineCurve;
 
 		void addControlPoint(glm::vec3 pos, glm::vec3 color, std::shared_ptr<VmcModel> model);
 		std::vector<VmcGameObject>& getControlPoints() { return controlPoints; };

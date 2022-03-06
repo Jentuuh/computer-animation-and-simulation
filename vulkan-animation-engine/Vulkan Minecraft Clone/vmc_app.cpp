@@ -2,6 +2,7 @@
 #include "simple_render_system.hpp"
 #include "vmc_camera.hpp"
 #include "keyboard_movement_controller.hpp"
+#include "spline_keyboard_controller.hpp"
 
 // std
 #include <cassert>
@@ -36,6 +37,7 @@ namespace vmc {
         // The camera's game object only manages the state (rotation + translation) of the camera.
         auto viewerObject = VmcGameObject::createGameObject();
         KeyboardMovementController cameraController{};
+		SplineKeyboardController splineController{};
 
         auto currentTime = std::chrono::high_resolution_clock::now();
 
@@ -57,6 +59,8 @@ namespace vmc {
             float aspect = vmcRenderer.getAspectRatio();
 
             camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
+			
+			splineController.updateSpine(vmcWindow.getGLFWwindow(), frameTime, animator.splineCurve);
 
 			// Render loop
 			if (auto commandBuffer = vmcRenderer.beginFrame()) {
@@ -102,12 +106,12 @@ namespace vmc {
 	
 
 		// Chunk object
-		auto chunkObj = VmcGameObject::createGameObject();
-		std::shared_ptr<VmcModel> chunkModel = VmcModel::createChunkModelMesh(vmcDevice, chunkObj.chunk);
-		chunkObj.model = chunkModel;
-		chunkObj.transform.translation = { 2.0f, .0f, .0f };
-		chunkObj.transform.scale = { .5f, .5f, .5f };
-		gameObjects.push_back(std::move(chunkObj));
+		//auto chunkObj = VmcGameObject::createGameObject();
+		//std::shared_ptr<VmcModel> chunkModel = VmcModel::createChunkModelMesh(vmcDevice, chunkObj.chunk);
+		//chunkObj.model = chunkModel;
+		//chunkObj.transform.translation = { 2.0f, .0f, .0f };
+		//chunkObj.transform.scale = { .5f, .5f, .5f };
+		//gameObjects.push_back(std::move(chunkObj));
 
 		// Initialize animator and animation curve
 		std::shared_ptr<VmcModel> sphereModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
@@ -120,6 +124,12 @@ namespace vmc {
 		}
 		animator.buildForwardDifferencingTable();
 		animator.printForwardDifferencingTable();
-		
+
+		// Init spline + Spline control points
+		animator.splineCurve.addControlPoint({ 0.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
+		animator.splineCurve.addControlPoint({ 1.0f, 1.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
+		animator.splineCurve.addControlPoint({ 2.0f, 1.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
+		animator.splineCurve.addControlPoint({ 3.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
+		animator.splineCurve.generateSplineSegment(sphereModel);
 	}
 }

@@ -148,5 +148,45 @@ namespace vmc {
 			cp.model->bind(commandBuffer);
 			cp.model->draw(commandBuffer);
 		}
+
+		TestPushConstant pushSpline{};
+		// Draw spline control points
+		for (auto& cpspline : animator.splineCurve.getControlPoints())
+		{
+			auto modelMatrix = cpspline.transform.mat4();
+			pushSpline.transform = projectionView * modelMatrix;
+			pushSpline.normalMatrix = cpspline.transform.normalMatrix();
+			pushSpline.color = cpspline.color;
+
+			vkCmdPushConstants(commandBuffer,
+				pipelineLayout,
+				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+				0,
+				sizeof(TestPushConstant),
+				&pushSpline);
+
+			cpspline.model->bind(commandBuffer);
+			cpspline.model->draw(commandBuffer);
+		}
+
+		// Draw spline curve points
+		pushSpline.color = { 1.0f, 1.0f, 1.0f };
+		for (auto& curvePoint : animator.splineCurve.getCurvePoints())
+		{
+			auto modelMatrix = curvePoint.transform.mat4();
+			pushSpline.transform = projectionView * modelMatrix;
+			pushSpline.normalMatrix = curvePoint.transform.normalMatrix();
+
+			vkCmdPushConstants(commandBuffer,
+				pipelineLayout,
+				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+				0,
+				sizeof(TestPushConstant),
+				&pushSpline);
+
+			curvePoint.model->bind(commandBuffer);
+			curvePoint.model->draw(commandBuffer);
+		}
+
 	}
 }
