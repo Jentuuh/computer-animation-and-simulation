@@ -5,6 +5,7 @@
 // std
 #include <utility>
 
+// TODO: Make parent Animator class that handles distanceTime function functionality 
 
 namespace vmc {
 	class Animator
@@ -23,8 +24,6 @@ namespace vmc {
 
 		void buildForwardDifferencingTable();
 		void printForwardDifferencingTable();
-
-		VmcGameObject& getCurrentControlPoint() { return controlPoints[current_cp]; };
 
 	private:
 		void advanceToNextControlPoint();

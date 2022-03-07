@@ -25,6 +25,12 @@
     <Filter Include="Header Files\Animation">
       <UniqueIdentifier>{053b58c0-9efc-47e7-9a9c-a5c80656dc0c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Animation\Animator">
+      <UniqueIdentifier>{5c7e566c-941f-431f-a053-1f32b748603c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Animation\Animator">
+      <UniqueIdentifier>{e2333530-d472-432a-889a-689bc0717a48}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -66,14 +72,17 @@
     <ClCompile Include="chunk_component.cpp">
       <Filter>Source Files\World System</Filter>
     </ClCompile>
-    <ClCompile Include="animator.cpp">
-      <Filter>Source Files\Animation</Filter>
-    </ClCompile>
     <ClCompile Include="spline.cpp">
       <Filter>Source Files\Animation</Filter>
     </ClCompile>
     <ClCompile Include="spline_keyboard_controller.cpp">
       <Filter>Source Files\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="animator.cpp">
+      <Filter>Source Files\Animation\Animator</Filter>
+    </ClCompile>
+    <ClCompile Include="spline_animator.cpp">
+      <Filter>Source Files\Animation\Animator</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -122,14 +131,17 @@
     <ClInclude Include="block_model.hpp">
       <Filter>Header Files\World System</Filter>
     </ClInclude>
-    <ClInclude Include="animator.hpp">
-      <Filter>Header Files\Animation</Filter>
-    </ClInclude>
     <ClInclude Include="spline.hpp">
       <Filter>Header Files\Animation</Filter>
     </ClInclude>
     <ClInclude Include="spline_keyboard_controller.hpp">
       <Filter>Header Files\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="animator.hpp">
+      <Filter>Header Files\Animation\Animator</Filter>
+    </ClInclude>
+    <ClInclude Include="spline_animator.hpp">
+      <Filter>Header Files\Animation\Animator</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

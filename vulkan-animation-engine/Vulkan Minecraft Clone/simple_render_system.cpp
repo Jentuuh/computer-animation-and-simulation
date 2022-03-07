@@ -64,7 +64,7 @@ namespace vmc {
 	}
 
 	// Render loop
-	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<VmcGameObject> &gameObjects, Animator& animator, const VmcCamera& camera, const float frameDeltaTime)
+	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<VmcGameObject> &gameObjects, SplineAnimator& animator, const VmcCamera& camera, const float frameDeltaTime)
 	{
 		vmcPipeline->bind(commandBuffer);
 
@@ -131,27 +131,27 @@ namespace vmc {
 		}
 		
 		// Draw control points
-		for (auto& cp : animator.getControlPoints()) {
-			auto modelMatrix = cp.transform.mat4();
-			TestPushConstant push1{};
-			push1.transform = projectionView * modelMatrix;
-			push1.normalMatrix = cp.transform.normalMatrix();
-			push1.color = cp.color;
+		//for (auto& cp : animator.getControlPoints()) {
+		//	auto modelMatrix = cp.transform.mat4();
+		//	TestPushConstant push1{};
+		//	push1.transform = projectionView * modelMatrix;
+		//	push1.normalMatrix = cp.transform.normalMatrix();
+		//	push1.color = cp.color;
 
-			vkCmdPushConstants(commandBuffer,
-				pipelineLayout,
-				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-				0,
-				sizeof(TestPushConstant),
-				&push1);
+		//	vkCmdPushConstants(commandBuffer,
+		//		pipelineLayout,
+		//		VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+		//		0,
+		//		sizeof(TestPushConstant),
+		//		&push1);
 
-			cp.model->bind(commandBuffer);
-			cp.model->draw(commandBuffer);
-		}
+		//	cp.model->bind(commandBuffer);
+		//	cp.model->draw(commandBuffer);
+		//}
 
 		TestPushConstant pushSpline{};
 		// Draw spline control points
-		for (auto& cpspline : animator.splineCurve.getControlPoints())
+		for (auto& cpspline : animator.getSpline().getControlPoints())
 		{
 			auto modelMatrix = cpspline.transform.mat4();
 			pushSpline.transform = projectionView * modelMatrix;
@@ -171,8 +171,8 @@ namespace vmc {
 
 		// Draw spline curve points
 		pushSpline.color = { 1.0f, 1.0f, 1.0f };
-		std::shared_ptr<VmcModel> curvePointModel = animator.splineCurve.getControlPoints()[0].model;
-		for (auto& curvePoint : animator.splineCurve.getCurvePoints())
+		std::shared_ptr<VmcModel> curvePointModel = animator.getSpline().getControlPoints()[0].model;
+		for (auto& curvePoint : animator.getSpline().getCurvePoints())
 		{
 			auto modelMatrix = curvePoint.mat4();
 			pushSpline.transform = projectionView * modelMatrix;

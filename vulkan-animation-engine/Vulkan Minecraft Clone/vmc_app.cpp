@@ -60,7 +60,7 @@ namespace vmc {
 
             camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
 			
-			splineController.updateSpine(vmcWindow.getGLFWwindow(), frameTime, animator.splineCurve);
+			splineController.updateSpine(vmcWindow.getGLFWwindow(), frameTime, animator);
 
 			// Render loop
 			if (auto commandBuffer = vmcRenderer.beginFrame()) {
@@ -115,25 +115,28 @@ namespace vmc {
 
 		// Initialize animator and animation curve
 		std::shared_ptr<VmcModel> sphereModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
-		float delta_x = 0.1;
-		float x = 0.0f;
-		// Control points for animation path
-		for (int i = 0; i < 200; i++) {
-			animator.addControlPoint({ 0.0f, glm::sin(x), x }, { 1.0f, 0.0f, 0.0f }, sphereModel);
-			x += delta_x;
-		}
+		//float delta_x = 0.1;
+		//float x = 0.0f;
+		//// Control points for animation path
+		//for (int i = 0; i < 200; i++) {
+		//	animator.addControlPoint({ 0.0f, glm::sin(x), x }, { 1.0f, 0.0f, 0.0f }, sphereModel);
+		//	x += delta_x;
+		//}
+	
+
+		// Init spline + Spline control points defining the animation path
+		animator.getSpline().addControlPoint({ 0.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
+		animator.getSpline().addControlPoint({ 1.0f, 1.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
+		animator.getSpline().addControlPoint({ 2.0f, 1.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
+		animator.getSpline().addControlPoint({ 3.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
+		animator.getSpline().addControlPoint({ 4.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
+		animator.getSpline().addControlPoint({ 5.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
+		animator.getSpline().addControlPoint({ 6.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
+		animator.getSpline().addControlPoint({ 7.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
+		animator.getSpline().generateSplineSegments();
+
+		// Build forward differencing table based on curve points
 		animator.buildForwardDifferencingTable();
 		animator.printForwardDifferencingTable();
-
-		// Init spline + Spline control points
-		animator.splineCurve.addControlPoint({ 0.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
-		animator.splineCurve.addControlPoint({ 1.0f, 1.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
-		animator.splineCurve.addControlPoint({ 2.0f, 1.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
-		animator.splineCurve.addControlPoint({ 3.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
-		animator.splineCurve.addControlPoint({ 4.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
-		animator.splineCurve.addControlPoint({ 5.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
-		animator.splineCurve.addControlPoint({ 6.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
-		animator.splineCurve.addControlPoint({ 7.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
-		animator.splineCurve.generateSplineSegments();
 	}
 }
