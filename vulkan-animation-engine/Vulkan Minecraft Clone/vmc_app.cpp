@@ -130,6 +130,10 @@ namespace vmc {
 		animator.splineCurve.addControlPoint({ 1.0f, 1.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
 		animator.splineCurve.addControlPoint({ 2.0f, 1.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
 		animator.splineCurve.addControlPoint({ 3.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
-		animator.splineCurve.generateSplineSegment(sphereModel);
+		animator.splineCurve.addControlPoint({ 4.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
+		animator.splineCurve.addControlPoint({ 5.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
+		animator.splineCurve.addControlPoint({ 6.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
+		animator.splineCurve.addControlPoint({ 7.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
+		animator.splineCurve.generateSplineSegments();
 	}
 }

@@ -171,11 +171,13 @@ namespace vmc {
 
 		// Draw spline curve points
 		pushSpline.color = { 1.0f, 1.0f, 1.0f };
+		std::shared_ptr<VmcModel> curvePointModel = animator.splineCurve.getControlPoints()[0].model;
 		for (auto& curvePoint : animator.splineCurve.getCurvePoints())
 		{
-			auto modelMatrix = curvePoint.transform.mat4();
+			auto modelMatrix = curvePoint.mat4();
 			pushSpline.transform = projectionView * modelMatrix;
-			pushSpline.normalMatrix = curvePoint.transform.normalMatrix();
+			pushSpline.normalMatrix = curvePoint.normalMatrix();
+			pushSpline.color = { 1.0f, 1.0f, 1.0f };
 
 			vkCmdPushConstants(commandBuffer,
 				pipelineLayout,
@@ -184,8 +186,8 @@ namespace vmc {
 				sizeof(TestPushConstant),
 				&pushSpline);
 
-			curvePoint.model->bind(commandBuffer);
-			curvePoint.model->draw(commandBuffer);
+			curvePointModel->bind(commandBuffer);
+			curvePointModel->draw(commandBuffer);
 		}
 
 	}

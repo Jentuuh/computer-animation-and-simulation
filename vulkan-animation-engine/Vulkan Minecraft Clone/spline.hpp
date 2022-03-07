@@ -9,10 +9,10 @@
 
 
 
-// 3D Catmull Rom Spline
+// 3D Catmull Rom Spline with movable control points
 namespace vmc {
 
-	enum MoveDirection {POSX, NEGX, POSY, NEGY};
+	enum MoveDirection {POSX, NEGX, POSY, NEGY, POSZ, NEGZ};
 
 	class Spline
 	{
@@ -21,21 +21,20 @@ namespace vmc {
 
 		int getSelectedCpIndex() { return selectedControlPoint; };
 		std::vector<VmcGameObject>& getControlPoints() { return controlPoints; };
-		std::vector<VmcGameObject>& getCurvePoints() { return curvePoints; };
+		std::vector<TransformComponent>& getCurvePoints() { return curvePoints; };
 
 		void addControlPoint(glm::vec3 pos, glm::vec3 color, std::shared_ptr<VmcModel> model);
 		void moveCurrentControlPoint(MoveDirection direction, float deltaTime);
 		void selectNextControlPoint();
 
-		void generateSplineSegment(std::shared_ptr<VmcModel> curvePointModel);
-
+		void generateSplineSegments();
 
 	private:
 		glm::vec3 calculateSplinePoint(float normalizedDist);
 
 		// Control points defining the spline
 		std::vector<VmcGameObject> controlPoints;
-		std::vector<VmcGameObject> curvePoints;
+		std::vector<TransformComponent> curvePoints;
 		int selectedControlPoint = 0;
 		float pointMovementSpeed = 5.0f;
 	};

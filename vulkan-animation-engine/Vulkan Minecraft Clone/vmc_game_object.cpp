@@ -85,6 +85,4 @@ namespace vmc {
     {
         children.push_back(std::move(*child));
     }
-
-
 }

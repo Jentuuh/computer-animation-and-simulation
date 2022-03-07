@@ -1,5 +1,7 @@
 #include "spline.hpp"
 
+#include <iostream>
+
 namespace vmc {
 	Spline::Spline() 
 	{
@@ -40,25 +42,31 @@ namespace vmc {
 		case NEGY:
 			controlPoints[selectedControlPoint].transform.translation.y += deltaTime * pointMovementSpeed;
 			break;
+		case POSZ:
+			controlPoints[selectedControlPoint].transform.translation.z += deltaTime * pointMovementSpeed;
+			break;
+		case NEGZ:
+			controlPoints[selectedControlPoint].transform.translation.z -= deltaTime * pointMovementSpeed;
+			break;
 
 		default:
 			break;
 		}
-		generateSplineSegment(curvePoints[0].model);
+		generateSplineSegments();
 	}
 
-	void Spline::generateSplineSegment(std::shared_ptr<VmcModel> curvePointModel)
+	void Spline::generateSplineSegments()
 	{
+		// Reset curve points
 		curvePoints.clear();
-		for (float t = .0f; t < 1.0f; t += 0.01f)
+		
+		// We set controlPoints.size() - 3.0f as upper limit because we do not want to draw segments at the outer 2 control points
+		for (float t = .0f; t < controlPoints.size() - 3.0f; t += 0.01f)
 		{
-			auto curve_point = VmcGameObject::createGameObject();
-			curve_point.model = curvePointModel;
-			curve_point.transform.translation = calculateSplinePoint(t);
-			curve_point.transform.scale = { 0.05f, 0.05f, 0.05f };
-			curve_point.color = { 1.0f, 1.0f, 1.0f };
-
-			curvePoints.push_back(std::move(curve_point));
+			TransformComponent transform{};
+			transform.translation = calculateSplinePoint(t);
+			transform.scale = { 0.05f, 0.05f, 0.05f };
+			curvePoints.push_back(transform);
 		}
 	}
 
@@ -72,6 +80,9 @@ namespace vmc {
 		p2 = p1 + 1;
 		p3 = p2 + 1;
 		p0 = p1 - 1;
+
+		// Map distance to [0;1] range to represent the distance of the current segment we're looking at
+		normalizedDist = normalizedDist - (int)normalizedDist;
 
 		// Cache square and cube since we'll use it often
 		float dd = pow(normalizedDist, 2);

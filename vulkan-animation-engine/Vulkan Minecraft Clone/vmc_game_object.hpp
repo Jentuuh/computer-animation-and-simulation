@@ -34,6 +34,10 @@ namespace vmc {
 
             return VmcGameObject{ currentId++ };
         }
+        ~VmcGameObject() 
+        {
+            static id_t currentId = currentId--;
+        }
 
         VmcGameObject(const VmcGameObject&) = delete;
         VmcGameObject& operator=(const VmcGameObject&) = delete;

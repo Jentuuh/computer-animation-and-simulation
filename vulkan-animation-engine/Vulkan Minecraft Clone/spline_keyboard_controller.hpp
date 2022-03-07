@@ -13,6 +13,8 @@ namespace vmc {
             int moveXNeg = GLFW_KEY_J;
             int moveYPos = GLFW_KEY_I;
             int moveYNeg = GLFW_KEY_M;
+            int moveZPos = GLFW_KEY_O;
+            int moveZNeg = GLFW_KEY_P;
             int selectNextCP = GLFW_KEY_ENTER;
         };
 
