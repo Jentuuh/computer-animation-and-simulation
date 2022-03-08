@@ -3,11 +3,13 @@
 #include "vmc_camera.hpp"
 #include "keyboard_movement_controller.hpp"
 #include "spline_keyboard_controller.hpp"
+#include "spline_animator.hpp"
 
 // std
 #include <cassert>
 #include <stdexcept>
 #include <array>
+#include <iostream>
 #include <chrono>
 
 // libs
@@ -15,7 +17,7 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
 #include <glm/vec3.hpp>
-#include<glm/gtc/constants.hpp>
+#include <glm/gtc/constants.hpp>
 
 namespace vmc {
 
@@ -31,13 +33,33 @@ namespace vmc {
 	void VmcApp::run()
 	{
 		SimpleRenderSystem simpleRenderSystem{ vmcDevice, vmcRenderer.getSwapChainRenderPass() };
-        VmcCamera camera{};
+		VmcCamera camera{};
 
-        // Camera controller + camera state container (camera game object) --> WON'T BE RENDERED!
-        // The camera's game object only manages the state (rotation + translation) of the camera.
-        auto viewerObject = VmcGameObject::createGameObject();
-        KeyboardMovementController cameraController{};
+		// Camera controller + camera state container (camera game object) --> WON'T BE RENDERED!
+		// The camera's game object only manages the state (rotation + translation) of the camera.
+		auto viewerObject = VmcGameObject::createGameObject();
+		KeyboardMovementController cameraController{};
 		SplineKeyboardController splineController{};
+
+		// Initialize animators
+		std::shared_ptr<VmcModel> sphereModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
+		std::vector<ControlPoint> controlPoints{};
+		controlPoints.push_back({ { 0.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel });
+		controlPoints.push_back({ { 1.0f, 1.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel });
+		controlPoints.push_back({ { 2.0f, 1.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel });
+		controlPoints.push_back({ { 3.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel });
+		controlPoints.push_back({ { 4.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel });
+		controlPoints.push_back({ { 5.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel });
+		controlPoints.push_back({ { 6.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel });
+		controlPoints.push_back({ { 7.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel });
+
+		SplineAnimator splineAnimator{controlPoints};
+		splineAnimator.getSpline().generateSplineSegments();
+		animators.push_back(std::move(splineAnimator));
+
+		// Build forward differencing table based on curve points
+		animators[0].buildForwardDifferencingTable();
+		animators[0].printForwardDifferencingTable();
 
         auto currentTime = std::chrono::high_resolution_clock::now();
 
@@ -60,12 +82,12 @@ namespace vmc {
 
             camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
 			
-			splineController.updateSpine(vmcWindow.getGLFWwindow(), frameTime, animator);
+			splineController.updateSpine(vmcWindow.getGLFWwindow(), frameTime, animators[0]);
 
 			// Render loop
 			if (auto commandBuffer = vmcRenderer.beginFrame()) {
 				vmcRenderer.beginSwapChainRenderPass(commandBuffer);
-				simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, animator, camera, frameTime);
+				simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, animators[0], camera, frameTime);
 				vmcRenderer.endSwapChainRenderPass(commandBuffer);
 				vmcRenderer.endFrame();
 			}
@@ -114,7 +136,7 @@ namespace vmc {
 		//gameObjects.push_back(std::move(chunkObj));
 
 		// Initialize animator and animation curve
-		std::shared_ptr<VmcModel> sphereModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
+		//std::shared_ptr<VmcModel> sphereModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
 		//float delta_x = 0.1;
 		//float x = 0.0f;
 		//// Control points for animation path
@@ -123,20 +145,16 @@ namespace vmc {
 		//	x += delta_x;
 		//}
 	
-
 		// Init spline + Spline control points defining the animation path
-		animator.getSpline().addControlPoint({ 0.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
-		animator.getSpline().addControlPoint({ 1.0f, 1.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
-		animator.getSpline().addControlPoint({ 2.0f, 1.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
-		animator.getSpline().addControlPoint({ 3.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
-		animator.getSpline().addControlPoint({ 4.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
-		animator.getSpline().addControlPoint({ 5.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
-		animator.getSpline().addControlPoint({ 6.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
-		animator.getSpline().addControlPoint({ 7.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
-		animator.getSpline().generateSplineSegments();
+		//splineAnimator.getSpline().addControlPoint({ 0.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
+		//splineAnimator.getSpline().addControlPoint({ 1.0f, 1.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
+		//splineAnimator.getSpline().addControlPoint({ 2.0f, 1.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
+		//splineAnimator.getSpline().addControlPoint({ 3.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
+		//splineAnimator.getSpline().addControlPoint({ 4.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
+		//splineAnimator.getSpline().addControlPoint({ 5.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
+		//splineAnimator.getSpline().addControlPoint({ 6.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
+		//splineAnimator.getSpline().addControlPoint({ 7.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
+	/*	splineAnimator.getSpline().generateSplineSegments();*/
 
-		// Build forward differencing table based on curve points
-		animator.buildForwardDifferencingTable();
-		animator.printForwardDifferencingTable();
 	}
 }

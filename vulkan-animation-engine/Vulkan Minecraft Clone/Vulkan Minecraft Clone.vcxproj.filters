@@ -78,11 +78,17 @@
     <ClCompile Include="spline_keyboard_controller.cpp">
       <Filter>Source Files\Animation</Filter>
     </ClCompile>
-    <ClCompile Include="animator.cpp">
+    <ClCompile Include="function_animator.cpp">
       <Filter>Source Files\Animation\Animator</Filter>
     </ClCompile>
     <ClCompile Include="spline_animator.cpp">
       <Filter>Source Files\Animation\Animator</Filter>
+    </ClCompile>
+    <ClCompile Include="animator.cpp">
+      <Filter>Source Files\Animation\Animator</Filter>
+    </ClCompile>
+    <ClCompile Include="function.cpp">
+      <Filter>Source Files\Animation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -137,11 +143,17 @@
     <ClInclude Include="spline_keyboard_controller.hpp">
       <Filter>Header Files\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="animator.hpp">
+    <ClInclude Include="function_animator.hpp">
       <Filter>Header Files\Animation\Animator</Filter>
     </ClInclude>
     <ClInclude Include="spline_animator.hpp">
       <Filter>Header Files\Animation\Animator</Filter>
+    </ClInclude>
+    <ClInclude Include="animator.hpp">
+      <Filter>Header Files\Animation\Animator</Filter>
+    </ClInclude>
+    <ClInclude Include="function.hpp">
+      <Filter>Header Files\Animation</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

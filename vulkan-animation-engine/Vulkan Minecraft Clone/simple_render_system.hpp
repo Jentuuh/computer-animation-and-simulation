@@ -21,7 +21,7 @@ namespace vmc {
 		SimpleRenderSystem(const SimpleRenderSystem&) = delete;
 		SimpleRenderSystem& operator=(const SimpleRenderSystem&) = delete;
 
-		void renderGameObjects(VkCommandBuffer commandBuffer, std::vector<VmcGameObject> &gameObjects, SplineAnimator& animator, const VmcCamera& camera, const float frameDeltaTime);
+		void renderGameObjects(VkCommandBuffer commandBuffer, std::vector<VmcGameObject> &gameObjects, Animator& animator, const VmcCamera& camera, const float frameDeltaTime);
 
 	private:
 		void createPipelineLayout();

@@ -1,7 +1,8 @@
 #pragma once
 #include "vmc_window.hpp"
 #include "vmc_game_object.hpp"
-#include "spline_animator.hpp"
+#include "spline.hpp"
+#include "animator.hpp"
 
 
 namespace vmc {
@@ -18,7 +19,7 @@ namespace vmc {
             int selectNextCP = GLFW_KEY_ENTER;
         };
 
-        void updateSpine(GLFWwindow* window, float dt, SplineAnimator& animator);
+        void updateSpine(GLFWwindow* window, float dt, Animator& animator);
 
         SplineMovementKeyMappings keys{};
         float controlPointMovementSpeed{ 3.f };

@@ -3,6 +3,7 @@
 #include "vmc_device.hpp"
 #include "vmc_window.hpp"
 #include "vmc_game_object.hpp"
+#include "animator.hpp"
 #include "spline_animator.hpp"
 
 // std 
@@ -33,7 +34,7 @@ namespace vmc {
 		VmcRenderer vmcRenderer{ vmcWindow, vmcDevice };
 
 		std::vector<VmcGameObject> gameObjects;
-		SplineAnimator animator;
+		std::vector<SplineAnimator> animators;
 	};
 }
 

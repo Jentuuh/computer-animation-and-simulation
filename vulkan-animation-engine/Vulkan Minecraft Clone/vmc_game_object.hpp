@@ -1,5 +1,4 @@
 #pragma once
-
 #include "vmc_model.hpp"
 #include "chunk_component.hpp"
 

@@ -2,33 +2,39 @@
 #include "vmc_game_object.hpp"
 #include "spline.hpp"
 
+// glm
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 // std
-#include <utility>
+#include <vector>
 
-// TODO: Make parent Animator class that handles distanceTime function functionality 
-
+// Abstract Animator class
 namespace vmc {
-	class Animator
+	class Animator 
 	{
 	public:
-		Animator();
-		Spline splineCurve;
-
-		void addControlPoint(glm::vec3 pos, glm::vec3 color, std::shared_ptr<VmcModel> model);
-		std::vector<VmcGameObject>& getControlPoints() { return controlPoints; };
-
 		void advanceTime(float deltaTime);
-		glm::vec3 calculateNextPositionLinearInterp(float deltaTime);
-		glm::vec3 calculateNextPositionSpeedControlled();
-		glm::vec3 calculateNextRotationParabolic();
+		virtual glm::vec3 calculateNextPositionSpeedControlled() = 0;
+		virtual glm::vec3 calculateNextRotationParabolic() = 0;
+		virtual std::vector<TransformComponent>& getCurvePoints() = 0;
+		virtual std::vector<VmcGameObject>& getControlPoints() = 0;
+		virtual void moveCurrentControlPoint(MoveDirection d, float dt) = 0;
+		virtual void selectNextControlPoint() = 0;
+
+
+		std::vector<std::pair<float, float>> getForwardDiffTable() { return forwardDiffTable; };
+		float getTimePassed() { return timePassed; };
+		float getTotalTime() { return totalTime; };
+
 
 		void buildForwardDifferencingTable();
 		void printForwardDifferencingTable();
 
 	private:
-		void advanceToNextControlPoint();
 		void normalizeForwardDifferencingTable();
 
+	protected:
 		float distanceTimeFuncSine();
 		float distanceTimeFuncLinear();
 		float distanceTimeFuncParabolic();
@@ -36,14 +42,8 @@ namespace vmc {
 		int findUpperIndexOfArcLength(float arcLength);
 		int findLowerIndexOfArcLength(float arcLength);
 
-		std::vector<VmcGameObject> controlPoints;
 		std::vector<std::pair<float, float>> forwardDiffTable;
-
-		int current_cp;
-		float movementSpeed;
-		float pathProgress;		// Fraction of path that has already been traversed
 		float timePassed;		// Time that has already passed
 		float totalTime;		// Total time duration of the animation
 	};
-
 }

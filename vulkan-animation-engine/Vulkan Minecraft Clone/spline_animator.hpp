@@ -1,36 +1,30 @@
 #pragma once
 #include "spline.hpp"
+#include "vmc_game_object.hpp"
+#include "animator.hpp"
 
 namespace vmc {
-	class SplineAnimator
+	struct ControlPoint {
+		glm::vec3 pos;
+		glm::vec3 col;
+		std::shared_ptr<VmcModel> model;
+	};
+
+	class SplineAnimator: public Animator
 	{
 	public:
-		SplineAnimator();
+		SplineAnimator(std::vector<ControlPoint> controlPoints);
 
 		Spline& getSpline() { return splineCurve; };
 
-		void advanceTime(float deltaTime);
 		glm::vec3 calculateNextPositionSpeedControlled();
 		glm::vec3 calculateNextRotationParabolic();
-
-		void buildForwardDifferencingTable();
-		void printForwardDifferencingTable();
-
+		std::vector<TransformComponent>& getCurvePoints();
+		std::vector<VmcGameObject>& getControlPoints();
+		void moveCurrentControlPoint(MoveDirection d, float dt);
+		void selectNextControlPoint();
 
 	private:
-		void normalizeForwardDifferencingTable();
-
-		float distanceTimeFuncSine();
-		float distanceTimeFuncLinear();
-		float distanceTimeFuncParabolic();
-
-		int findUpperIndexOfArcLength(float arcLength);
-		int findLowerIndexOfArcLength(float arcLength);
-
 		Spline splineCurve;
-		std::vector<std::pair<float, float>> forwardDiffTable;
-
-		float timePassed;		// Time that has already passed
-		float totalTime;		// Total time duration of the animation
 	};
 }

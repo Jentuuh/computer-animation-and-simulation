@@ -64,7 +64,7 @@ namespace vmc {
 	}
 
 	// Render loop
-	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<VmcGameObject> &gameObjects, SplineAnimator& animator, const VmcCamera& camera, const float frameDeltaTime)
+	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<VmcGameObject> &gameObjects, Animator& animator, const VmcCamera& camera, const float frameDeltaTime)
 	{
 		vmcPipeline->bind(commandBuffer);
 
@@ -150,8 +150,9 @@ namespace vmc {
 		//}
 
 		TestPushConstant pushSpline{};
+
 		// Draw spline control points
-		for (auto& cpspline : animator.getSpline().getControlPoints())
+		for (auto& cpspline : animator.getControlPoints())
 		{
 			auto modelMatrix = cpspline.transform.mat4();
 			pushSpline.transform = projectionView * modelMatrix;
@@ -171,8 +172,8 @@ namespace vmc {
 
 		// Draw spline curve points
 		pushSpline.color = { 1.0f, 1.0f, 1.0f };
-		std::shared_ptr<VmcModel> curvePointModel = animator.getSpline().getControlPoints()[0].model;
-		for (auto& curvePoint : animator.getSpline().getCurvePoints())
+		std::shared_ptr<VmcModel> curvePointModel = animator.getControlPoints()[0].model;
+		for (auto& curvePoint : animator.getCurvePoints())
 		{
 			auto modelMatrix = curvePoint.mat4();
 			pushSpline.transform = projectionView * modelMatrix;
