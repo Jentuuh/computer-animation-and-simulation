@@ -24,6 +24,7 @@ namespace vmc {
 	VmcApp::VmcApp()
 	{
 		loadGameObjects();
+		initLSystems();
 	}
 
 	VmcApp::~VmcApp()
@@ -82,7 +83,14 @@ namespace vmc {
 
             camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
 			
-			splineController.updateSpine(vmcWindow.getGLFWwindow(), frameTime, animators[0]);
+			splineController.updateSpline(vmcWindow.getGLFWwindow(), frameTime, animators[0]);
+
+			// TESTING L-SYSTEMS
+			if (glfwGetKey(vmcWindow.getGLFWwindow(), GLFW_KEY_C) == GLFW_PRESS)
+			{
+				Lsystems[0].iterate();
+				Lsystems[0].printAxiomState();
+			}
 
 			// Render loop
 			if (auto commandBuffer = vmcRenderer.beginFrame()) {
@@ -157,4 +165,14 @@ namespace vmc {
 	/*	splineAnimator.getSpline().generateSplineSegments();*/
 
 	}
+
+	void VmcApp::initLSystems() 
+	{
+		std::vector<std::string> rules1;
+		rules1.push_back("F=>F[+F]F[-F]F");
+
+		std::string axiom1 = "F";
+		Lsystems.push_back(LSystem{ rules1, axiom1, {0.0f, 0.0f, 0.0f}, 5, 90.0f });
+	}
+
 }

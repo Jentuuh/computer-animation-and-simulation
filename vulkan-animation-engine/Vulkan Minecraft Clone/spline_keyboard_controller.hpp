@@ -19,7 +19,7 @@ namespace vmc {
             int selectNextCP = GLFW_KEY_ENTER;
         };
 
-        void updateSpine(GLFWwindow* window, float dt, Animator& animator);
+        void updateSpline(GLFWwindow* window, float dt, Animator& animator);
 
         SplineMovementKeyMappings keys{};
         float controlPointMovementSpeed{ 3.f };

@@ -153,7 +153,9 @@
     <ClCompile Include="function.cpp" />
     <ClCompile Include="function_animator.cpp" />
     <ClCompile Include="keyboard_movement_controller.cpp" />
+    <ClCompile Include="l_system.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="prod_rule.cpp" />
     <ClCompile Include="simple_render_system.cpp" />
     <ClCompile Include="spline.cpp" />
     <ClCompile Include="spline_animator.cpp" />
@@ -176,6 +178,8 @@
     <ClInclude Include="function_animator.hpp" />
     <ClInclude Include="enums.hpp" />
     <ClInclude Include="keyboard_movement_controller.hpp" />
+    <ClInclude Include="l_system.hpp" />
+    <ClInclude Include="prod_rule.hpp" />
     <ClInclude Include="simple_render_system.hpp" />
     <ClInclude Include="spline.hpp" />
     <ClInclude Include="spline_animator.hpp" />

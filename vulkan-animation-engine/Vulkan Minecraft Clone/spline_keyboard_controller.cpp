@@ -5,7 +5,7 @@
 namespace vmc {
 
 
-	void SplineKeyboardController::updateSpine(GLFWwindow* window, float dt, Animator& animator)
+	void SplineKeyboardController::updateSpline(GLFWwindow* window, float dt, Animator& animator)
 	{
 		if (glfwGetKey(window, keys.moveXPos) == GLFW_PRESS){
 			animator.moveCurrentControlPoint(POSX, dt);

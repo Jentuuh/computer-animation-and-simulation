@@ -5,6 +5,7 @@
 #include "vmc_game_object.hpp"
 #include "animator.hpp"
 #include "spline_animator.hpp"
+#include "l_system.hpp"
 
 // std 
 #include <memory>
@@ -27,12 +28,14 @@ namespace vmc {
 		void run();
 	private:
 		void loadGameObjects();
+		void initLSystems();
 
 
 		VmcWindow vmcWindow{ WIDTH, HEIGHT, "Vulkan Animation Engine - Jente Vandersanden" };
 		VmcDevice vmcDevice{ vmcWindow };
 		VmcRenderer vmcRenderer{ vmcWindow, vmcDevice };
 
+		std::vector<LSystem> Lsystems;
 		std::vector<VmcGameObject> gameObjects;
 		std::vector<SplineAnimator> animators;
 	};

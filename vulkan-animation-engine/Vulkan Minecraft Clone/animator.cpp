@@ -1,5 +1,6 @@
 #include "animator.hpp"
 
+#include <algorithm>
 #include <iostream>
 
 namespace vmc {
@@ -100,7 +101,9 @@ namespace vmc {
 		float delta = 1.0f / (float)forwardDiffTable.size();
 		// i = (v/d) + 0.5
 		int index = (int)((arcLength / delta) + 0.5);
-		return index;
+
+		// Make sure we don't go out of bounds
+		return std::clamp<int>(index, 0, forwardDiffTable.size() - 1);;
 	}
 
 	int Animator::findLowerIndexOfArcLength(float arcLength)

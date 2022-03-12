@@ -25,6 +25,7 @@ namespace vmc {
 		//float dist_time = distanceTimeFuncLinear(deltaTime);
 
 		int index = findUpperIndexOfArcLength(dist_time);
+
 		return splineCurve.getCurvePoints()[index].translation;
 	}
 
@@ -55,5 +56,4 @@ namespace vmc {
 	{
 		splineCurve.selectNextControlPoint();
 	}
-
 }

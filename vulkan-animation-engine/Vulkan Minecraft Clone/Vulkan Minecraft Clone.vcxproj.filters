@@ -31,6 +31,12 @@
     <Filter Include="Source Files\Animation\Animator">
       <UniqueIdentifier>{e2333530-d472-432a-889a-689bc0717a48}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Animation\L-systems">
+      <UniqueIdentifier>{f1f37462-0e4c-43d8-9868-b44cedc36adc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Animation\L-systems">
+      <UniqueIdentifier>{eab50151-eee4-4665-ae77-56f8ea285eeb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -89,6 +95,12 @@
     </ClCompile>
     <ClCompile Include="function.cpp">
       <Filter>Source Files\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="l_system.cpp">
+      <Filter>Source Files\Animation\L-systems</Filter>
+    </ClCompile>
+    <ClCompile Include="prod_rule.cpp">
+      <Filter>Source Files\Animation\L-systems</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -154,6 +166,12 @@
     </ClInclude>
     <ClInclude Include="function.hpp">
       <Filter>Header Files\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="l_system.hpp">
+      <Filter>Header Files\Animation\L-systems</Filter>
+    </ClInclude>
+    <ClInclude Include="prod_rule.hpp">
+      <Filter>Header Files\Animation\L-systems</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
