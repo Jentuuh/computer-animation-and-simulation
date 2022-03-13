@@ -64,7 +64,7 @@ namespace vmc {
 	}
 
 	// Render loop
-	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<VmcGameObject> &gameObjects, Animator& animator, const VmcCamera& camera, const float frameDeltaTime)
+	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<VmcGameObject> &gameObjects, Animator& animator, LSystem& lsystem, const VmcCamera& camera, const float frameDeltaTime)
 	{
 		vmcPipeline->bind(commandBuffer);
 
@@ -129,25 +129,6 @@ namespace vmc {
 				child.model->draw(commandBuffer);
 			}
 		}
-		
-		// Draw control points
-		//for (auto& cp : animator.getControlPoints()) {
-		//	auto modelMatrix = cp.transform.mat4();
-		//	TestPushConstant push1{};
-		//	push1.transform = projectionView * modelMatrix;
-		//	push1.normalMatrix = cp.transform.normalMatrix();
-		//	push1.color = cp.color;
-
-		//	vkCmdPushConstants(commandBuffer,
-		//		pipelineLayout,
-		//		VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-		//		0,
-		//		sizeof(TestPushConstant),
-		//		&push1);
-
-		//	cp.model->bind(commandBuffer);
-		//	cp.model->draw(commandBuffer);
-		//}
 
 		TestPushConstant pushSpline{};
 
@@ -191,5 +172,25 @@ namespace vmc {
 			curvePointModel->draw(commandBuffer);
 		}
 
+		// Draw L-System
+		TestPushConstant pushL{};
+
+		for (auto& lrenderpoint : lsystem.getRenderPoints())
+		{
+			auto modelMatrix = lrenderpoint.mat4();
+			pushL.transform = projectionView * modelMatrix;
+			pushL.normalMatrix = lrenderpoint.normalMatrix();
+			pushL.color = {1.0f, 1.0f, .0f};
+
+			vkCmdPushConstants(commandBuffer,
+				pipelineLayout,
+				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+				0,
+				sizeof(TestPushConstant),
+				&pushL);
+
+			curvePointModel->bind(commandBuffer);
+			curvePointModel->draw(commandBuffer);
+		}
 	}
 }

@@ -60,7 +60,7 @@ namespace vmc {
     private:
         VmcGameObject(id_t objId) : id{ objId } {
             // Init chunk of width 16
-            chunk = new ChunkComponent(16);
+            //chunk = new ChunkComponent(16);
         }
         id_t id;
     };

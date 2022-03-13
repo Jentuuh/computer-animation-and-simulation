@@ -89,13 +89,12 @@ namespace vmc {
 			if (glfwGetKey(vmcWindow.getGLFWwindow(), GLFW_KEY_C) == GLFW_PRESS)
 			{
 				Lsystems[0].iterate();
-				Lsystems[0].printAxiomState();
 			}
 
 			// Render loop
 			if (auto commandBuffer = vmcRenderer.beginFrame()) {
 				vmcRenderer.beginSwapChainRenderPass(commandBuffer);
-				simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, animators[0], camera, frameTime);
+				simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, animators[0], Lsystems[0], camera, frameTime);
 				vmcRenderer.endSwapChainRenderPass(commandBuffer);
 				vmcRenderer.endFrame();
 			}
@@ -106,15 +105,6 @@ namespace vmc {
  
 	void VmcApp::loadGameObjects()
     {
-		// Cube
-	/*	std::shared_ptr<VmcModel> vmcModel = VmcModel::createModelFromFile(vmcDevice, "../Models/cube.obj");
-
-		auto gameObj = VmcGameObject::createGameObject();
-		gameObj.models["Main"] = vmcModel;
-		gameObj.transform.translation = { .0f, .0f, 2.5f };
-		gameObj.transform.scale = { .3f, .3f, .3f };
-		gameObjects.push_back(std::move(gameObj));*/
-
 		// Stick figure
 		std::shared_ptr<VmcModel> stickModel = VmcModel::createModelFromFile(vmcDevice, "../Models/stick_fig/body_stick.obj");
 		std::shared_ptr<VmcModel> armModel = VmcModel::createModelFromFile(vmcDevice, "../Models/stick_fig/arm_left.obj");
@@ -133,15 +123,6 @@ namespace vmc {
 		stickObj.addChild(&armObj);
 
 		gameObjects.push_back(std::move(stickObj));
-	
-
-		// Chunk object
-		//auto chunkObj = VmcGameObject::createGameObject();
-		//std::shared_ptr<VmcModel> chunkModel = VmcModel::createChunkModelMesh(vmcDevice, chunkObj.chunk);
-		//chunkObj.model = chunkModel;
-		//chunkObj.transform.translation = { 2.0f, .0f, .0f };
-		//chunkObj.transform.scale = { .5f, .5f, .5f };
-		//gameObjects.push_back(std::move(chunkObj));
 
 		// Initialize animator and animation curve
 		//std::shared_ptr<VmcModel> sphereModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
@@ -152,27 +133,15 @@ namespace vmc {
 		//	animator.addControlPoint({ 0.0f, glm::sin(x), x }, { 1.0f, 0.0f, 0.0f }, sphereModel);
 		//	x += delta_x;
 		//}
-	
-		// Init spline + Spline control points defining the animation path
-		//splineAnimator.getSpline().addControlPoint({ 0.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
-		//splineAnimator.getSpline().addControlPoint({ 1.0f, 1.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
-		//splineAnimator.getSpline().addControlPoint({ 2.0f, 1.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
-		//splineAnimator.getSpline().addControlPoint({ 3.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
-		//splineAnimator.getSpline().addControlPoint({ 4.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
-		//splineAnimator.getSpline().addControlPoint({ 5.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
-		//splineAnimator.getSpline().addControlPoint({ 6.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
-		//splineAnimator.getSpline().addControlPoint({ 7.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel);
-	/*	splineAnimator.getSpline().generateSplineSegments();*/
-
 	}
 
 	void VmcApp::initLSystems() 
 	{
 		std::vector<std::string> rules1;
-		rules1.push_back("F=>F[+F]F[-F]F");
+		rules1.push_back("F=>F[+F]F[-F][F]");
 
 		std::string axiom1 = "F";
-		Lsystems.push_back(LSystem{ rules1, axiom1, {0.0f, 0.0f, 0.0f}, 5, 90.0f });
+		Lsystems.push_back(LSystem{ rules1, axiom1, {0.0f, 0.0f, 0.0f}, 5, 25.7f });
 	}
 
 }
