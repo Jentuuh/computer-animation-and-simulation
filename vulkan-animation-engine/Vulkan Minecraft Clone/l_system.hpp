@@ -11,6 +11,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
+// Probabilistic L-System class. Generates a collection of 3D points representing 
+// the L-System iteratively according to a set of probabilistic production rules. 
 namespace vmc {
 	struct TurtleState {
 		glm::vec3 pos;
@@ -22,7 +24,7 @@ namespace vmc {
 	class LSystem
 	{
 	public:
-		LSystem(std::vector<std::string> prodRules, std::string axiom, glm::vec3 rootPos, int n, float delta);
+		LSystem(std::vector<std::pair<std::string, float>> prodRules, std::string axiom, glm::vec3 rootPos, int n, float delta);
 		std::vector<TransformComponent>& getRenderPoints() { return renderPoints; };
 		void iterate();
 		void render();

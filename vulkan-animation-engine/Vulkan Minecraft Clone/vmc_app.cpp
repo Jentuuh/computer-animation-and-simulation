@@ -137,8 +137,10 @@ namespace vmc {
 
 	void VmcApp::initLSystems() 
 	{
-		std::vector<std::string> rules1;
-		rules1.push_back("F=>F[+F]F[-F][F]");
+		std::vector<std::pair<std::string, float>> rules1;
+		rules1.push_back(std::make_pair("F=>F[+F]F[-F][F]", 0.25f));
+		rules1.push_back(std::make_pair("F=>F[+F]F[-F]F", 0.25f));
+		rules1.push_back(std::make_pair("F=>FFF", 0.5f));
 
 		std::string axiom1 = "F";
 		Lsystems.push_back(LSystem{ rules1, axiom1, {0.0f, 0.0f, 0.0f}, 5, 25.7f });

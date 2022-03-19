@@ -3,11 +3,11 @@
 
 
 namespace vmc {
-	LSystem::LSystem(std::vector<std::string> prodRules, std::string axiom, glm::vec3 rootPos, int n, float delta): axiomState{axiom}, rootPosition{rootPos}, maxIterations{n}, delta{delta}
+	LSystem::LSystem(std::vector<std::pair<std::string, float>> prodRules, std::string axiom, glm::vec3 rootPos, int n, float delta): axiomState{axiom}, rootPosition{rootPos}, maxIterations{n}, delta{delta}
 	{
 		// Initialize production rules
-		for (std::string const& r : prodRules) {
-			productionRules.push_back(ProductionRule{ r, 1.0 });
+		for (auto const& r : prodRules) {
+			productionRules.push_back(ProductionRule{ r.first, r.second });
 		}
 
 		// Initialize turtle stack (pos: origin, direction: upwards)
@@ -35,9 +35,23 @@ namespace vmc {
 			}
 			// Else, replace the symbol with the right-hand side of the matching rule
 			else {
-				// TODO: probabilistic/random selection of rule if there are multiple matching rules
-				std::string replacementString = matchingRules[0].getReplacementString();
-				newState.append(replacementString);
+				int random = std::rand() % 100;
+
+				int cumulative = 0;
+				for (int i = 0; i < matchingRules.size(); i++)
+				{
+					// Use cdf to distribute the rules according to the probabilities. E.g. 4 rules each with 0.25 probability, rand. number 
+					// between 0-99 is generated and compared to the cdf. As soon as the random number is smaller than the CDF for the current 
+					// iteration (x-axis of cdf), we've found the 'winning' rule. 
+					// Note that this does not work as expected if there are more than 100 rules, but we assume this will not occur. 
+					cumulative += matchingRules[0].getProbablity() * 100;
+					if (random <= cumulative)
+					{
+						std::string replacementString = matchingRules[i].getReplacementString();
+						newState.append(replacementString);
+						break;
+					}
+				}
 			}
 		}
 		currentIteration++;
@@ -69,7 +83,6 @@ namespace vmc {
 				break;
 			case '[':
 				turtleStack.push(currState);
-				//turtleStack.push({ currState.pos, {.0f, -1.0f, .0f} });
 				break;
 			case ']':
 				turtleStack.pop();

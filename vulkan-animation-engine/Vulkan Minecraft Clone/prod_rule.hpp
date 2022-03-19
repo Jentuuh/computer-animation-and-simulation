@@ -11,6 +11,7 @@ namespace vmc {
 		ProductionRule(std::string unparsed, float prob);
 
 		std::string getReplacementString();
+		float getProbablity() { return probability; };
 		bool matches(std::vector<char>& leftSyms);
 		void printInfo();
 	private:
