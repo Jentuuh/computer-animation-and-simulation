@@ -22,7 +22,6 @@ namespace vmc {
         void updateSpline(GLFWwindow* window, float dt, Animator& animator);
 
         SplineMovementKeyMappings keys{};
-        float controlPointMovementSpeed{ 3.f };
         bool pressedNext = false;
 	};
 

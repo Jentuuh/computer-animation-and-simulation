@@ -1,5 +1,6 @@
 #pragma once
 #include "vmc_game_object.hpp"
+#include "enums.hpp"
 
 // glm
 #include <glm/glm.hpp>
@@ -11,8 +12,6 @@
 
 // 3D Catmull Rom Spline with movable control points
 namespace vmc {
-
-	enum MoveDirection {POSX, NEGX, POSY, NEGY, POSZ, NEGZ};
 
 	class Spline
 	{

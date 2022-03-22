@@ -37,6 +37,12 @@
     <Filter Include="Source Files\Animation\L-systems">
       <UniqueIdentifier>{eab50151-eee4-4665-ae77-56f8ea285eeb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Animation\Deformation">
+      <UniqueIdentifier>{3b0b4361-2455-44b7-aaf7-9d7cfcc71765}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Animation\Deformation">
+      <UniqueIdentifier>{04222754-5b2f-4d63-bdb6-28c9173997bd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -101,6 +107,12 @@
     </ClCompile>
     <ClCompile Include="prod_rule.cpp">
       <Filter>Source Files\Animation\L-systems</Filter>
+    </ClCompile>
+    <ClCompile Include="ffd.cpp">
+      <Filter>Source Files\Animation\Deformation</Filter>
+    </ClCompile>
+    <ClCompile Include="ffd_keyboard_controller.cpp">
+      <Filter>Source Files\Animation\Deformation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -172,6 +184,12 @@
     </ClInclude>
     <ClInclude Include="prod_rule.hpp">
       <Filter>Header Files\Animation\L-systems</Filter>
+    </ClInclude>
+    <ClInclude Include="ffd.hpp">
+      <Filter>Header Files\Animation\Deformation</Filter>
+    </ClInclude>
+    <ClInclude Include="ffd_keyboard_controller.hpp">
+      <Filter>Header Files\Animation\Deformation</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

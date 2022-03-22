@@ -150,6 +150,8 @@
   <ItemGroup>
     <ClCompile Include="animator.cpp" />
     <ClCompile Include="chunk_component.cpp" />
+    <ClCompile Include="ffd.cpp" />
+    <ClCompile Include="ffd_keyboard_controller.cpp" />
     <ClCompile Include="function.cpp" />
     <ClCompile Include="function_animator.cpp" />
     <ClCompile Include="keyboard_movement_controller.cpp" />
@@ -174,6 +176,8 @@
     <ClInclude Include="animator.hpp" />
     <ClInclude Include="block_model.hpp" />
     <ClInclude Include="chunk_component.hpp" />
+    <ClInclude Include="ffd.hpp" />
+    <ClInclude Include="ffd_keyboard_controller.hpp" />
     <ClInclude Include="function.hpp" />
     <ClInclude Include="function_animator.hpp" />
     <ClInclude Include="enums.hpp" />

@@ -64,7 +64,7 @@ namespace vmc {
 	}
 
 	// Render loop
-	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<VmcGameObject> &gameObjects, Animator& animator, LSystem& lsystem, const VmcCamera& camera, const float frameDeltaTime)
+	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<VmcGameObject> &gameObjects, Animator& animator, LSystem& lsystem, FFD& deformationSystem, const VmcCamera& camera, const float frameDeltaTime)
 	{
 		vmcPipeline->bind(commandBuffer);
 
@@ -191,6 +191,33 @@ namespace vmc {
 
 			curvePointModel->bind(commandBuffer);
 			curvePointModel->draw(commandBuffer);
+		}
+
+		// Draw Deformation Grid
+		int idx = 0;
+		for (auto& ffdControlPoint : deformationSystem.getControlPoints())
+		{
+			auto modelMatrix = ffdControlPoint.mat4();
+			pushL.transform = projectionView * modelMatrix;
+			pushL.normalMatrix = ffdControlPoint.normalMatrix();
+			if (idx == deformationSystem.getCurrentCPIndex())
+			{
+				pushL.color = { 1.0f, 1.0f, 1.0f };
+			}
+			else {
+				pushL.color = { .0f, 1.0f, 1.0f };
+			}
+
+			vkCmdPushConstants(commandBuffer,
+				pipelineLayout,
+				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+				0,
+				sizeof(TestPushConstant),
+				&pushL);
+
+			curvePointModel->bind(commandBuffer);
+			curvePointModel->draw(commandBuffer);
+			idx++;
 		}
 	}
 }

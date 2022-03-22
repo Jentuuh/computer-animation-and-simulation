@@ -3,6 +3,7 @@
 #include "vmc_camera.hpp"
 #include "keyboard_movement_controller.hpp"
 #include "spline_keyboard_controller.hpp"
+#include "ffd_keyboard_controller.hpp"
 #include "spline_animator.hpp"
 
 // std
@@ -25,6 +26,7 @@ namespace vmc {
 	{
 		loadGameObjects();
 		initLSystems();
+		initDeformationSystems();
 	}
 
 	VmcApp::~VmcApp()
@@ -41,6 +43,7 @@ namespace vmc {
 		auto viewerObject = VmcGameObject::createGameObject();
 		KeyboardMovementController cameraController{};
 		SplineKeyboardController splineController{};
+		FFDKeyboardController ffdController{};
 
 		// Initialize animators
 		std::shared_ptr<VmcModel> sphereModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
@@ -83,9 +86,11 @@ namespace vmc {
 
             camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
 			
+			// Controllers
 			splineController.updateSpline(vmcWindow.getGLFWwindow(), frameTime, animators[0]);
+			ffdController.updateDeformationGrid(vmcWindow.getGLFWwindow(), frameTime, deformationSystems[0]);
 
-			// TESTING L-SYSTEMS
+			// Generate L-system iterations
 			if (glfwGetKey(vmcWindow.getGLFWwindow(), GLFW_KEY_C) == GLFW_PRESS)
 			{
 				Lsystems[0].iterate();
@@ -94,7 +99,7 @@ namespace vmc {
 			// Render loop
 			if (auto commandBuffer = vmcRenderer.beginFrame()) {
 				vmcRenderer.beginSwapChainRenderPass(commandBuffer);
-				simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, animators[0], Lsystems[0], camera, frameTime);
+				simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, animators[0], Lsystems[0], deformationSystems[0], camera, frameTime);
 				vmcRenderer.endSwapChainRenderPass(commandBuffer);
 				vmcRenderer.endFrame();
 			}
@@ -146,4 +151,20 @@ namespace vmc {
 		Lsystems.push_back(LSystem{ rules1, axiom1, {0.0f, 0.0f, 0.0f}, 5, 25.7f });
 	}
 
+	void VmcApp::initDeformationSystems()
+	{
+		FFDInitializer FFDCreateInfo{};
+		FFDCreateInfo.startX = 0.0f;
+		FFDCreateInfo.endX = 5.0f;
+		FFDCreateInfo.startY = 0.0f;
+		FFDCreateInfo.endY = -2.0f;
+		FFDCreateInfo.startZ = 0.0f;
+		FFDCreateInfo.endZ = 2.0f;
+
+		FFDCreateInfo.resX = 5.0f;
+		FFDCreateInfo.resY = 2.0f;
+		FFDCreateInfo.resZ = 2.0f;
+
+		deformationSystems.push_back(FFD{ FFDCreateInfo });
+	}
 }
