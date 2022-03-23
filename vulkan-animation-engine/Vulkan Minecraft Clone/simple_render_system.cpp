@@ -64,7 +64,7 @@ namespace vmc {
 	}
 
 	// Render loop
-	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<VmcGameObject> &gameObjects, Animator& animator, LSystem& lsystem, FFD& deformationSystem, const VmcCamera& camera, const float frameDeltaTime)
+	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<VmcGameObject> &gameObjects, Animator& animator, LSystem& lsystem, const VmcCamera& camera, const float frameDeltaTime)
 	{
 		vmcPipeline->bind(commandBuffer);
 
@@ -76,6 +76,7 @@ namespace vmc {
 		// Advance time in animator and calculate the new position based on the current time
 		animator.advanceTime(frameDeltaTime);
 		glm::vec3 nextPosition = animator.calculateNextPositionSpeedControlled();
+		std::shared_ptr<VmcModel> pointModel = animator.getControlPoints()[0].model;
 
 		// Draw gameobjects
 		for (auto& obj : gameObjects) {
@@ -83,8 +84,6 @@ namespace vmc {
 			// Translate object with id 0 speed-controlled over a space curve
 			if (obj.getId() == 0)
 				obj.setPosition(nextPosition);
-				// Translate object with id 0 in circles periodically
-				//obj.setPosition(glm::vec3(glm::cos(clock * glm::pi<float>()), 0.0f, glm::sin(clock * glm::pi<float>())));
 
 			auto modelMatrix = obj.transform.mat4();
 
@@ -128,6 +127,34 @@ namespace vmc {
 				child.model->bind(commandBuffer);
 				child.model->draw(commandBuffer);
 			}
+
+			// Draw deformation grid
+			int idx = 0;
+			TestPushConstant pushFFD{};
+			for (auto& ffdControlPoint : obj.deformationSystem.getControlPoints())
+			{
+				auto modelMatrix = ffdControlPoint.mat4();
+				pushFFD.transform = projectionView * modelMatrix;
+				pushFFD.normalMatrix = ffdControlPoint.normalMatrix();
+				if (idx == obj.deformationSystem.getCurrentCPIndex())
+				{
+					pushFFD.color = { 1.0f, 1.0f, 1.0f };
+				}
+				else {
+					pushFFD.color = { .0f, 1.0f, 1.0f };
+				}
+
+				vkCmdPushConstants(commandBuffer,
+					pipelineLayout,
+					VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+					0,
+					sizeof(TestPushConstant),
+					&pushFFD);
+
+				pointModel->bind(commandBuffer);
+				pointModel->draw(commandBuffer);
+				idx++;
+			}
 		}
 
 		TestPushConstant pushSpline{};
@@ -153,7 +180,6 @@ namespace vmc {
 
 		// Draw spline curve points
 		pushSpline.color = { 1.0f, 1.0f, 1.0f };
-		std::shared_ptr<VmcModel> curvePointModel = animator.getControlPoints()[0].model;
 		for (auto& curvePoint : animator.getCurvePoints())
 		{
 			auto modelMatrix = curvePoint.mat4();
@@ -168,8 +194,8 @@ namespace vmc {
 				sizeof(TestPushConstant),
 				&pushSpline);
 
-			curvePointModel->bind(commandBuffer);
-			curvePointModel->draw(commandBuffer);
+			pointModel->bind(commandBuffer);
+			pointModel->draw(commandBuffer);
 		}
 
 		// Draw L-System
@@ -189,12 +215,12 @@ namespace vmc {
 				sizeof(TestPushConstant),
 				&pushL);
 
-			curvePointModel->bind(commandBuffer);
-			curvePointModel->draw(commandBuffer);
+			pointModel->bind(commandBuffer);
+			pointModel->draw(commandBuffer);
 		}
 
 		// Draw Deformation Grid
-		int idx = 0;
+		/*int idx = 0;
 		for (auto& ffdControlPoint : deformationSystem.getControlPoints())
 		{
 			auto modelMatrix = ffdControlPoint.mat4();
@@ -215,9 +241,9 @@ namespace vmc {
 				sizeof(TestPushConstant),
 				&pushL);
 
-			curvePointModel->bind(commandBuffer);
-			curvePointModel->draw(commandBuffer);
+			pointModel->bind(commandBuffer);
+			pointModel->draw(commandBuffer);
 			idx++;
-		}
+		}*/
 	}
 }

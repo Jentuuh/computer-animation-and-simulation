@@ -32,6 +32,13 @@ namespace vmc {
     VmcModel::VmcModel(VmcDevice& device, const VmcModel::Builder &builder) : vmcDevice{ device } {
         createVertexBuffers(builder.vertices);
         createIndexBuffers(builder.indices);
+
+        minX = builder.minX;
+        maxX = builder.maxX;
+        minY = builder.minY;
+        maxY = builder.maxY;
+        minZ = builder.minZ;
+        maxZ = builder.maxZ;
     }
 
     VmcModel::~VmcModel() {
@@ -49,6 +56,7 @@ namespace vmc {
         Builder builder{};
         builder.loadModel(filePath);
         std::cout << "Successfully loaded model with " << builder.vertices.size() << " vertices." << std::endl;
+        std::cout << "Min X: " << builder.minX << " Max X: " << builder.maxX << "Min Y: " << builder.minY << " Max Y: " << builder.maxY << "Min Z: " << builder.minZ << " Max Z: " << builder.maxZ << std::endl;
         return std::make_unique<VmcModel>(device, builder);
     }
 
@@ -201,6 +209,14 @@ namespace vmc {
 
         std::unordered_map<Vertex, uint32_t> uniqueVertices{};
 
+        minX = std::numeric_limits<float>::max();
+        minY = std::numeric_limits<float>::max();
+        minZ = std::numeric_limits<float>::max();
+
+        maxX = std::numeric_limits<float>::min();
+        maxY = std::numeric_limits<float>::min();
+        maxZ = std::numeric_limits<float>::min();
+        
         for (const auto& shape : shapes) {
             for (const auto& index : shape.mesh.indices) {
                 Vertex vertex{};
@@ -212,6 +228,26 @@ namespace vmc {
                         attrib.vertices[3 * index.vertex_index + 1],
                         attrib.vertices[3 * index.vertex_index + 2], 
                     };
+
+                    // Object boundaries
+                    if (attrib.vertices[3 * index.vertex_index + 0] < minX) {
+                        minX = attrib.vertices[3 * index.vertex_index + 0];
+                    }
+                    if (attrib.vertices[3 * index.vertex_index + 0] > maxX) {
+                        maxX = attrib.vertices[3 * index.vertex_index + 0];
+                    }
+                    if (attrib.vertices[3 * index.vertex_index + 1] < minY) {
+                        minY = attrib.vertices[3 * index.vertex_index + 1];
+                    }
+                    if (attrib.vertices[3 * index.vertex_index + 1] > maxY) {
+                        maxY = attrib.vertices[3 * index.vertex_index + 1];
+                    }
+                    if (attrib.vertices[3 * index.vertex_index + 2] < minZ) {
+                        minZ = attrib.vertices[3 * index.vertex_index + 2];
+                    }
+                    if (attrib.vertices[3 * index.vertex_index + 2] > maxZ) {
+                        maxZ = attrib.vertices[3 * index.vertex_index + 2];
+                    }
 
                     // Vertex color expansion (not supported in .OBJ by default, but tinyobjloader supports it)
                     // The vertex RGB color appears in the .OBJ file right after the vertex position.

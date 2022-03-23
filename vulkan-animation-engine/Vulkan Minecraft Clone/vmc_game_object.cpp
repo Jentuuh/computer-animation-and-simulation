@@ -1,4 +1,5 @@
 #include "vmc_game_object.hpp"
+#include <iostream>
 
 namespace vmc {
 
@@ -72,7 +73,9 @@ namespace vmc {
 
     void VmcGameObject::setPosition(glm::vec3 newPosition)
     {
+        glm::vec3 transVec = newPosition - transform.translation;
         transform.translation = newPosition;
+        deformationSystem.translate(transVec);
     }
 
     void VmcGameObject::setRotation(glm::vec3 newRotation)
@@ -80,9 +83,25 @@ namespace vmc {
         transform.rotation = newRotation;
     }
 
+    void VmcGameObject::setScale(glm::vec3 newScale)
+    {
+        transform.scale = newScale;
+        // Reset deformation system
+        deformationSystem = FFD{ {model->minimumX() * newScale.x, model->maximumX() * newScale.x, model->minimumY() * newScale.y, model->maximumY() * newScale.y, model->minimumZ() * newScale.z, model->maximumZ() * newScale.z, 3.0f, 3.0f, 3.0f} };
+    }
 
     void VmcGameObject::addChild(VmcGameObject* child)
     {
         children.push_back(std::move(*child));
+    }
+
+    void VmcGameObject::deformObject(std::vector<glm::vec3> newPositions)
+    {
+
+    }
+
+    void VmcGameObject::initDeformationSystem()
+    {
+        deformationSystem = FFD{ {model->minimumX(), model->maximumX(), model->minimumY(), model->maximumY(), model->minimumZ(), model->maximumZ(), 3.0f, 3.0f, 3.0f} };
     }
 }

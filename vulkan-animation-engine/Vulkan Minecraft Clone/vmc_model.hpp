@@ -33,6 +33,12 @@ namespace vmc {
 		struct Builder {
 			std::vector<Vertex> vertices{};
 			std::vector<uint32_t> indices{};
+			float minX;
+			float maxX;
+			float minY;
+			float maxY;
+			float minZ;
+			float maxZ;
 
 			void loadModel(const std::string& filePath);
 			void updateChunkMesh(const ChunkComponent* chunk);
@@ -43,6 +49,13 @@ namespace vmc {
 
 		VmcModel(const VmcModel&) = delete;
 		VmcModel& operator=(const VmcModel&) = delete;
+
+		float minimumX() { return minX; };
+		float maximumX() { return maxX; };
+		float minimumY() { return minY; };
+		float maximumY() { return maxY; };
+		float minimumZ() { return minZ; };
+		float maximumZ() { return maxZ; };
 
 		static std::unique_ptr<VmcModel> createModelFromFile(VmcDevice& device, const std::string& filePath);
 		static std::unique_ptr<VmcModel> createChunkModelMesh(VmcDevice& device, const ChunkComponent* chunk);
@@ -55,6 +68,12 @@ namespace vmc {
 		void createVertexBuffers(const std::vector<Vertex> &vertices);
 		void createIndexBuffers(const std::vector<uint32_t> &indices);
 
+		float minX;
+		float maxX;
+		float minY;
+		float maxY;
+		float minZ;
+		float maxZ;
 
 		VmcDevice& vmcDevice;
 

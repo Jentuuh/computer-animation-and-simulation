@@ -30,7 +30,6 @@ namespace vmc {
 	private:
 		void loadGameObjects();
 		void initLSystems();
-		void initDeformationSystems();
 
 		VmcWindow vmcWindow{ WIDTH, HEIGHT, "Vulkan Animation Engine - Jente Vandersanden" };
 		VmcDevice vmcDevice{ vmcWindow };
@@ -39,7 +38,6 @@ namespace vmc {
 		std::vector<LSystem> Lsystems;
 		std::vector<VmcGameObject> gameObjects;
 		std::vector<SplineAnimator> animators;
-		std::vector<FFD> deformationSystems;
 	};
 }
 

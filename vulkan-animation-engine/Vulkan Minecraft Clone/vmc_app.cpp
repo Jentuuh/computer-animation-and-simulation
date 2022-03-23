@@ -26,7 +26,6 @@ namespace vmc {
 	{
 		loadGameObjects();
 		initLSystems();
-		initDeformationSystems();
 	}
 
 	VmcApp::~VmcApp()
@@ -88,7 +87,7 @@ namespace vmc {
 			
 			// Controllers
 			splineController.updateSpline(vmcWindow.getGLFWwindow(), frameTime, animators[0]);
-			ffdController.updateDeformationGrid(vmcWindow.getGLFWwindow(), frameTime, deformationSystems[0]);
+			ffdController.updateDeformationGrid(vmcWindow.getGLFWwindow(), frameTime, gameObjects[0]);
 
 			// Generate L-system iterations
 			if (glfwGetKey(vmcWindow.getGLFWwindow(), GLFW_KEY_C) == GLFW_PRESS)
@@ -99,7 +98,7 @@ namespace vmc {
 			// Render loop
 			if (auto commandBuffer = vmcRenderer.beginFrame()) {
 				vmcRenderer.beginSwapChainRenderPass(commandBuffer);
-				simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, animators[0], Lsystems[0], deformationSystems[0], camera, frameTime);
+				simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, animators[0], Lsystems[0], camera, frameTime);
 				vmcRenderer.endSwapChainRenderPass(commandBuffer);
 				vmcRenderer.endFrame();
 			}
@@ -116,9 +115,11 @@ namespace vmc {
 
 		auto stickObj = VmcGameObject::createGameObject();
 		stickObj.model = stickModel;
-		stickObj.transform.translation = { .0f, .0f, 2.5f };
+		// Make sure to call initDeformationSystem() AFTER the model is assigned to the gameObj!
+		stickObj.initDeformationSystem();
+		stickObj.setPosition({ .0f, .0f, .0f });
 		stickObj.transform.rotation = { .0f, .0f, -glm::pi<float>() };
-		stickObj.transform.scale = { .3f, .3f, .3f };
+		stickObj.setScale({ .3f, .3f, .3f });
 
 		auto armObj = VmcGameObject::createGameObject();
 		armObj.model = armModel;
@@ -149,22 +150,5 @@ namespace vmc {
 
 		std::string axiom1 = "F";
 		Lsystems.push_back(LSystem{ rules1, axiom1, {0.0f, 0.0f, 0.0f}, 5, 25.7f });
-	}
-
-	void VmcApp::initDeformationSystems()
-	{
-		FFDInitializer FFDCreateInfo{};
-		FFDCreateInfo.startX = 0.0f;
-		FFDCreateInfo.endX = 5.0f;
-		FFDCreateInfo.startY = 0.0f;
-		FFDCreateInfo.endY = -2.0f;
-		FFDCreateInfo.startZ = 0.0f;
-		FFDCreateInfo.endZ = 2.0f;
-
-		FFDCreateInfo.resX = 5.0f;
-		FFDCreateInfo.resY = 2.0f;
-		FFDCreateInfo.resZ = 2.0f;
-
-		deformationSystems.push_back(FFD{ FFDCreateInfo });
 	}
 }

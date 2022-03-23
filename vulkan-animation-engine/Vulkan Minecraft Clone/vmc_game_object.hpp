@@ -1,6 +1,7 @@
 #pragma once
 #include "vmc_model.hpp"
 #include "chunk_component.hpp"
+#include "ffd.hpp"
 
 // libs
 #include <glm/gtc/matrix_transform.hpp>
@@ -49,19 +50,20 @@ namespace vmc {
         void addChild(VmcGameObject* child);
         void setPosition(glm::vec3 newPosition);
         void setRotation(glm::vec3 newRotation);
-        
+        void setScale(glm::vec3 newScale);
+
+        void deformObject(std::vector<glm::vec3> newPositions);
+        void initDeformationSystem();
+
         std::shared_ptr<VmcModel> model{};
         std::vector<VmcGameObject> children{};
         glm::vec3 color{};
         TransformComponent transform{};
-        
-        ChunkComponent * chunk;
+        FFD deformationSystem;
 
     private:
-        VmcGameObject(id_t objId) : id{ objId } {
-            // Init chunk of width 16
-            //chunk = new ChunkComponent(16);
-        }
+
+        VmcGameObject(id_t objId) : id{ objId } {}
         id_t id;
     };
 }

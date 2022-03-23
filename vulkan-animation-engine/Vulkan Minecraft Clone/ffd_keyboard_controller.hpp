@@ -18,7 +18,7 @@ namespace vmc {
             int selectPrevCP = GLFW_KEY_LEFT_CONTROL;
         };
 
-        void updateDeformationGrid(GLFWwindow* window, float dt, FFD& deformationSys);
+        void updateDeformationGrid(GLFWwindow* window, float dt, VmcGameObject& deformingObject);
 
         FFDGridCPMovementKeyMappings keys{};
         bool pressedNext = false;
