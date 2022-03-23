@@ -82,7 +82,7 @@ namespace vmc {
 		float t = glm::dot(glm::cross(U, S), oldPosition - P0) / (glm::dot(glm::cross(U, S), T));
 		float u = glm::dot(glm::cross(S, T), oldPosition - P0) / (glm::dot(glm::cross(S, T), U));
 
-		// Sederberg
+		// Sederberg (trivariate Bezier interpolating function)
 		glm::vec3 newPos = { .0f, .0f, .0f };
 		for (int i = 0; i < l; i++)
 		{
@@ -92,14 +92,12 @@ namespace vmc {
 				glm::vec3 sumN = { .0f, .0f, .0f };
 				for (int k = 0; k < n; k++)
 				{
-					// 
 					sumN += combinations(n, k) * powf(1 - u, n - k) * powf(u, k) * grid[i * l + j * m + k].translation;
 				}
 				sumM += combinations(m, j) * powf(1 - t, m - j) * powf(t, j) * sumN;
 			}
-			newPos += combinations(i, l) * powf(1 - s, l - i) * powf(s, i) * sumM;
+			newPos += combinations(l, i) * powf(1 - s, l - i) * powf(s, i) * sumM;
 		}
-
 		return newPos;
 	}
 
@@ -115,6 +113,7 @@ namespace vmc {
 
 	int FFD::combinations(int n, int r)
 	{
+		// std::cout << fact(n) / (fact(r) * fact(n - r)) << std::endl;
 		return fact(n) / (fact(r) * fact(n - r));
 	}
 

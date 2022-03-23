@@ -95,7 +95,7 @@ namespace vmc {
         children.push_back(std::move(*child));
     }
 
-    void VmcGameObject::deformObject(std::vector<glm::vec3> newPositions)
+    void VmcGameObject::deformObject()
     {
 
     }

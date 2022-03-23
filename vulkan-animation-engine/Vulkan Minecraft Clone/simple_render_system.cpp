@@ -82,8 +82,8 @@ namespace vmc {
 		for (auto& obj : gameObjects) {
 			
 			// Translate object with id 0 speed-controlled over a space curve
-			if (obj.getId() == 0)
-				obj.setPosition(nextPosition);
+		/*	if (obj.getId() == 0)
+				obj.setPosition(nextPosition);*/
 
 			auto modelMatrix = obj.transform.mat4();
 
