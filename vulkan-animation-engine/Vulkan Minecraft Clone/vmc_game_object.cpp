@@ -97,7 +97,16 @@ namespace vmc {
 
     void VmcGameObject::deformObject()
     {
-
+        std::vector<VmcModel::Vertex> vertices = model->getVertices();
+        std::vector<glm::vec3> newPositions;
+        for (auto& v : vertices)
+        {   
+            glm::vec3 newPos = deformationSystem.calcDeformedGlobalPosition(v.position);
+            //std::cout << "BEFORE: " << "X: " << v.position.x << " Y: " << v.position.y << " Z: " << v.position.z << std::endl;
+            //std::cout << "AFTER: " << "X: " << newPos.x << " Y: " << newPos.y << " Z: " << newPos.z << std::endl;
+            newPositions.push_back(newPos);
+        }
+        model->updateVertices(newPositions);
     }
 
     void VmcGameObject::initDeformationSystem()

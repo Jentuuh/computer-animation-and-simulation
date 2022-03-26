@@ -56,6 +56,7 @@ namespace vmc {
 		float maximumY() { return maxY; };
 		float minimumZ() { return minZ; };
 		float maximumZ() { return maxZ; };
+		std::vector<Vertex>& getVertices() { return vertexData; };
 
 		static std::unique_ptr<VmcModel> createModelFromFile(VmcDevice& device, const std::string& filePath);
 		static std::unique_ptr<VmcModel> createChunkModelMesh(VmcDevice& device, const ChunkComponent* chunk);
@@ -63,6 +64,8 @@ namespace vmc {
 		void bind(VkCommandBuffer commandBuffer);
 		void draw(VkCommandBuffer commandBuffer);
 
+		void updateVertices(std::vector<glm::vec3>& newPositions);
+		void updateVertexBuffers();
 
 	private:
 		void createVertexBuffers(const std::vector<Vertex> &vertices);
@@ -76,6 +79,8 @@ namespace vmc {
 		float maxZ;
 
 		VmcDevice& vmcDevice;
+
+		std::vector<Vertex> vertexData;
 
 		VkBuffer vertexBuffer;
 		VkDeviceMemory vertexBufferMemory;

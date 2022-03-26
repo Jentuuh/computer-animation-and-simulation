@@ -87,7 +87,7 @@ namespace vmc {
 			
 			// Controllers
 			splineController.updateSpline(vmcWindow.getGLFWwindow(), frameTime, animators[0]);
-			ffdController.updateDeformationGrid(vmcWindow.getGLFWwindow(), frameTime, gameObjects[0]);
+			ffdController.updateDeformationGrid(vmcWindow.getGLFWwindow(), frameTime, gameObjects[1]);
 
 			// Generate L-system iterations
 			if (glfwGetKey(vmcWindow.getGLFWwindow(), GLFW_KEY_C) == GLFW_PRESS)
@@ -112,11 +112,12 @@ namespace vmc {
 		// Stick figure
 		std::shared_ptr<VmcModel> stickModel = VmcModel::createModelFromFile(vmcDevice, "../Models/stick_fig/body_stick.obj");
 		std::shared_ptr<VmcModel> armModel = VmcModel::createModelFromFile(vmcDevice, "../Models/stick_fig/arm_left.obj");
+		std::shared_ptr<VmcModel> sphereModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
 
 		auto stickObj = VmcGameObject::createGameObject();
 		stickObj.model = stickModel;
 		// Make sure to call initDeformationSystem() AFTER the model is assigned to the gameObj!
-		stickObj.initDeformationSystem();
+		//stickObj.initDeformationSystem();
 		stickObj.setPosition({ .0f, .0f, .0f });
 		stickObj.transform.rotation = { .0f, .0f, -glm::pi<float>() };
 		stickObj.setScale({ .3f, .3f, .3f });
@@ -129,6 +130,16 @@ namespace vmc {
 		stickObj.addChild(&armObj);
 
 		gameObjects.push_back(std::move(stickObj));
+
+		auto sphere = VmcGameObject::createGameObject();
+		sphere.model = sphereModel;
+		sphere.initDeformationSystem();
+		sphere.setPosition({ .0f, .0f, .0f });
+		sphere.transform.rotation = { .0f, .0f, .0f };
+		sphere.setScale({ 1.0f, 1.0f, 1.0f });
+
+		gameObjects.push_back(std::move(sphere));
+
 
 		// Initialize animator and animation curve
 		//std::shared_ptr<VmcModel> sphereModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");

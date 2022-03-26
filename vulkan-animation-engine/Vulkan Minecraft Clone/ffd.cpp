@@ -82,7 +82,11 @@ namespace vmc {
 		float t = glm::dot(glm::cross(U, S), oldPosition - P0) / (glm::dot(glm::cross(U, S), T));
 		float u = glm::dot(glm::cross(S, T), oldPosition - P0) / (glm::dot(glm::cross(S, T), U));
 
-		// Sederberg (trivariate Bezier interpolating function)
+		std::cout << "s: " << s << std::endl;
+		std::cout << "t: " << t << std::endl;
+		std::cout << "u: " << u << std::endl;
+
+		// Sederberg (trivariate Bezier interpolating function) (mistake is probably somewhere here)
 		glm::vec3 newPos = { .0f, .0f, .0f };
 		for (int i = 0; i < l; i++)
 		{
