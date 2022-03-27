@@ -14,6 +14,7 @@ namespace vmc {
             int moveYNeg = GLFW_KEY_4;
             int moveZPos = GLFW_KEY_5;
             int moveZNeg = GLFW_KEY_6;
+            int updateObject = GLFW_KEY_U;
             int selectNextCP = GLFW_KEY_TAB;
             int selectPrevCP = GLFW_KEY_LEFT_CONTROL;
         };
@@ -22,6 +23,7 @@ namespace vmc {
 
         FFDGridCPMovementKeyMappings keys{};
         bool pressedNext = false;
+        bool pressedUpdate = false;
     };
 }
 

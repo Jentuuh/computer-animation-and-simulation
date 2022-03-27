@@ -163,6 +163,7 @@ namespace vmc {
         {
             vertexData[i].position = newPositions[i];
         }
+        // flush
         updateVertexBuffers();
     }
 

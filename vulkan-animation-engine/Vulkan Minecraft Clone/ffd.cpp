@@ -17,8 +17,9 @@ namespace vmc {
 		// Construct local grid space + grid basis
 		P0 = { init.startX, init.startY, init.startZ };
 		S = glm::vec3{ init.endX, init.startY, init.startZ } - glm::vec3{ init.startX, init.startY, init.startZ };
-		U = glm::vec3{ init.startX, init.startY, init.endZ } - glm::vec3{ init.startX, init.startY, init.startZ };
 		T = glm::vec3{ init.startX, init.endY, init.startZ } - glm::vec3{ init.startX, init.startY, init.startZ };
+		U = glm::vec3{ init.startX, init.startY, init.endZ } - glm::vec3{ init.startX, init.startY, init.startZ };
+		
 
 		// Generate control points
 		TransformComponent transform{};
@@ -82,27 +83,39 @@ namespace vmc {
 		float t = glm::dot(glm::cross(U, S), oldPosition - P0) / (glm::dot(glm::cross(U, S), T));
 		float u = glm::dot(glm::cross(S, T), oldPosition - P0) / (glm::dot(glm::cross(S, T), U));
 
-		std::cout << "s: " << s << std::endl;
-		std::cout << "t: " << t << std::endl;
-		std::cout << "u: " << u << std::endl;
+		//std::cout << "s: " << s << std::endl;
+		//std::cout << "t: " << t << std::endl;
+		//std::cout << "u: " << u << std::endl;
 
-		// Sederberg (trivariate Bezier interpolating function) (mistake is probably somewhere here)
-		glm::vec3 newPos = { .0f, .0f, .0f };
-		for (int i = 0; i < l; i++)
+		// Sederberg (trivariate Bezier interpolating function) (mistake is probably somewhere here, maybe because I don't convert back from S,T,U space to X,Y,Z globals?)
+		glm::vec3 newPos_stu = { .0f, .0f, .0f };
+		for (int i = 0; i <= l; i++)
 		{
 			glm::vec3 sumM = { .0f, .0f, .0f };
-			for (int j = 0; j < m; j++)
+			for (int j = 0; j <= m; j++)
 			{
 				glm::vec3 sumN = { .0f, .0f, .0f };
-				for (int k = 0; k < n; k++)
+				for (int k = 0; k <= n; k++)
 				{
-					sumN += combinations(n, k) * powf(1 - u, n - k) * powf(u, k) * grid[i * l + j * m + k].translation;
+
+					float s_cp = glm::dot(glm::cross(T, U), grid[i * (l + 1) * (m + 1) + j * (m + 1) + k].translation - P0) / (glm::dot(glm::cross(T, U), S));
+					float t_cp = glm::dot(glm::cross(U, S), grid[i * (l + 1) * (m + 1) + j * (m + 1) + k].translation - P0) / (glm::dot(glm::cross(U, S), T));
+					float u_cp = glm::dot(glm::cross(S, T), grid[i * (l + 1) * (m + 1) + j * (m + 1) + k].translation - P0) / (glm::dot(glm::cross(S, T), U));
+					glm::vec3 P_ijk = { s_cp, t_cp, u_cp };
+
+					sumN += combinations(n, k) * powf(1 - u, n - k) * powf(u, k) * P_ijk;
 				}
 				sumM += combinations(m, j) * powf(1 - t, m - j) * powf(t, j) * sumN;
 			}
-			newPos += combinations(l, i) * powf(1 - s, l - i) * powf(s, i) * sumM;
+			newPos_stu += combinations(l, i) * powf(1 - s, l - i) * powf(s, i) * sumM;
 		}
-		return newPos;
+		//std::cout << "s_after: " << newPos_stu.x << std::endl;
+		//std::cout << "t_after: " << newPos_stu.y << std::endl;
+		//std::cout << "u_after: " << newPos_stu.z << std::endl;
+
+		glm::vec3 newPos_global = P0 + newPos_stu.x * S + newPos_stu.y * T + newPos_stu.z * U;
+
+		return newPos_global;
 	}
 
 	void FFD::translate(glm::vec3 transVec)
@@ -117,7 +130,6 @@ namespace vmc {
 
 	int FFD::combinations(int n, int r)
 	{
-		// std::cout << fact(n) / (fact(r) * fact(n - r)) << std::endl;
 		return fact(n) / (fact(r) * fact(n - r));
 	}
 
