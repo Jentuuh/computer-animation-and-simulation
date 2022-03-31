@@ -109,6 +109,12 @@ namespace vmc {
         model->updateVertices(newPositions);
     }
 
+    void VmcGameObject::confirmObjectDeformation()
+    {
+        model->confirmModelDeformation();
+    }
+
+
     void VmcGameObject::initDeformationSystem()
     {
         deformationSystem = FFD{ {model->minimumX(), model->maximumX(), model->minimumY(), model->maximumY(), model->minimumZ(), model->maximumZ(), 3.0f, 3.0f, 3.0f} };

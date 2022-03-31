@@ -30,7 +30,8 @@ namespace std {
 namespace vmc {
 
     VmcModel::VmcModel(VmcDevice& device, const VmcModel::Builder &builder) : vmcDevice{ device } {
-        vertexData = builder.vertices;
+        old_vertex_data = builder.vertices;
+        new_vertex_data = builder.vertices;
         createVertexBuffers(builder.vertices);
         createIndexBuffers(builder.indices);
 
@@ -159,18 +160,25 @@ namespace vmc {
 
     void VmcModel::updateVertices(std::vector<glm::vec3>& newPositions)
     {
-        for (int i = 0; i < vertexData.size(); i++)
+        for (int i = 0; i < new_vertex_data.size(); i++)
         {
-            vertexData[i].position = newPositions[i];
+            new_vertex_data[i].position = newPositions[i];
         }
         // flush
         updateVertexBuffers();
     }
 
 
+    void VmcModel::confirmModelDeformation()
+    {
+        // Copy 'new' vertex data into model's actual state
+        old_vertex_data = new_vertex_data;
+    }
+
+
     void VmcModel::updateVertexBuffers()
     {
-        vertexCount = static_cast<uint32_t>(vertexData.size());
+        vertexCount = static_cast<uint32_t>(new_vertex_data.size());
         assert(vertexCount >= 3 && "Vertex count must be at least 3");
         VkDeviceSize bufferSize = sizeof(Vertex) * vertexCount;
 
@@ -186,22 +194,14 @@ namespace vmc {
 
         void* data;
         vkMapMemory(vmcDevice.device(), stagingBufferMemory, 0, bufferSize, 0, &data);
-        memcpy(data, vertexData.data(), static_cast<size_t>(bufferSize));
+        memcpy(data, new_vertex_data.data(), static_cast<size_t>(bufferSize));
         vkUnmapMemory(vmcDevice.device(), stagingBufferMemory);
-
-        //vmcDevice.createBuffer(
-        //    bufferSize,
-        //    VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-        //    VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-        //    vertexBuffer,
-        //    vertexBufferMemory);
 
         vmcDevice.copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
 
         // Clean up staging buffer, this buffer was only necessary to transfer the data from host memory to device memory
         vkDestroyBuffer(vmcDevice.device(), stagingBuffer, nullptr);
         vkFreeMemory(vmcDevice.device(), stagingBufferMemory, nullptr);
-        std::cout << vertexData.size() << std::endl;
     }
 
 

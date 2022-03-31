@@ -5,27 +5,34 @@ namespace vmc {
 	{
 		if (glfwGetKey(window, keys.moveXPos) == GLFW_PRESS) {
 			deformingObject.deformationSystem.moveCurrentControlPoint(POSX, dt);
+			deformingObject.deformObject();
 		}
 		if (glfwGetKey(window, keys.moveXNeg) == GLFW_PRESS) {
 			deformingObject.deformationSystem.moveCurrentControlPoint(NEGX, dt);
+			deformingObject.deformObject();
 		}
 		if (glfwGetKey(window, keys.moveYPos) == GLFW_PRESS) {
 			deformingObject.deformationSystem.moveCurrentControlPoint(POSY, dt);
+			deformingObject.deformObject();
 		}
 		if (glfwGetKey(window, keys.moveYNeg) == GLFW_PRESS) {
 			deformingObject.deformationSystem.moveCurrentControlPoint(NEGY, dt);
+			deformingObject.deformObject();
 		}
 		if (glfwGetKey(window, keys.moveZPos) == GLFW_PRESS) {
 			deformingObject.deformationSystem.moveCurrentControlPoint(POSZ, dt);
+			deformingObject.deformObject();
 		}
 		if (glfwGetKey(window, keys.moveZNeg) == GLFW_PRESS) {
 			deformingObject.deformationSystem.moveCurrentControlPoint(NEGZ, dt);
+			deformingObject.deformObject();
 		}
 
 		// Update Object form
 		if (glfwGetKey(window, keys.updateObject) == GLFW_PRESS && !pressedUpdate)
 		{
-			deformingObject.deformObject();
+			deformingObject.confirmObjectDeformation();
+			deformingObject.deformationSystem.resetControlPoints();
 			pressedUpdate = true;
 		}
 

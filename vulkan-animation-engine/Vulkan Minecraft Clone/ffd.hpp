@@ -34,12 +34,15 @@ namespace vmc {
 
 		std::vector<TransformComponent> getControlPoints(){ return grid; };
 		int getCurrentCPIndex() { return selectedControlPoint; };
+
 		void moveCurrentControlPoint(MoveDirection dir, float dt);
+		void resetControlPoints();
 		void selectNextControlPoint();
 		void selectPrevControlPoint();
+
 		void translate(glm::vec3 transVec);
+
 		glm::vec3 calcDeformedGlobalPosition(glm::vec3 oldPosition);
-		void calculate_stu(glm::vec3 globalCoords);
 
 	private:
 		int fact(int n);

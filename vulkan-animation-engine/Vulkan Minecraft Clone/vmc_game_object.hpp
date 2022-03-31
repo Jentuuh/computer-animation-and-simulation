@@ -53,6 +53,7 @@ namespace vmc {
         void setScale(glm::vec3 newScale);
 
         void deformObject();
+        void confirmObjectDeformation();
         void initDeformationSystem();
 
         std::shared_ptr<VmcModel> model{};

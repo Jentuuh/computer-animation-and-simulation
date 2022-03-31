@@ -66,6 +66,25 @@ namespace vmc {
 		}
 	}
 
+	void FFD::resetControlPoints()
+	{
+		// Generate control points
+		TransformComponent transform{};
+		transform.scale = { 0.02f, 0.02f, 0.02f };
+		for (float i = 0; i <= l; i++)
+		{
+			for (float j = 0; j <= m; j++)
+			{
+				for (float k = 0; k <= n; k++)
+				{
+					transform.translation = P0 + (i / l) * S + (j / m) * U + (k / n) * T;
+					grid[i * (l + 1) * (m + 1) + j * (m + 1) + k] = transform;
+				}
+			}
+		}
+	}
+
+
 	void FFD::selectNextControlPoint()
 	{
 		selectedControlPoint = (selectedControlPoint + 1) % grid.size();
@@ -140,19 +159,6 @@ namespace vmc {
 		for (int i = 2; i <= n; i++)
 			res = res * i;
 		return res;
-	}
-
-
-
-	void FFD::calculate_stu(glm::vec3 globalCoords)
-	{
-		float s = glm::dot(glm::cross(T, U), globalCoords - P0) / (glm::dot(glm::cross(T, U), S));
-		float t = glm::dot(glm::cross(U, S), globalCoords - P0) / (glm::dot(glm::cross(U, S), T));
-		float u = glm::dot(glm::cross(S, T), globalCoords - P0) / (glm::dot(glm::cross(S, T), U));
-
-		std::cout << "s: " << s << std::endl;
-		std::cout << "t: " << t << std::endl;
-		std::cout << "u: " << u << std::endl;
 	}
 
 }
