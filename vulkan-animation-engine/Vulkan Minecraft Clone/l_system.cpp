@@ -2,7 +2,7 @@
 #include <iostream>
 
 
-namespace vmc {
+namespace vae {
 	LSystem::LSystem(std::vector<std::pair<std::string, float>> prodRules, std::string axiom, glm::vec3 rootPos, int n, float delta): axiomState{axiom}, rootPosition{rootPos}, maxIterations{n}, delta{delta}
 	{
 		// Initialize production rules

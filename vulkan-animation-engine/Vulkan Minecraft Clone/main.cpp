@@ -6,7 +6,7 @@
 
 int main()
 {
-	vmc::VmcApp app{};
+	vae::VmcApp app{};
 	try 
 	{
 		//vmc::ChunkComponent testchunk{ 16 };

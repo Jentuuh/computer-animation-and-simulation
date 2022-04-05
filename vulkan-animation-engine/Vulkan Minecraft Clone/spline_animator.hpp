@@ -3,7 +3,7 @@
 #include "vmc_game_object.hpp"
 #include "animator.hpp"
 
-namespace vmc {
+namespace vae {
 	struct ControlPoint {
 		glm::vec3 pos;
 		glm::vec3 col;

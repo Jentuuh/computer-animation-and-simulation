@@ -9,7 +9,7 @@
 #include <set>
 #include <stdexcept>
 
-namespace vmc {
+namespace vae {
 
 VmcSwapChain::VmcSwapChain(VmcDevice &deviceRef, VkExtent2D extent)
     : device{deviceRef}, windowExtent{extent} {

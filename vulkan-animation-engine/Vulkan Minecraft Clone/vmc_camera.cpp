@@ -3,7 +3,7 @@
 // std
 #include <cassert>
 #include <limits>
-namespace vmc {
+namespace vae {
 
 	/**
 	Provides an orthographic projection matrix to perform the projection transform from 'camera space' into the 

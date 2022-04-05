@@ -9,7 +9,7 @@
 // std 
 #include <memory>
 
-namespace vmc {
+namespace vae {
 
  // TODO: Make `Component` a base type?
  // TODO: Find cleaner solution for chunk management! (each gameobject currently contains a chunk)
@@ -63,7 +63,6 @@ namespace vmc {
         FFD deformationSystem;
 
     private:
-
         VmcGameObject(id_t objId) : id{ objId } {}
         id_t id;
     };

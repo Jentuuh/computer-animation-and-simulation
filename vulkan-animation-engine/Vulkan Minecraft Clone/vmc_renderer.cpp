@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <array>
 
-namespace vmc {
+namespace vae {
 
 	VmcRenderer::VmcRenderer(VmcWindow & window, VmcDevice & device) : vmcWindow{window}, vmcDevice{device}
 	{

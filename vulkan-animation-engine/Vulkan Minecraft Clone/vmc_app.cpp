@@ -20,12 +20,13 @@
 #include <glm/vec3.hpp>
 #include <glm/gtc/constants.hpp>
 
-namespace vmc {
+namespace vae {
 
 	VmcApp::VmcApp()
 	{
 		loadGameObjects();
 		initLSystems();
+		initSkeletons();
 	}
 
 	VmcApp::~VmcApp()
@@ -98,7 +99,7 @@ namespace vmc {
 			// Render loop
 			if (auto commandBuffer = vmcRenderer.beginFrame()) {
 				vmcRenderer.beginSwapChainRenderPass(commandBuffer);
-				simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, animators[0], Lsystems[0], camera, frameTime);
+				simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, animators[0], Lsystems[0], skeletons[0], camera, frameTime);
 				vmcRenderer.endSwapChainRenderPass(commandBuffer);
 				vmcRenderer.endFrame();
 			}
@@ -162,4 +163,11 @@ namespace vmc {
 		std::string axiom1 = "F";
 		Lsystems.push_back(LSystem{ rules1, axiom1, {0.0f, 0.0f, 0.0f}, 5, 25.7f });
 	}
+
+	void VmcApp::initSkeletons()
+	{
+		Skeleton skeleton{};
+		skeletons.push_back(skeleton);
+	}
+
 }

@@ -43,6 +43,12 @@
     <Filter Include="Source Files\Animation\Deformation">
       <UniqueIdentifier>{04222754-5b2f-4d63-bdb6-28c9173997bd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Animation\Kinematics">
+      <UniqueIdentifier>{acaf5f58-f22c-4279-99fb-bc13f44ace70}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Animation\Kinematics">
+      <UniqueIdentifier>{9cd52b1e-06d3-40ec-8954-a75534af7396}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -113,6 +119,15 @@
     </ClCompile>
     <ClCompile Include="ffd_keyboard_controller.cpp">
       <Filter>Source Files\Animation\Deformation</Filter>
+    </ClCompile>
+    <ClCompile Include="joint.cpp">
+      <Filter>Source Files\Animation\Kinematics</Filter>
+    </ClCompile>
+    <ClCompile Include="link.cpp">
+      <Filter>Source Files\Animation\Kinematics</Filter>
+    </ClCompile>
+    <ClCompile Include="skeleton.cpp">
+      <Filter>Source Files\Animation\Kinematics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -190,6 +205,15 @@
     </ClInclude>
     <ClInclude Include="ffd_keyboard_controller.hpp">
       <Filter>Header Files\Animation\Deformation</Filter>
+    </ClInclude>
+    <ClInclude Include="joint.hpp">
+      <Filter>Header Files\Animation\Kinematics</Filter>
+    </ClInclude>
+    <ClInclude Include="link.hpp">
+      <Filter>Header Files\Animation\Kinematics</Filter>
+    </ClInclude>
+    <ClInclude Include="skeleton.hpp">
+      <Filter>Header Files\Animation\Kinematics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

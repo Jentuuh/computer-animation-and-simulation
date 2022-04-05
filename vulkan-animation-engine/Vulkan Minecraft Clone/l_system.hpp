@@ -13,7 +13,7 @@
 
 // Probabilistic L-System class. Generates a collection of 3D points representing 
 // the L-System iteratively according to a set of probabilistic production rules. 
-namespace vmc {
+namespace vae {
 	struct TurtleState {
 		glm::vec3 pos;
 		glm::vec3 dir;

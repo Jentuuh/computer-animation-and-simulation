@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-namespace vmc {
+namespace vae {
 
 
 	void SplineKeyboardController::updateSpline(GLFWwindow* window, float dt, Animator& animator)

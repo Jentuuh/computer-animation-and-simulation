@@ -8,7 +8,7 @@
 #include <math.h>
 #include <iostream>
 
-namespace vmc {
+namespace vae {
 	FunctionAnimator::FunctionAnimator()
 	{
 		current_cp = 0;

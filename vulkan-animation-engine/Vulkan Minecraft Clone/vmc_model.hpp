@@ -12,7 +12,7 @@
 #include <memory>
 #include <vector>
 
-namespace vmc {
+namespace vae {
 	class VmcModel
 	{
 	public:

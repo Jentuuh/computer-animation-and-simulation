@@ -11,7 +11,7 @@
 
 
 // 3D Catmull Rom Spline with movable control points
-namespace vmc {
+namespace vae {
 
 	class Spline
 	{

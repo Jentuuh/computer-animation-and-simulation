@@ -1,5 +1,5 @@
 #pragma once
-namespace vmc{
+namespace vae{
 	enum class BlockType{dirt, grass, stone, air};
 
 	enum class BlockFace{up, down, left, right, front, back};

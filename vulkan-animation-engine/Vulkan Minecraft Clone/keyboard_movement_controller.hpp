@@ -3,7 +3,7 @@
 #include "vmc_game_object.hpp"
 #include "vmc_window.hpp"
 
-namespace vmc {
+namespace vae {
 	class KeyboardMovementController
 	{
 	public:

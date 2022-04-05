@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <iostream>
 
-namespace vmc {
+namespace vae {
 
 	void Animator::advanceTime(float deltaTime)
 	{

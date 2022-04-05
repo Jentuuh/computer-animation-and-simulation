@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-namespace vmc {
+namespace vae {
 	Spline::Spline() 
 	{
 

@@ -7,7 +7,7 @@
 // lib
 #include <glm/glm.hpp>
 
-namespace vmc {
+namespace vae {
 	struct TransformComponent;
 
 	struct FFDInitializer {

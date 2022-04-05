@@ -1,6 +1,6 @@
 #include "ffd_keyboard_controller.hpp"
 
-namespace vmc {
+namespace vae {
 	void FFDKeyboardController::updateDeformationGrid(GLFWwindow* window, float dt, VmcGameObject& deformingObject)
 	{
 		if (glfwGetKey(window, keys.moveXPos) == GLFW_PRESS) {

@@ -8,7 +8,7 @@
 #include <iostream>
 #include <cassert>
 
-namespace vmc {
+namespace vae {
 
 	VmcPipeline::VmcPipeline(VmcDevice& device, const std::string vertFilePath, const std::string fragFilePath, const PipelineConfigInfo& configInfo): vmcDevice{device} 
 	{

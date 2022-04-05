@@ -2,7 +2,7 @@
 #include <iostream>
 #include "vmc_game_object.hpp"
 
-namespace vmc {
+namespace vae {
 
 	FFD::FFD()
 	{
@@ -68,7 +68,7 @@ namespace vmc {
 
 	void FFD::resetControlPoints()
 	{
-		// Generate control points
+		// Reset control points to initial position
 		TransformComponent transform{};
 		transform.scale = { 0.02f, 0.02f, 0.02f };
 		for (float i = 0; i <= l; i++)

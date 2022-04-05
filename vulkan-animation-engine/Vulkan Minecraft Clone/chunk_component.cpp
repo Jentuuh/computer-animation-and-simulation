@@ -3,7 +3,7 @@
 #include "block_model.hpp"
 
 #include <iostream>
-namespace vmc {
+namespace vae {
 	ChunkComponent::ChunkComponent(int width, int height) : width{ width }, height{ height } {
 		blockMap.resize(height);
 
@@ -88,22 +88,22 @@ namespace vmc {
 					for (BlockFace face : visibleFaces) {
 						switch (face)
 						{
-						case vmc::BlockFace::up:
+						case vae::BlockFace::up:
 							std::cout << " U ";
 							break;
-						case vmc::BlockFace::down:
+						case vae::BlockFace::down:
 							std::cout << " D ";
 							break;
-						case vmc::BlockFace::left:
+						case vae::BlockFace::left:
 							std::cout << " L ";
 							break;
-						case vmc::BlockFace::right:
+						case vae::BlockFace::right:
 							std::cout << " R ";
 							break;
-						case vmc::BlockFace::front:
+						case vae::BlockFace::front:
 							std::cout << " F ";
 							break;
-						case vmc::BlockFace::back:
+						case vae::BlockFace::back:
 							std::cout << " B ";
 							break;
 						default:

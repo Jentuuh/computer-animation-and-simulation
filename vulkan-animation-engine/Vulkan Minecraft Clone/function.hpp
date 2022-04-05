@@ -4,7 +4,7 @@
 // std
 #include <vector>
 
-namespace vmc {
+namespace vae {
 	class Function {
 	public:
 		Function();

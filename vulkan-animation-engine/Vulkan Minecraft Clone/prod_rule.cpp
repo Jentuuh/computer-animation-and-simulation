@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-namespace vmc {
+namespace vae {
 	ProductionRule::ProductionRule(std::string unparsed, float prob) : probability{prob}
 	{
 		// Split arrow

@@ -1,7 +1,7 @@
 #include "vmc_game_object.hpp"
 #include <iostream>
 
-namespace vmc {
+namespace vae {
 
     /**
     Constructs and returns a TRS-matrix that corresponds to translation * rotation.y * rotation.x * rotation.z * scale.

@@ -17,17 +17,17 @@
 
 namespace std {
     template<>
-    struct hash<vmc::VmcModel::Vertex> {
-        size_t operator()(vmc::VmcModel::Vertex const& vertex) const 
+    struct hash<vae::VmcModel::Vertex> {
+        size_t operator()(vae::VmcModel::Vertex const& vertex) const 
         {
             size_t seed = 0;
-            vmc::hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
+            vae::hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
             return seed;
         }
     };
 }
 
-namespace vmc {
+namespace vae {
 
     VmcModel::VmcModel(VmcDevice& device, const VmcModel::Builder &builder) : vmcDevice{ device } {
         old_vertex_data = builder.vertices;
@@ -348,7 +348,7 @@ namespace vmc {
                     for (BlockFace face : visibleFaces) {
                         switch (face)
                         {
-                        case vmc::BlockFace::up:
+                        case vae::BlockFace::up:
                             for (int s = 0; s < 6; s++)
                             {
                                 vertex.position = { block.neg_y_face[s].x + BLOCK_X_OFFSET * k, block.neg_y_face[s].y + BLOCK_Y_OFFSET * i, block.neg_y_face[s].z * BLOCK_Z_OFFSET * j };
@@ -358,7 +358,7 @@ namespace vmc {
                                 vertices.push_back(vertex);
                             }
                             break;
-                        case vmc::BlockFace::down:
+                        case vae::BlockFace::down:
                             for (int s = 0; s < 6; s++)
                             {
                                 vertex.position = { block.pos_y_face[s].x + BLOCK_X_OFFSET * k, block.pos_y_face[s].y + BLOCK_Y_OFFSET * i, block.pos_y_face[s].z * BLOCK_Z_OFFSET * j };
@@ -368,7 +368,7 @@ namespace vmc {
                                 vertices.push_back(vertex);
                             }
                             break;
-                        case vmc::BlockFace::left:
+                        case vae::BlockFace::left:
                             for (int s = 0; s < 6; s++)
                             {
                                 vertex.position = { block.neg_x_face[s].x + BLOCK_X_OFFSET * k, block.neg_x_face[s].y + BLOCK_Y_OFFSET * i, block.neg_x_face[s].z * BLOCK_Z_OFFSET * j };
@@ -378,7 +378,7 @@ namespace vmc {
                                 vertices.push_back(vertex);
                             }
                             break;
-                        case vmc::BlockFace::right:
+                        case vae::BlockFace::right:
                             for (int s = 0; s < 6; s++)
                             {
                                 vertex.position = { block.pos_x_face[s].x + BLOCK_X_OFFSET * k, block.pos_x_face[s].y + BLOCK_Y_OFFSET * i, block.pos_x_face[s].z * BLOCK_Z_OFFSET * j };
@@ -388,7 +388,7 @@ namespace vmc {
                                 vertices.push_back(vertex);
                             }
                             break;
-                        case vmc::BlockFace::front:
+                        case vae::BlockFace::front:
                             for (int s = 0; s < 6; s++)
                             {
                                 vertex.position = { block.neg_z_face[s].x + BLOCK_X_OFFSET * k, block.neg_z_face[s].y + BLOCK_Y_OFFSET * i, block.neg_z_face[s].z * BLOCK_Z_OFFSET * chunk->getWidth() - j + 0.5f};
@@ -398,7 +398,7 @@ namespace vmc {
                                 vertices.push_back(vertex);
                             }
                             break;
-                        case vmc::BlockFace::back:
+                        case vae::BlockFace::back:
                             for (int s = 0; s < 6; s++)
                             {
                                 vertex.position = { block.pos_z_face[s].x + BLOCK_X_OFFSET * k, block.pos_z_face[s].y + BLOCK_Y_OFFSET * i, block.pos_z_face[s].z * BLOCK_Z_OFFSET * j };

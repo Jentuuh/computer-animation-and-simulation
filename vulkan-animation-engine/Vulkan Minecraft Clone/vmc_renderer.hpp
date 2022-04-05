@@ -9,7 +9,7 @@
 #include <memory>
 #include <cassert>
 
-namespace vmc {
+namespace vae {
 	class VmcRenderer
 	{
 	public:

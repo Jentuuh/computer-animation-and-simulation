@@ -6,7 +6,7 @@
 // std
 #include <vector>
 
-namespace vmc {
+namespace vae {
 	struct BlockModel
 	{
 		std::vector<glm::vec3> pos_x_face = {

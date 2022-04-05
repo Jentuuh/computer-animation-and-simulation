@@ -7,12 +7,13 @@
 #include "spline_animator.hpp"
 #include "l_system.hpp"
 #include "ffd.hpp"
+#include "skeleton.hpp"
 
 // std 
 #include <memory>
 #include <vector>
 
-namespace vmc {
+namespace vae {
 	class SimpleRenderSystem
 	{
 	public:
@@ -23,7 +24,7 @@ namespace vmc {
 		SimpleRenderSystem(const SimpleRenderSystem&) = delete;
 		SimpleRenderSystem& operator=(const SimpleRenderSystem&) = delete;
 
-		void renderGameObjects(VkCommandBuffer commandBuffer, std::vector<VmcGameObject> &gameObjects, Animator& animator, LSystem& lsystem, const VmcCamera& camera, const float frameDeltaTime);
+		void renderGameObjects(VkCommandBuffer commandBuffer, std::vector<VmcGameObject> &gameObjects, Animator& animator, LSystem& lsystem, Skeleton& skeleton,const VmcCamera& camera, const float frameDeltaTime);
 
 	private:
 		void createPipelineLayout();

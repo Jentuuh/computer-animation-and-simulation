@@ -5,6 +5,7 @@
 #include "vmc_game_object.hpp"
 #include "animator.hpp"
 #include "spline_animator.hpp"
+#include "skeleton.hpp"
 #include "l_system.hpp"
 #include "ffd.hpp"
 
@@ -12,7 +13,7 @@
 #include <memory>
 #include <vector>
 
-namespace vmc {
+namespace vae {
 	class VmcApp
 	{
 	public:
@@ -30,6 +31,7 @@ namespace vmc {
 	private:
 		void loadGameObjects();
 		void initLSystems();
+		void initSkeletons();
 
 		VmcWindow vmcWindow{ WIDTH, HEIGHT, "Vulkan Animation Engine - Jente Vandersanden" };
 		VmcDevice vmcDevice{ vmcWindow };
@@ -38,6 +40,7 @@ namespace vmc {
 		std::vector<LSystem> Lsystems;
 		std::vector<VmcGameObject> gameObjects;
 		std::vector<SplineAnimator> animators;
+		std::vector<Skeleton> skeletons;
 	};
 }
 

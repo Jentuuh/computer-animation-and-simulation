@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-namespace vmc {
+namespace vae {
 
     struct SwapChainSupportDetails {
       VkSurfaceCapabilitiesKHR capabilities;

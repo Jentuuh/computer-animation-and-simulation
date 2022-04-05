@@ -5,7 +5,7 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE	// Forces that glm uses depth values in the [0;1] range, unlike the standard [-1;1] range.
 #include <glm/glm.hpp>
 
-namespace vmc {
+namespace vae {
 	class VmcCamera
 	{
 	public:

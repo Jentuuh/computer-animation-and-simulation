@@ -10,7 +10,7 @@
 #include <vector>
 
 // Abstract Animator class
-namespace vmc {
+namespace vae {
 	class Animator 
 	{
 	public:

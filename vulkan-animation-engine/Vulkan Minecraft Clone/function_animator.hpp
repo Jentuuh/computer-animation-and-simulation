@@ -6,7 +6,7 @@
 
 // TODO: Make parent Animator class that handles distanceTime function functionality 
 
-namespace vmc {
+namespace vae {
 	class FunctionAnimator
 	{
 	public:

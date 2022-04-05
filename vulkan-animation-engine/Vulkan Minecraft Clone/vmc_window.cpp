@@ -3,7 +3,7 @@
 // std
 #include <stdexcept>
 
-namespace vmc {
+namespace vae {
 	VmcWindow::VmcWindow(int w, int h, std::string name) : width{ w }, height{ h }, windowName{name}
 	{
 		initWindow();

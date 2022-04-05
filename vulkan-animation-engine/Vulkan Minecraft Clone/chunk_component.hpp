@@ -5,7 +5,7 @@
 // std
 #include <vector>
 
-namespace vmc {
+namespace vae {
 
 	const int MAX_CHUNK_HEIGHT = 16;
 	const int BLOCK_X_OFFSET = 1;

@@ -5,7 +5,7 @@
 #include "animator.hpp"
 
 
-namespace vmc {
+namespace vae {
 	class SplineKeyboardController
 	{
 	public:

@@ -3,7 +3,7 @@
 // std
 #include <iostream>
 
-namespace vmc {
+namespace vae {
 
 	SplineAnimator::SplineAnimator(std::vector<ControlPoint> controlPoints)
 	{

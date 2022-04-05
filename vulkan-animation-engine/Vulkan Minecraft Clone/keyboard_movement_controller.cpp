@@ -6,7 +6,7 @@
 #include <iostream>
 
 
-namespace vmc {
+namespace vae {
 	void KeyboardMovementController::moveInPlaneXZ(GLFWwindow* window, float dt, VmcGameObject& gameObject)
 	{
 		// ROTATION IN XZ PLANE

@@ -3,7 +3,7 @@
 #include "vmc_game_object.hpp"
 #include "ffd.hpp"
 
-namespace vmc {
+namespace vae {
 	class FFDKeyboardController
     {
     public:
