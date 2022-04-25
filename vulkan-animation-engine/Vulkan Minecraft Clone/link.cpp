@@ -3,7 +3,7 @@
 
 namespace vae {
 
-	Link::Link(float a, float alpha): a{ a }, alpha{ alpha }
+	Link::Link(float a, float alpha, std::shared_ptr<VmcModel> model): a{ a }, alpha{ alpha }, linkModel{ model }
 	{
 		nextJoint = nullptr;
 	}
@@ -11,6 +11,11 @@ namespace vae {
 	void Link::setNextJoint(std::shared_ptr<Joint> next)
 	{
 		nextJoint = next;
+	}
+
+	void Link::setPrevJoint(std::shared_ptr<Joint> prev)
+	{
+		prevJoint = prev;
 	}
 
 }

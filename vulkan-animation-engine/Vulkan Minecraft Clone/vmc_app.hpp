@@ -8,6 +8,7 @@
 #include "skeleton.hpp"
 #include "l_system.hpp"
 #include "ffd.hpp"
+#include "rigid_body.hpp"
 
 // std 
 #include <memory>
@@ -32,6 +33,7 @@ namespace vae {
 		void loadGameObjects();
 		void initLSystems();
 		void initSkeletons();
+		void initRigidBodies();
 
 		VmcWindow vmcWindow{ WIDTH, HEIGHT, "Vulkan Animation Engine - Jente Vandersanden" };
 		VmcDevice vmcDevice{ vmcWindow };
@@ -41,6 +43,7 @@ namespace vae {
 		std::vector<VmcGameObject> gameObjects;
 		std::vector<SplineAnimator> animators;
 		std::vector<Skeleton> skeletons;
+		std::vector<RigidBody> rigidBodies;
 	};
 }
 

@@ -27,6 +27,7 @@ namespace vae {
 		loadGameObjects();
 		initLSystems();
 		initSkeletons();
+		initRigidBodies();
 	}
 
 	VmcApp::~VmcApp()
@@ -96,10 +97,13 @@ namespace vae {
 				Lsystems[0].iterate();
 			}
 
+			// Update rigid bodies
+			rigidBodies[0].updateState(frameTime);
+
 			// Render loop
 			if (auto commandBuffer = vmcRenderer.beginFrame()) {
 				vmcRenderer.beginSwapChainRenderPass(commandBuffer);
-				simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, animators[0], Lsystems[0], skeletons[0], camera, frameTime);
+				simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, animators[0], Lsystems[0], skeletons[0], rigidBodies[0], camera, frameTime);
 				vmcRenderer.endSwapChainRenderPass(commandBuffer);
 				vmcRenderer.endFrame();
 			}
@@ -166,8 +170,25 @@ namespace vae {
 
 	void VmcApp::initSkeletons()
 	{
-		Skeleton skeleton{};
+		std::shared_ptr<VmcModel> jointModel = VmcModel::createModelFromFile(vmcDevice, "../Models/joint.obj");
+		std::shared_ptr<VmcModel> linkModel = VmcModel::createModelFromFile(vmcDevice, "../Models/stick_fig/arm_left.obj");
+
+		Skeleton skeleton{linkModel, jointModel};
 		skeletons.push_back(skeleton);
+	}
+
+	void VmcApp::initRigidBodies()
+	{
+		std::vector<std::pair<glm::vec3, float>> massPoints;
+		massPoints.push_back(std::make_pair(glm::vec3{ 1.0f, 0.0f, 0.0f }, 1.0f));
+		massPoints.push_back(std::make_pair(glm::vec3{ 0.0f, 1.0f, 0.0f }, 1.0f));
+		massPoints.push_back(std::make_pair(glm::vec3{ 0.0f, 0.0f, 1.0f }, 1.0f));
+
+		std::shared_ptr<VmcModel> rigidModel = VmcModel::createModelFromFile(vmcDevice, "../Models/cube.obj");
+
+		RigidBody rigid_1{massPoints, false, rigidModel};
+		rigid_1.applyTorque({ 1.0f, .0f, 1.0f });
+		rigidBodies.push_back(rigid_1);
 	}
 
 }

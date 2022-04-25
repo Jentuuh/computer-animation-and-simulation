@@ -49,6 +49,12 @@
     <Filter Include="Source Files\Animation\Kinematics">
       <UniqueIdentifier>{9cd52b1e-06d3-40ec-8954-a75534af7396}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Animation\Physics">
+      <UniqueIdentifier>{c0b7b28b-0099-49d3-9b80-9200d7d70303}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Animation\Physics">
+      <UniqueIdentifier>{d1224fd9-fd24-41c4-b3db-c147bfff1980}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -128,6 +134,12 @@
     </ClCompile>
     <ClCompile Include="skeleton.cpp">
       <Filter>Source Files\Animation\Kinematics</Filter>
+    </ClCompile>
+    <ClCompile Include="particle.cpp">
+      <Filter>Source Files\Animation\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="rigid_body.cpp">
+      <Filter>Source Files\Animation\Physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -214,6 +226,12 @@
     </ClInclude>
     <ClInclude Include="skeleton.hpp">
       <Filter>Header Files\Animation\Kinematics</Filter>
+    </ClInclude>
+    <ClInclude Include="particle.hpp">
+      <Filter>Header Files\Animation\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="rigid_body.hpp">
+      <Filter>Header Files\Animation\Physics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

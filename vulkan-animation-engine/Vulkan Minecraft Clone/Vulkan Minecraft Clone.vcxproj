@@ -159,7 +159,9 @@
     <ClCompile Include="link.cpp" />
     <ClCompile Include="l_system.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="particle.cpp" />
     <ClCompile Include="prod_rule.cpp" />
+    <ClCompile Include="rigid_body.cpp" />
     <ClCompile Include="simple_render_system.cpp" />
     <ClCompile Include="skeleton.cpp" />
     <ClCompile Include="spline.cpp" />
@@ -188,7 +190,9 @@
     <ClInclude Include="keyboard_movement_controller.hpp" />
     <ClInclude Include="link.hpp" />
     <ClInclude Include="l_system.hpp" />
+    <ClInclude Include="particle.hpp" />
     <ClInclude Include="prod_rule.hpp" />
+    <ClInclude Include="rigid_body.hpp" />
     <ClInclude Include="simple_render_system.hpp" />
     <ClInclude Include="skeleton.hpp" />
     <ClInclude Include="spline.hpp" />

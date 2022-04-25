@@ -16,12 +16,6 @@
 
 namespace vae {
 
-	struct TestPushConstant {
-		glm::mat4 transform{ 1.f };
-		glm::mat4 normalMatrix{ 1.f };
-		glm::vec3 color{ 1.f };
-	};
-
 	SimpleRenderSystem::SimpleRenderSystem(VmcDevice &device, VkRenderPass renderPass) : vmcDevice{device}
 	{
 		createPipelineLayout();
@@ -64,7 +58,7 @@ namespace vae {
 	}
 
 	// Render loop
-	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<VmcGameObject> &gameObjects, Animator& animator, LSystem& lsystem, Skeleton& skeleton, const VmcCamera& camera, const float frameDeltaTime)
+	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<VmcGameObject> &gameObjects, Animator& animator, LSystem& lsystem, Skeleton& skeleton, RigidBody& rigid, const VmcCamera& camera, const float frameDeltaTime)
 	{
 		vmcPipeline->bind(commandBuffer);
 
@@ -220,9 +214,23 @@ namespace vae {
 		}
 
 		// Draw skeleton
-		//TestPushConstant pushSkeleton{};
-		//std::shared_ptr<Joint> curr_joint;
-		//std::sha
+		//skeleton.drawSkeleton(commandBuffer, pipelineLayout, skeleton.getRoot(), projectionView);
 
+		// Draw rigid body
+		TestPushConstant pushRigid{};
+
+		auto modelMatrix = rigid.S.mat4();
+		pushRigid.transform = projectionView * modelMatrix;
+		pushRigid.normalMatrix = rigid.S.normalMatrix();
+		pushRigid.color = { .5f, 1.0f, .5f };
+		vkCmdPushConstants(commandBuffer,
+			pipelineLayout,
+			VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+			0,
+			sizeof(TestPushConstant),
+			&pushRigid);
+
+		rigid.model->bind(commandBuffer);
+		rigid.model->draw(commandBuffer);	
 	}
 }
