@@ -24,21 +24,24 @@
 namespace vae {
 
 	struct GlobalUbo {
-		glm::mat4 projectionView{ 1.0f };
-		glm::vec3 lightDirection = glm::normalize(glm::vec3{ 1.f, -3.f, -1.f });
+		alignas(16) glm::mat4 projectionView{ 1.0f };
+		alignas(16) glm::vec3 lightDirection = glm::normalize(glm::vec3{ 1.f, -3.f, -1.f });
 	};
 
 	VmcApp::VmcApp()
 	{
+		globalPool = VmcDescriptorPool::Builder(vmcDevice)
+			.setMaxSets(VmcSwapChain::MAX_FRAMES_IN_FLIGHT)
+			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VmcSwapChain::MAX_FRAMES_IN_FLIGHT)
+			.build();
+
 		loadGameObjects();
 		initLSystems();
 		initSkeletons();
 		initRigidBodies();
 	}
 
-	VmcApp::~VmcApp()
-	{
-	}
+	VmcApp::~VmcApp(){}
 
 	void VmcApp::run()
 	{
@@ -56,7 +59,24 @@ namespace vae {
 			uboBuffers[i]->map();
 		}
 
-		SimpleRenderSystem simpleRenderSystem{ vmcDevice, vmcRenderer.getSwapChainRenderPass() };
+		auto globalSetLayout = VmcDescriptorSetLayout::Builder(vmcDevice)
+			.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+			.build();
+
+		std::vector<VkDescriptorSet> globalDescriptorSets(VmcSwapChain::MAX_FRAMES_IN_FLIGHT);
+		for (int i = 0; i < globalDescriptorSets.size(); i++)
+		{
+			auto bufferInfo = uboBuffers[i]->descriptorInfo();
+			// Write buffer info to binding 0
+			VmcDescriptorWriter(*globalSetLayout, *globalPool)
+				.writeBuffer(0, &bufferInfo)
+				.build(globalDescriptorSets[i]);
+		}
+
+		SimpleRenderSystem simpleRenderSystem{ 
+			vmcDevice, 
+			vmcRenderer.getSwapChainRenderPass(), 
+			globalSetLayout->getDescriptorSetLayout()};
 		VmcCamera camera{};
 
 		// Camera controller + camera state container (camera game object) --> WON'T BE RENDERED!
@@ -132,7 +152,16 @@ namespace vae {
 
 				// Render phase
 				vmcRenderer.beginSwapChainRenderPass(commandBuffer);
-				simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, animators[0], Lsystems[0], skeletons[0], rigidBodies[0], camera, frameTime);
+				simpleRenderSystem.renderGameObjects(
+					commandBuffer, 
+					globalDescriptorSets[frameIndex], 
+					gameObjects, 
+					animators[0], 
+					Lsystems[0], 
+					skeletons[0], 
+					rigidBodies[0], 
+					camera, 
+					frameTime);
 				vmcRenderer.endSwapChainRenderPass(commandBuffer);
 				vmcRenderer.endFrame();
 			}

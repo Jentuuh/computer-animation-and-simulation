@@ -139,7 +139,7 @@ namespace vae {
 
 		// std::cout << glm::to_string(pos) << std::endl;
 
-		pushSkeleton.transform = projectionView * modelMatrix;
+		pushSkeleton.modelMatrix = projectionView * modelMatrix;
 		pushSkeleton.normalMatrix = glm::mat3(1.0f);
 		pushSkeleton.color = { 1.0f, 1.0f, .5f };
 

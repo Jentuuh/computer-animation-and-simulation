@@ -144,6 +144,9 @@
     <ClCompile Include="vmc_buffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="vmc_descriptors.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vmc_window.hpp">
@@ -237,6 +240,9 @@
       <Filter>Header Files\Animation\Physics</Filter>
     </ClInclude>
     <ClInclude Include="vmc_buffer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vmc_descriptors.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

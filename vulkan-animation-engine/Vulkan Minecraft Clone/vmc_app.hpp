@@ -3,6 +3,8 @@
 #include "vmc_device.hpp"
 #include "vmc_window.hpp"
 #include "vmc_game_object.hpp"
+#include "vmc_descriptors.hpp"
+
 #include "animator.hpp"
 #include "spline_animator.hpp"
 #include "skeleton.hpp"
@@ -38,6 +40,10 @@ namespace vae {
 		VmcWindow vmcWindow{ WIDTH, HEIGHT, "Vulkan Animation Engine - Jente Vandersanden" };
 		VmcDevice vmcDevice{ vmcWindow };
 		VmcRenderer vmcRenderer{ vmcWindow, vmcDevice };
+
+		// Order of declarations matter!
+		std::unique_ptr<VmcDescriptorPool> globalPool{};
+
 
 		std::vector<LSystem> Lsystems;
 		std::vector<VmcGameObject> gameObjects;

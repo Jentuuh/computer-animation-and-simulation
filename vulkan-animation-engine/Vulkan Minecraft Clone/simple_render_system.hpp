@@ -16,7 +16,7 @@
 
 namespace vae {
 	struct TestPushConstant {
-		glm::mat4 transform{ 1.f };
+		glm::mat4 modelMatrix{ 1.f };
 		glm::mat4 normalMatrix{ 1.f };
 		glm::vec3 color{ 1.f };
 	};
@@ -25,16 +25,16 @@ namespace vae {
 	{
 	public:
 
-		SimpleRenderSystem(VmcDevice& device, VkRenderPass renderPass);
+		SimpleRenderSystem(VmcDevice& device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout);
 		~SimpleRenderSystem();
 
 		SimpleRenderSystem(const SimpleRenderSystem&) = delete;
 		SimpleRenderSystem& operator=(const SimpleRenderSystem&) = delete;
 
-		void renderGameObjects(VkCommandBuffer commandBuffer, std::vector<VmcGameObject> &gameObjects, Animator& animator, LSystem& lsystem, Skeleton& skeleton, RigidBody& rigid, const VmcCamera& camera, const float frameDeltaTime);
+		void renderGameObjects(VkCommandBuffer commandBuffer, VkDescriptorSet globalDescriptorSet, std::vector<VmcGameObject> &gameObjects, Animator& animator, LSystem& lsystem, Skeleton& skeleton, RigidBody& rigid, const VmcCamera& camera, const float frameDeltaTime);
 
 	private:
-		void createPipelineLayout();
+		void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);
 		void createPipeline(VkRenderPass renderPass);
 
 		VmcDevice& vmcDevice;

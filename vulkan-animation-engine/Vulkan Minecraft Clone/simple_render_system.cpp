@@ -16,9 +16,9 @@
 
 namespace vae {
 
-	SimpleRenderSystem::SimpleRenderSystem(VmcDevice &device, VkRenderPass renderPass) : vmcDevice{device}
+	SimpleRenderSystem::SimpleRenderSystem(VmcDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) : vmcDevice{device}
 	{
-		createPipelineLayout();
+		createPipelineLayout(globalSetLayout);
 		createPipeline(renderPass);
 	}
 
@@ -27,17 +27,20 @@ namespace vae {
 		vkDestroyPipelineLayout(vmcDevice.device(), pipelineLayout, nullptr);
 	}
 
-	void SimpleRenderSystem::createPipelineLayout()
+	void SimpleRenderSystem::createPipelineLayout(VkDescriptorSetLayout globalSetLayout)
 	{
 		VkPushConstantRange pushConstantRange{};
 		pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 		pushConstantRange.offset = 0;
 		pushConstantRange.size = sizeof(TestPushConstant);
 
+		std::vector<VkDescriptorSetLayout> descriptorSetLayouts{ globalSetLayout };
+
+
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineLayoutInfo.setLayoutCount = 0;
-		pipelineLayoutInfo.pSetLayouts = nullptr;
+		pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(descriptorSetLayouts.size());
+		pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
 		pipelineLayoutInfo.pushConstantRangeCount = 1;
 		pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 		if (vkCreatePipelineLayout(vmcDevice.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
@@ -58,14 +61,18 @@ namespace vae {
 	}
 
 	// Render loop
-	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<VmcGameObject> &gameObjects, Animator& animator, LSystem& lsystem, Skeleton& skeleton, RigidBody& rigid, const VmcCamera& camera, const float frameDeltaTime)
+	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, VkDescriptorSet globalDescriptorSet, std::vector<VmcGameObject> &gameObjects, Animator& animator, LSystem& lsystem, Skeleton& skeleton, RigidBody& rigid, const VmcCamera& camera, const float frameDeltaTime)
 	{
 		vmcPipeline->bind(commandBuffer);
 
-		auto projectionView = camera.getProjection() * camera.getView();
-		
-		// Update clock (for periodical behaviour)
-		/*clock = fmod(clock + frameDeltaTime, 2);*/
+		// Global descriptor set (index 0), can be reused by all game objects
+		vkCmdBindDescriptorSets(
+			commandBuffer,
+			VK_PIPELINE_BIND_POINT_GRAPHICS,
+			pipelineLayout,
+			0, 1,
+			&globalDescriptorSet, 0,
+			nullptr);
 
 		// Advance time in animator and calculate the new position based on the current time
 		animator.advanceTime(frameDeltaTime);
@@ -79,10 +86,8 @@ namespace vae {
 			if (obj.getId() == 0)
 				obj.setPosition(nextPosition);
 
-			auto modelMatrix = obj.transform.mat4();
-
 			TestPushConstant push{};
-			push.transform = projectionView * modelMatrix;
+			push.modelMatrix = obj.transform.mat4();
 			push.normalMatrix = obj.transform.normalMatrix();
 			push.color = { 1.f, 1.f, 1.f };
 			
@@ -103,10 +108,9 @@ namespace vae {
 				// Rotate arm
 				child.setPosition(nextPosition);
 				child.transform.rotation = animator.calculateNextRotationParabolic();
-				auto childModelMatrix = child.transform.mat4();
 
 				TestPushConstant pushChild{};
-				pushChild.transform = projectionView * childModelMatrix;
+				pushChild.modelMatrix = child.transform.mat4();
 				pushChild.normalMatrix = child.transform.normalMatrix();
 				pushChild.color = { 0.f, 1.f, 0.f };
 
@@ -127,8 +131,7 @@ namespace vae {
 			TestPushConstant pushFFD{};
 			for (auto& ffdControlPoint : obj.deformationSystem.getControlPoints())
 			{
-				auto modelMatrix = ffdControlPoint.mat4();
-				pushFFD.transform = projectionView * modelMatrix;
+				pushFFD.modelMatrix = ffdControlPoint.mat4();
 				pushFFD.normalMatrix = ffdControlPoint.normalMatrix();
 				if (idx == obj.deformationSystem.getCurrentCPIndex())
 				{
@@ -156,8 +159,7 @@ namespace vae {
 		// Draw spline control points
 		for (auto& cpspline : animator.getControlPoints())
 		{
-			auto modelMatrix = cpspline.transform.mat4();
-			pushSpline.transform = projectionView * modelMatrix;
+			pushSpline.modelMatrix = cpspline.transform.mat4();
 			pushSpline.normalMatrix = cpspline.transform.normalMatrix();
 			pushSpline.color = cpspline.color;
 
@@ -176,8 +178,7 @@ namespace vae {
 		pushSpline.color = { 1.0f, 1.0f, 1.0f };
 		for (auto& curvePoint : animator.getCurvePoints())
 		{
-			auto modelMatrix = curvePoint.mat4();
-			pushSpline.transform = projectionView * modelMatrix;
+			pushSpline.modelMatrix = curvePoint.mat4();
 			pushSpline.normalMatrix = curvePoint.normalMatrix();
 			pushSpline.color = { 1.0f, 1.0f, 1.0f };
 
@@ -197,8 +198,7 @@ namespace vae {
 
 		for (auto& lrenderpoint : lsystem.getRenderPoints())
 		{
-			auto modelMatrix = lrenderpoint.mat4();
-			pushL.transform = projectionView * modelMatrix;
+			pushL.modelMatrix = lrenderpoint.mat4();
 			pushL.normalMatrix = lrenderpoint.normalMatrix();
 			pushL.color = {1.0f, 1.0f, .0f};
 
@@ -219,8 +219,7 @@ namespace vae {
 		// Draw rigid body
 		TestPushConstant pushRigid{};
 
-		auto modelMatrix = rigid.S.mat4();
-		pushRigid.transform = projectionView * modelMatrix;
+		pushRigid.modelMatrix = rigid.S.mat4();
 		pushRigid.normalMatrix = rigid.S.normalMatrix();
 		pushRigid.color = { .5f, 1.0f, .5f };
 		vkCmdPushConstants(commandBuffer,
