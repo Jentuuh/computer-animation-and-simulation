@@ -1,5 +1,6 @@
 #pragma once
 
+#include "vmc_buffer.hpp"
 #include "vmc_device.hpp"
 #include "chunk_component.hpp"
 
@@ -84,13 +85,15 @@ namespace vae {
 		std::vector<Vertex> old_vertex_data;
 		std::vector<Vertex> new_vertex_data;
 
-		VkBuffer vertexBuffer;
-		VkDeviceMemory vertexBufferMemory;
+		//VkBuffer vertexBuffer;
+		//VkDeviceMemory vertexBufferMemory;
+		std::unique_ptr<VmcBuffer> vertexBuffer;
 		uint32_t vertexCount;
 
 		bool hasIndexBuffer = false;
-		VkBuffer indexBuffer;
-		VkDeviceMemory indexBufferMemory;
+		std::unique_ptr<VmcBuffer> indexBuffer;
+		//VkBuffer indexBuffer;
+		//VkDeviceMemory indexBufferMemory;
 		uint32_t indexCount;
 	};
 }
