@@ -31,6 +31,7 @@ namespace vae {
 		VmcApp& operator=(const VmcApp&) = delete;
 
 		void run();
+		void initImgui();
 	private:
 		void loadGameObjects();
 		void initLSystems();
@@ -43,6 +44,7 @@ namespace vae {
 
 		// Order of declarations matter!
 		std::unique_ptr<VmcDescriptorPool> globalPool{};
+		VkDescriptorPool imGuiPool;
 
 
 		std::vector<LSystem> Lsystems;

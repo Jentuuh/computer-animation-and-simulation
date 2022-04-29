@@ -20,6 +20,9 @@
 #include <glm/glm.hpp>
 #include <glm/vec3.hpp>
 #include <glm/gtc/constants.hpp>
+#include <imgui.h>
+#include <imgui_impl_vulkan.h>
+#include <imgui_impl_glfw.h>
 
 namespace vae {
 
@@ -34,6 +37,7 @@ namespace vae {
 			.setMaxSets(VmcSwapChain::MAX_FRAMES_IN_FLIGHT)
 			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VmcSwapChain::MAX_FRAMES_IN_FLIGHT)
 			.build();
+		initImgui();
 
 		loadGameObjects();
 		initLSystems();
@@ -41,7 +45,9 @@ namespace vae {
 		initRigidBodies();
 	}
 
-	VmcApp::~VmcApp(){}
+	VmcApp::~VmcApp(){
+		vkDestroyDescriptorPool(vmcDevice.device(), imGuiPool, nullptr);
+	}
 
 	void VmcApp::run()
 	{
@@ -108,9 +114,21 @@ namespace vae {
 
         auto currentTime = std::chrono::high_resolution_clock::now();
 
+		// ImGui state
+		bool show_demo_window = true;
+		bool show_another_window = false;
+		ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
 		while (!vmcWindow.shouldClose())
 		{
 			glfwPollEvents();
+
+			// ImGui UI code
+			ImGui_ImplVulkan_NewFrame();
+			ImGui_ImplGlfw_NewFrame();
+			ImGui::NewFrame();
+			ImGui::ShowDemoWindow();
+			ImGui::Render();
 
             // Time step (delta time)
             auto newTime = std::chrono::high_resolution_clock::now();
@@ -163,10 +181,80 @@ namespace vae {
 					camera, 
 					frameTime);
 				vmcRenderer.endSwapChainRenderPass(commandBuffer);
+
+				// Draw ImGui stuff
+				vmcRenderer.beginImGuiRenderPass(commandBuffer);
+				ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
+				vmcRenderer.endImGuiRenderPass(commandBuffer);
+
 				vmcRenderer.endFrame();
 			}
 		}
 		vkDeviceWaitIdle(vmcDevice.device());
+		ImGui_ImplVulkan_Shutdown();
+		ImGui_ImplGlfw_Shutdown();
+		ImGui::DestroyContext();
+	}
+
+
+	void VmcApp::initImgui()
+	{
+		// Create descriptor pool for ImGui
+		VkDescriptorPoolSize pool_sizes[] =
+		{
+			{ VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+			{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+			{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
+		};
+		VkDescriptorPoolCreateInfo pool_info = {};
+		pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+		pool_info.maxSets = 1000;
+		pool_info.poolSizeCount = std::size(pool_sizes);
+		pool_info.pPoolSizes = pool_sizes;
+
+
+		if (vkCreateDescriptorPool(vmcDevice.device(), &pool_info, nullptr, &imGuiPool) != VK_SUCCESS) {
+			throw std::runtime_error("Failed to create descriptor pool for imgui!");
+		}
+
+		// Init ImGui library
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+
+		// ImGui style
+		ImGui::StyleColorsDark();
+
+		// Platform/renderer bindings
+		ImGui_ImplGlfw_InitForVulkan(vmcWindow.getGLFWwindow(), true);
+		ImGui_ImplVulkan_InitInfo init_info = {};
+		init_info.Instance = vmcDevice.getInstance();
+		init_info.PhysicalDevice = vmcDevice.getPhysicalDevice();
+		init_info.Device = vmcDevice.device();
+		init_info.Queue = vmcDevice.graphicsQueue();
+		init_info.DescriptorPool = imGuiPool;
+		init_info.MinImageCount = VmcSwapChain::MAX_FRAMES_IN_FLIGHT;
+		init_info.ImageCount = VmcSwapChain::MAX_FRAMES_IN_FLIGHT;
+		init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
+
+		// ImGui Vulkan initialization
+		ImGui_ImplVulkan_Init(&init_info, vmcRenderer.getImGuiRenderPass());
+
+		// Upload fonts to GPU
+		VkCommandBuffer command_buffer = vmcDevice.beginSingleTimeCommands();
+		ImGui_ImplVulkan_CreateFontsTexture(command_buffer);
+		vmcDevice.endSingleTimeCommands(command_buffer);
+
+		ImGui_ImplVulkan_DestroyFontUploadObjects();
 	}
 
  

@@ -193,6 +193,8 @@ void VmcDevice::createCommandPool() {
   }
 }
 
+
+
 void VmcDevice::createSurface() { window.createWindowSurface(instance, &surface_); }
 
 bool VmcDevice::isDeviceSuitable(VkPhysicalDevice device) {

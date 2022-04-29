@@ -117,7 +117,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\VulkanSDK\1.2.189.1\Include;C:\Users\Jente\Desktop\cas1\computer-animation-and-simulation\Libraries\glm;C:\Users\Jente\Desktop\cas1\computer-animation-and-simulation\Libraries\glfw-3.3.4\include;C:\Users\Jente\Desktop\cas1\computer-animation-and-simulation\Libraries\tinyobjloader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Jente\Desktop\cas1\computer-animation-and-simulation\Libraries\imgui\backends;C:\Users\Jente\Desktop\cas1\computer-animation-and-simulation\Libraries\imgui;C:\VulkanSDK\1.2.189.1\Include;C:\Users\Jente\Desktop\cas1\computer-animation-and-simulation\Libraries\glm;C:\Users\Jente\Desktop\cas1\computer-animation-and-simulation\Libraries\glfw-3.3.4\include;C:\Users\Jente\Desktop\cas1\computer-animation-and-simulation\Libraries\tinyobjloader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -135,7 +135,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\VulkanSDK\1.2.189.1\Include;C:\Users\Jente\Desktop\cas1\computer-animation-and-simulation\Libraries\glm;C:\Users\Jente\Desktop\cas1\computer-animation-and-simulation\Libraries\glfw-3.3.4\include;C:\Users\Jente\Desktop\cas1\computer-animation-and-simulation\Libraries\tinyobjloader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\VulkanSDK\1.2.189.1\Include;C:\Users\Jente\Desktop\cas1\computer-animation-and-simulation\Libraries\glm;C:\Users\Jente\Desktop\cas1\computer-animation-and-simulation\Libraries\glfw-3.3.4\include;C:\Users\Jente\Desktop\cas1\computer-animation-and-simulation\Libraries\tinyobjloader;C:\Users\Jente\Desktop\cas1\computer-animation-and-simulation\Libraries\imgui\backends;C:\Users\Jente\Desktop\cas1\computer-animation-and-simulation\Libraries\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -154,6 +154,13 @@
     <ClCompile Include="ffd_keyboard_controller.cpp" />
     <ClCompile Include="function.cpp" />
     <ClCompile Include="function_animator.cpp" />
+    <ClCompile Include="imgui.cpp" />
+    <ClCompile Include="imgui_demo.cpp" />
+    <ClCompile Include="imgui_draw.cpp" />
+    <ClCompile Include="imgui_impl_glfw.cpp" />
+    <ClCompile Include="imgui_impl_vulkan.cpp" />
+    <ClCompile Include="imgui_tables.cpp" />
+    <ClCompile Include="imgui_widgets.cpp" />
     <ClCompile Include="joint.cpp" />
     <ClCompile Include="keyboard_movement_controller.cpp" />
     <ClCompile Include="link.cpp" />

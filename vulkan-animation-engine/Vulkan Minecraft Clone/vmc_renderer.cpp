@@ -149,6 +149,34 @@ namespace vae {
 		assert(isFrameStarted && "Cannot end the render pass when there is no current frame in progress!");
 		assert(commandBuffer == getCurrentCommandBuffer() && "Cannot end render pass on command buffer from a different frame!");
 		vkCmdEndRenderPass(commandBuffer);
-
 	}
+
+	void VmcRenderer::beginImGuiRenderPass(VkCommandBuffer commandBuffer)
+	{
+		assert(isFrameStarted && "Cannot begin the render pass when there is no current frame in progress!");
+		assert(commandBuffer == getCurrentCommandBuffer() && "Cannot begin render pass on command buffer from a different frame!");
+
+		VkRenderPassBeginInfo info = {};
+		info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		info.renderPass = vmcSwapChain->getImGuiRenderPass();
+		info.framebuffer = vmcSwapChain->getFrameBuffer(currentImageIndex);
+		info.renderArea.extent = vmcSwapChain->getSwapChainExtent();
+		info.clearValueCount = 1;
+
+		std::array<VkClearValue, 2> clearValues{};
+		clearValues[0].color = { 0.01f, 0.01f, 0.01f, 1.0f };
+		info.clearValueCount = static_cast<uint32_t>(clearValues.size());
+		info.pClearValues = clearValues.data();
+
+		vkCmdBeginRenderPass(commandBuffer, &info, VK_SUBPASS_CONTENTS_INLINE);
+	}
+
+	void VmcRenderer::endImGuiRenderPass(VkCommandBuffer commandBuffer)
+	{
+		assert(isFrameStarted && "Cannot end the render pass when there is no current frame in progress!");
+		assert(commandBuffer == getCurrentCommandBuffer() && "Cannot end render pass on command buffer from a different frame!");
+		vkCmdEndRenderPass(commandBuffer);
+	}
+
+
 }

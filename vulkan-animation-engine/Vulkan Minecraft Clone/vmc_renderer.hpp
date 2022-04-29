@@ -21,6 +21,7 @@ namespace vae {
 		VmcRenderer& operator=(const VmcRenderer&) = delete;
 
 		VkRenderPass getSwapChainRenderPass() const { return vmcSwapChain->getRenderPass(); };
+		VkRenderPass getImGuiRenderPass() const { return vmcSwapChain->getImGuiRenderPass(); };
 		float getAspectRatio() const { return vmcSwapChain->extentAspectRatio(); };
 		bool isFrameInProgress() const { return isFrameStarted; };
 		VkCommandBuffer getCurrentCommandBuffer() const {
@@ -36,6 +37,9 @@ namespace vae {
 		void endFrame();
 		void beginSwapChainRenderPass(VkCommandBuffer commandBuffer);
 		void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
+		void beginImGuiRenderPass(VkCommandBuffer commandBuffer);
+		void endImGuiRenderPass(VkCommandBuffer commandBuffer);
+
 
 	private:
 
