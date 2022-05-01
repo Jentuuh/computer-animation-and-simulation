@@ -5,6 +5,7 @@
 // glm
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 // std
 #include <vector>
@@ -14,10 +15,14 @@ namespace vae {
 	class Animator 
 	{
 	public:
-		Animator(glm::vec3 pos, float animationTime) : position{ pos }, totalTime{ animationTime } {};
+		Animator(glm::vec3 pos, glm::vec3 startOrientation, glm::vec3 endOrientation, float animationTime) : position{ pos }, 
+			totalTime{ animationTime }, startOrientation{ startOrientation }, 
+			endOrientation{endOrientation} {};
 
 		void advanceTime(float deltaTime);
 		virtual glm::vec3 calculateNextPositionSpeedControlled() = 0;
+		virtual glm::vec3 calculateIntermediateRotation() = 0;
+
 		virtual glm::vec3 calculateNextRotationParabolic() = 0;
 		virtual std::vector<TransformComponent>& getCurvePoints() = 0;
 		virtual std::vector<VmcGameObject>& getControlPoints() = 0;
@@ -30,6 +35,7 @@ namespace vae {
 		float getTimePassed() { return timePassed; };
 		float& getTotalTime() { return totalTime; };
 		glm::vec3& getPosition() { return position; };
+		bool containsObject(VmcGameObject* gameObj); 
 
 		void addAnimatedObject(VmcGameObject* gameObject);
 		void updateAnimatedObjects();
@@ -48,6 +54,8 @@ namespace vae {
 		int findLowerIndexOfArcLength(float arcLength);
 
 		glm::vec3 position;
+		glm::vec3 startOrientation{};
+		glm::vec3 endOrientation{};
 
 		std::vector<VmcGameObject*> animatedObjects{};
 

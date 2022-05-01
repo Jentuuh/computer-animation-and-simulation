@@ -10,6 +10,17 @@ namespace vae {
 		timePassed += deltaTime;
 	}
 
+	bool Animator::containsObject(VmcGameObject* gameObj)
+	{
+		for (auto obj : animatedObjects)
+		{
+			if (obj == gameObj)
+				return true;
+		}
+		return false;
+	}
+
+
 	void Animator::addAnimatedObject(VmcGameObject* gameObject)
 	{
 		animatedObjects.push_back(gameObject);
@@ -18,14 +29,17 @@ namespace vae {
 	void Animator::updateAnimatedObjects()
 	{
 		glm::vec3 newPos = calculateNextPositionSpeedControlled();
+		glm::vec3 newRot = calculateIntermediateRotation();
 		for (auto gameObj : animatedObjects)
 		{
 			gameObj->transform.translation = newPos;
+			gameObj->transform.rotation = newRot;
+
 			for (auto& c : gameObj->children)
 			{
 				c.transform.translation = newPos;
+				c.transform.rotation = newRot;
 			}
-			//gameObj->transform.rotation = calculateNextRotationParabolic();
 		}
 	}
 

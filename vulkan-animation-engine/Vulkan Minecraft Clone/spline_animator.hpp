@@ -15,13 +15,14 @@ namespace vae {
 	class SplineAnimator: public Animator
 	{
 	public:
-		SplineAnimator(glm::vec3 pos, std::vector<ControlPoint> controlPoints, float animationTime);
+		SplineAnimator(glm::vec3 pos, glm::vec3 startOrientation, glm::vec3 endOrientation, std::vector<ControlPoint> controlPoints, float animationTime);
 
 		Spline& getSpline() { return splineCurve; };
 		std::vector<TransformComponent>& getCurvePoints();
 		std::vector<VmcGameObject>& getControlPoints();
 
 		glm::vec3 calculateNextPositionSpeedControlled();
+		glm::vec3 calculateIntermediateRotation();
 		glm::vec3 calculateNextRotationParabolic();
 		void updateControlAndCurvePoints();
 

@@ -4,6 +4,10 @@
 #include "vmc_window.hpp"
 #include "vmc_game_object.hpp"
 #include "vmc_descriptors.hpp"
+#include "vmc_camera.hpp"
+#include "keyboard_movement_controller.hpp"
+#include "ffd_keyboard_controller.hpp"
+#include "spline_keyboard_controller.hpp"
 
 #include "animator.hpp"
 #include "spline_animator.hpp"
@@ -34,19 +38,28 @@ namespace vae {
 		void initImgui();
 	private:
 		void loadGameObjects();
+		void initDescriptorsAndUBOs();
 		void renderImGuiWindow();
 		void addSplineAnimator();
 		void initLSystems();
 		void initSkeletons();
 		void initRigidBodies();
 
+		void updateCamera(float frameTime);
+
 		VmcWindow vmcWindow{ WIDTH, HEIGHT, "Vulkan Animation Engine - Jente Vandersanden" };
 		VmcDevice vmcDevice{ vmcWindow };
 		VmcRenderer vmcRenderer{ vmcWindow, vmcDevice };
+		VmcCamera camera;
+		std::unique_ptr<VmcGameObject> viewerObject{};
 
 		// Order of declarations matter!
 		std::unique_ptr<VmcDescriptorPool> globalPool{};
 		VkDescriptorPool imGuiPool;
+
+		std::vector<std::unique_ptr<VmcBuffer>> uboBuffers;
+		std::unique_ptr<VmcDescriptorSetLayout> globalSetLayout;
+		std::vector<VkDescriptorSet> globalDescriptorSets;
 
 		std::vector<LSystem> Lsystems;
 		std::vector<VmcGameObject> gameObjects;
@@ -54,7 +67,11 @@ namespace vae {
 		std::vector<Skeleton> skeletons;
 		std::vector<RigidBody> rigidBodies;
 
-		bool editMode = true;
+		KeyboardMovementController cameraController;
+		SplineKeyboardController splineController;
+		FFDKeyboardController ffdController;
+
+		int cameraMode = 0;
 		std::shared_ptr<VmcModel> sphereModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
 	};
 }

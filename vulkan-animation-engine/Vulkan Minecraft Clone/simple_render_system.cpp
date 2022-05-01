@@ -61,7 +61,7 @@ namespace vae {
 	}
 
 	// Render loop
-	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, VkDescriptorSet globalDescriptorSet, std::vector<VmcGameObject> &gameObjects, std::vector<SplineAnimator>& animators, LSystem& lsystem, Skeleton& skeleton, RigidBody& rigid, const VmcCamera& camera, const float frameDeltaTime, std::shared_ptr<VmcModel> pointModel)
+	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, VkDescriptorSet globalDescriptorSet, std::vector<VmcGameObject> &gameObjects, std::vector<SplineAnimator>& animators, LSystem& lsystem, Skeleton& skeleton, RigidBody& rigid, const VmcCamera& camera, const float frameDeltaTime, std::shared_ptr<VmcModel> pointModel, int camMode, VmcGameObject* viewerObj)
 	{
 		vmcPipeline->bind(commandBuffer);
 
@@ -80,9 +80,9 @@ namespace vae {
 		for (int i = 0; i < animators.size(); i++)
 		{
 			animators[i].advanceTime(frameDeltaTime);
-			animators[i].updateAnimatedObjects();
-			//glm::vec3 nextPosition = animators[i].calculateNextPositionSpeedControlled();
-			//glm::vec3 nextRotation = animators[i].calculateNextRotationParabolic();
+			// Only update the animated objects if it doesn't contain the camera object while the freeroam mode is active
+			if(!(animators[i].containsObject(viewerObj) && camMode == 1))
+				animators[i].updateAnimatedObjects();
 
 			// Draw spline control points
 			TestPushConstant pushSpline{};
@@ -104,22 +104,25 @@ namespace vae {
 			}
 
 			// Draw spline curve points
-			pushSpline.color = { 1.0f, 1.0f, 1.0f };
-			for (auto& curvePoint : animators[i].getCurvePoints())
+			if (camMode != 2)
 			{
-				pushSpline.modelMatrix = curvePoint.mat4();
-				pushSpline.normalMatrix = curvePoint.normalMatrix();
 				pushSpline.color = { 1.0f, 1.0f, 1.0f };
+				for (auto& curvePoint : animators[i].getCurvePoints())
+				{
+					pushSpline.modelMatrix = curvePoint.mat4();
+					pushSpline.normalMatrix = curvePoint.normalMatrix();
+					pushSpline.color = { 1.0f, 1.0f, 1.0f };
 
-				vkCmdPushConstants(commandBuffer,
-					pipelineLayout,
-					VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-					0,
-					sizeof(TestPushConstant),
-					&pushSpline);
+					vkCmdPushConstants(commandBuffer,
+						pipelineLayout,
+						VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+						0,
+						sizeof(TestPushConstant),
+						&pushSpline);
 
-				pointModel->bind(commandBuffer);
-				pointModel->draw(commandBuffer);
+					pointModel->bind(commandBuffer);
+					pointModel->draw(commandBuffer);
+				}
 			}
 		}
 

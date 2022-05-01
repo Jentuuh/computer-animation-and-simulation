@@ -5,7 +5,9 @@
 
 namespace vae {
 
-	SplineAnimator::SplineAnimator(glm::vec3 pos, std::vector<ControlPoint> controlPoints, float animationTime) : Animator(pos, animationTime)
+	SplineAnimator::SplineAnimator(glm::vec3 pos, glm::vec3 startOrientation,
+									glm::vec3 endOrientation, std::vector<ControlPoint> controlPoints, 
+									float animationTime) : Animator(pos, startOrientation, endOrientation, animationTime)
 	{
 		for (ControlPoint& cp : controlPoints)
 		{
@@ -26,6 +28,15 @@ namespace vae {
 
 		return splineCurve.getCurvePoints()[index].translation;
 	}
+
+	glm::vec3 SplineAnimator::calculateIntermediateRotation()
+	{
+		glm::vec3 diff = endOrientation - startOrientation;
+
+		float timePassedNormalized = distanceTimeFuncParabolic();
+		return startOrientation + timePassedNormalized * diff;
+	}
+
 
 	glm::vec3 SplineAnimator::calculateNextRotationParabolic()
 	{

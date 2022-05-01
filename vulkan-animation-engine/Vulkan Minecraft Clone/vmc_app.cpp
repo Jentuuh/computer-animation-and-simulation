@@ -1,9 +1,5 @@
 #include "vmc_app.hpp"
 #include "simple_render_system.hpp"
-#include "vmc_camera.hpp"
-#include "keyboard_movement_controller.hpp"
-#include "spline_keyboard_controller.hpp"
-#include "ffd_keyboard_controller.hpp"
 #include "spline_animator.hpp"
 #include "vmc_buffer.hpp"
 
@@ -38,12 +34,14 @@ namespace vae {
 			.setMaxSets(VmcSwapChain::MAX_FRAMES_IN_FLIGHT)
 			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VmcSwapChain::MAX_FRAMES_IN_FLIGHT)
 			.build();
-		initImgui();
+		initDescriptorsAndUBOs();
 
+		initImgui();
 		loadGameObjects();
 		initLSystems();
 		initSkeletons();
 		initRigidBodies();
+		viewerObject = std::make_unique<VmcGameObject>(VmcGameObject::createGameObject());
 	}
 
 	VmcApp::~VmcApp(){
@@ -52,46 +50,12 @@ namespace vae {
 
 	void VmcApp::run()
 	{
-		std::vector<std::unique_ptr<VmcBuffer>> uboBuffers(VmcSwapChain::MAX_FRAMES_IN_FLIGHT);
-		for (int i = 0; i < uboBuffers.size(); i++)
-		{
-			uboBuffers[i] = std::make_unique<VmcBuffer>(
-				vmcDevice,
-				sizeof(GlobalUbo),
-				1,
-				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-
-			uboBuffers[i]->map();
-		}
-
-		auto globalSetLayout = VmcDescriptorSetLayout::Builder(vmcDevice)
-			.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
-			.build();
-
-		std::vector<VkDescriptorSet> globalDescriptorSets(VmcSwapChain::MAX_FRAMES_IN_FLIGHT);
-		for (int i = 0; i < globalDescriptorSets.size(); i++)
-		{
-			auto bufferInfo = uboBuffers[i]->descriptorInfo();
-			// Write buffer info to binding 0
-			VmcDescriptorWriter(*globalSetLayout, *globalPool)
-				.writeBuffer(0, &bufferInfo)
-				.build(globalDescriptorSets[i]);
-		}
 
 		SimpleRenderSystem simpleRenderSystem{ 
 			vmcDevice, 
 			vmcRenderer.getSwapChainRenderPass(), 
 			globalSetLayout->getDescriptorSetLayout()};
-		VmcCamera camera{};
-
-		// Camera controller + camera state container (camera game object) --> WON'T BE RENDERED!
-		// The camera's game object only manages the state (rotation + translation) of the camera.
-		auto viewerObject = VmcGameObject::createGameObject();
-		KeyboardMovementController cameraController{};
-		SplineKeyboardController splineController{};
-		FFDKeyboardController ffdController{};
-
+	
         auto currentTime = std::chrono::high_resolution_clock::now();
 
 		// ImGui state
@@ -110,16 +74,9 @@ namespace vae {
             float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
             currentTime = newTime;
             frameTime = glm::min(frameTime, MAX_FRAME_TIME);
-
-			// Update camera model (game object that contains camera
-            cameraController.moveInPlaneXZ(vmcWindow.getGLFWwindow(), frameTime, viewerObject);
-			// Update camera view matrix
-            camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
-
-            float aspect = vmcRenderer.getAspectRatio();
-
-            camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
 			
+			updateCamera(frameTime);
+
 			// Controllers
 			splineController.updateSpline(vmcWindow.getGLFWwindow(), frameTime, animators[0]);
 			ffdController.updateDeformationGrid(vmcWindow.getGLFWwindow(), frameTime, gameObjects[1]);
@@ -155,7 +112,9 @@ namespace vae {
 					rigidBodies[0], 
 					camera, 
 					frameTime,
-					sphereModel);
+					sphereModel,
+					cameraMode,
+					viewerObject.get());
 				vmcRenderer.endSwapChainRenderPass(commandBuffer);
 
 				// Draw ImGui stuff
@@ -278,6 +237,37 @@ namespace vae {
 		//}
 	}
 
+	void VmcApp::initDescriptorsAndUBOs()
+	{
+		uboBuffers.resize(VmcSwapChain::MAX_FRAMES_IN_FLIGHT);
+		for (int i = 0; i < uboBuffers.size(); i++)
+		{
+			uboBuffers[i] = std::make_unique<VmcBuffer>(
+				vmcDevice,
+				sizeof(GlobalUbo),
+				1,
+				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+
+			uboBuffers[i]->map();
+		}
+
+		 globalSetLayout = std::move(VmcDescriptorSetLayout::Builder(vmcDevice)
+			.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+			.build());
+
+	globalDescriptorSets.resize(VmcSwapChain::MAX_FRAMES_IN_FLIGHT);
+		for (int i = 0; i < globalDescriptorSets.size(); i++)
+		{
+			auto bufferInfo = uboBuffers[i]->descriptorInfo();
+			// Write buffer info to binding 0
+			VmcDescriptorWriter(*globalSetLayout, *globalPool)
+				.writeBuffer(0, &bufferInfo)
+				.build(globalDescriptorSets[i]);
+		}
+	}
+
+
 	void VmcApp::renderImGuiWindow()
 	{
 		const char* controlPoints[] = { "1", };
@@ -287,8 +277,17 @@ namespace vae {
 
 		ImGui::Begin("Vulkan Animation Engine UI");
 		ImGui::TextWrapped("This UI window allows you to manage the scene content.");
+		
+		ImGui::Text("Camera Mode:");
+		ImGui::RadioButton("Edit mode", &cameraMode, 0); ImGui::SameLine();
+		ImGui::RadioButton("Free roam mode", &cameraMode, 1); ImGui::SameLine();
+		ImGui::RadioButton("Animator mode", &cameraMode, 2);
 
-		ImGui::Checkbox("Edit mode", &editMode);
+		//if (ImGui::Checkbox("Edit mode", &editMode))
+		//{
+		//	if (editMode)
+		//		viewerObject->transform.translation = { 0.0f, 0.0f, 0.0f };
+		//};
 
 		// =====================
 		// SPLINE ANIMATOR UI
@@ -368,7 +367,7 @@ namespace vae {
 		controlPoints.push_back({ { 6.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel });
 		controlPoints.push_back({ { 7.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel });
 
-		SplineAnimator splineAnimator{ {0.0f, 0.0f, 0.0f}, controlPoints, 4.0f };
+		SplineAnimator splineAnimator{ {0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, controlPoints, 4.0f };
 		splineAnimator.getSpline().generateSplineSegments();
 		animators.push_back(std::move(splineAnimator));
 
@@ -412,4 +411,36 @@ namespace vae {
 		rigidBodies.push_back(rigid_1);
 	}
 
+	void VmcApp::updateCamera(float frameTime)
+	{
+		float aspect = vmcRenderer.getAspectRatio();
+
+		switch (cameraMode)
+		{
+		// EDIT MODE
+		case 0:
+			viewerObject->transform.translation = { 10.0f, -10.0f, -10.0f };
+			camera.setViewTarget(viewerObject->transform.translation, { 0.0f, 0.0f, 0.0f }, { 0.0f, -1.0f, 0.0f });
+			camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
+			break;
+		
+		// ROAM MODE
+		case 1:
+			// Update camera model (game object that contains camera
+			cameraController.moveInPlaneXZ(vmcWindow.getGLFWwindow(), frameTime, *viewerObject);
+			// Update camera view matrix
+			camera.setViewYXZ(viewerObject->transform.translation, viewerObject->transform.rotation);
+			camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
+			break;
+
+		// ANIMATOR MODE
+		case 2:
+			// Update camera view matrix (translation is handled by the animator)
+			camera.setViewYXZ(viewerObject->transform.translation, viewerObject->transform.rotation);
+			camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 1000.f);
+			break;
+		default:
+			break;
+		}
+	}
 }
