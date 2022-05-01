@@ -22,10 +22,11 @@ namespace vae {
 		std::vector<VmcGameObject>& getControlPoints() { return controlPoints; };
 		std::vector<TransformComponent>& getCurvePoints() { return curvePoints; };
 
-		void addControlPoint(glm::vec3 pos, glm::vec3 color, std::shared_ptr<VmcModel> model);
+		void addControlPoint(glm::vec3 pos, glm::vec3 color, std::shared_ptr<VmcModel> model, glm::vec3 offset);
 		void moveCurrentControlPoint(MoveDirection direction, float deltaTime);
 		void selectNextControlPoint();
-
+		
+		void updateControlPointsAndCurvePointsPositions(glm::vec3 offset);
 		void generateSplineSegments();
 
 	private:

@@ -10,6 +10,25 @@ namespace vae {
 		timePassed += deltaTime;
 	}
 
+	void Animator::addAnimatedObject(VmcGameObject* gameObject)
+	{
+		animatedObjects.push_back(gameObject);
+	}
+
+	void Animator::updateAnimatedObjects()
+	{
+		glm::vec3 newPos = calculateNextPositionSpeedControlled();
+		for (auto gameObj : animatedObjects)
+		{
+			gameObj->transform.translation = newPos;
+			for (auto& c : gameObj->children)
+			{
+				c.transform.translation = newPos;
+			}
+			//gameObj->transform.rotation = calculateNextRotationParabolic();
+		}
+	}
+
 	void Animator::buildForwardDifferencingTable()
 	{
 		forwardDiffTable.clear();

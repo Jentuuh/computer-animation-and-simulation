@@ -5,15 +5,13 @@
 
 namespace vae {
 
-	SplineAnimator::SplineAnimator(std::vector<ControlPoint> controlPoints)
+	SplineAnimator::SplineAnimator(glm::vec3 pos, std::vector<ControlPoint> controlPoints, float animationTime) : Animator(pos, animationTime)
 	{
 		for (ControlPoint& cp : controlPoints)
 		{
-			splineCurve.addControlPoint(cp.pos, cp.col, cp.model);
+			splineCurve.addControlPoint(cp.pos, cp.col, cp.model, position);
 		}
-
 		timePassed = 0.0f;
-		totalTime = 4.0f;		// 4 seconds ( TODO: put this as a parameter in the constructor)
 	}
 
 	glm::vec3 SplineAnimator::calculateNextPositionSpeedControlled()
@@ -46,6 +44,26 @@ namespace vae {
 	{
 		return splineCurve.getControlPoints();
 	}
+
+	void SplineAnimator::addControlPoint(ControlPoint newControlPoint, glm::vec3 offset)
+	{
+		splineCurve.addControlPoint(position + newControlPoint.pos, newControlPoint.col, newControlPoint.model, offset);
+		splineCurve.generateSplineSegments();
+		buildForwardDifferencingTable();
+	}
+
+	void SplineAnimator::removeControlPoint(int index)
+	{
+		splineCurve.getControlPoints().erase(splineCurve.getControlPoints().begin() + index);
+		splineCurve.generateSplineSegments();
+		buildForwardDifferencingTable();
+	}
+
+
+	void SplineAnimator::updateControlAndCurvePoints()
+	{
+		splineCurve.updateControlPointsAndCurvePointsPositions(position);
+	};
 
 	void SplineAnimator::moveCurrentControlPoint(MoveDirection d, float dt)
 	{

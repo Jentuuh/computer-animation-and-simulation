@@ -21,6 +21,7 @@
 #include <glm/vec3.hpp>
 #include <glm/gtc/constants.hpp>
 #include <imgui.h>
+#include <imgui_internal.h>
 #include <imgui_impl_vulkan.h>
 #include <imgui_impl_glfw.h>
 
@@ -51,7 +52,6 @@ namespace vae {
 
 	void VmcApp::run()
 	{
-
 		std::vector<std::unique_ptr<VmcBuffer>> uboBuffers(VmcSwapChain::MAX_FRAMES_IN_FLIGHT);
 		for (int i = 0; i < uboBuffers.size(); i++)
 		{
@@ -92,26 +92,6 @@ namespace vae {
 		SplineKeyboardController splineController{};
 		FFDKeyboardController ffdController{};
 
-		// Initialize animators
-		std::shared_ptr<VmcModel> sphereModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
-		std::vector<ControlPoint> controlPoints{};
-		controlPoints.push_back({ { 0.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel });
-		controlPoints.push_back({ { 1.0f, 1.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel });
-		controlPoints.push_back({ { 2.0f, 1.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel });
-		controlPoints.push_back({ { 3.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel });
-		controlPoints.push_back({ { 4.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel });
-		controlPoints.push_back({ { 5.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel });
-		controlPoints.push_back({ { 6.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel });
-		controlPoints.push_back({ { 7.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel });
-
-		SplineAnimator splineAnimator{controlPoints};
-		splineAnimator.getSpline().generateSplineSegments();
-		animators.push_back(std::move(splineAnimator));
-
-		// Build forward differencing table based on curve points
-		animators[0].buildForwardDifferencingTable();
-		animators[0].printForwardDifferencingTable();
-
         auto currentTime = std::chrono::high_resolution_clock::now();
 
 		// ImGui state
@@ -123,12 +103,7 @@ namespace vae {
 		{
 			glfwPollEvents();
 
-			// ImGui UI code
-			ImGui_ImplVulkan_NewFrame();
-			ImGui_ImplGlfw_NewFrame();
-			ImGui::NewFrame();
-			ImGui::ShowDemoWindow();
-			ImGui::Render();
+			renderImGuiWindow();
 
             // Time step (delta time)
             auto newTime = std::chrono::high_resolution_clock::now();
@@ -174,12 +149,13 @@ namespace vae {
 					commandBuffer, 
 					globalDescriptorSets[frameIndex], 
 					gameObjects, 
-					animators[0], 
+					animators, 
 					Lsystems[0], 
 					skeletons[0], 
 					rigidBodies[0], 
 					camera, 
-					frameTime);
+					frameTime,
+					sphereModel);
 				vmcRenderer.endSwapChainRenderPass(commandBuffer);
 
 				// Draw ImGui stuff
@@ -263,7 +239,6 @@ namespace vae {
 		// Stick figure
 		std::shared_ptr<VmcModel> stickModel = VmcModel::createModelFromFile(vmcDevice, "../Models/stick_fig/body_stick.obj");
 		std::shared_ptr<VmcModel> armModel = VmcModel::createModelFromFile(vmcDevice, "../Models/stick_fig/arm_left.obj");
-		std::shared_ptr<VmcModel> sphereModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
 
 		auto stickObj = VmcGameObject::createGameObject();
 		stickObj.model = stickModel;
@@ -302,6 +277,106 @@ namespace vae {
 		//	x += delta_x;
 		//}
 	}
+
+	void VmcApp::renderImGuiWindow()
+	{
+		const char* controlPoints[] = { "1", };
+		ImGui_ImplVulkan_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		ImGui::Begin("Vulkan Animation Engine UI");
+		ImGui::TextWrapped("This UI window allows you to manage the scene content.");
+
+		ImGui::Checkbox("Edit mode", &editMode);
+
+		// =====================
+		// SPLINE ANIMATOR UI
+		// =====================
+		if (ImGui::Button("Add Spline Curve Animator"))
+		{
+			addSplineAnimator();
+			animators.back().addAnimatedObject(&gameObjects[0]);
+		}
+
+		for (int i = 0; i < animators.size(); i++)
+		{
+
+			ImGui::TextWrapped("==============================================");
+			std::string animatorTitle = "Spline animator ";
+			ImGui::TextWrapped((animatorTitle + std::to_string(i)).c_str());
+
+			ImGui::InputFloat("Duration", &animators[i].getTotalTime(), 0.0f, 0.0f, "%.3f s");
+
+			std::string removeLabel = "Remove animator ";
+			if (ImGui::Button((removeLabel + std::to_string(i)).c_str()))
+			{
+				animators.erase(animators.begin() + i);
+			}
+
+			std::string animatorMoveLabel = "Pos anim ";
+			if (ImGui::DragFloat3((animatorMoveLabel + std::to_string(i)).c_str(), glm::value_ptr(animators[i].getPosition()), 1.0f, -20.0f, 20.0f))
+			{
+				animators[i].updateControlAndCurvePoints();
+				animators[i].getSpline().generateSplineSegments();
+				animators[i].buildForwardDifferencingTable();
+			}
+			
+			std::string addCPLabel = "ADD CP (anim ";
+			if (ImGui::Button((addCPLabel + std::to_string(i) + ")").c_str()))
+			{
+				animators[i].addControlPoint(ControlPoint{ {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.1f}, sphereModel }, animators[i].getPosition());
+			}
+		
+			std::vector<VmcGameObject>& CPs = animators[i].getControlPoints();
+			for(int j = 0; j < CPs.size(); j++)
+			{
+				std::string cpLabel = "CP ";
+				if (ImGui::DragFloat3((cpLabel + std::to_string(i) + "." + std::to_string(j)).c_str(), glm::value_ptr(CPs[j].transform.translation), 1.0f, -50.0f, 50.0f)) {
+					animators[i].getSpline().generateSplineSegments();
+					animators[i].buildForwardDifferencingTable();
+				};
+
+				ImGui::SameLine();
+				std::string removeCPLabel = "DEL (";
+				
+				if (ImGui::Button((removeCPLabel + std::to_string(i) + "." + std::to_string(j) + ")").c_str()))
+				{
+					animators[i].removeControlPoint(j);
+				}
+			}
+			ImGui::TextWrapped("==============================================");
+		}
+
+		ImGui::End();
+
+		ImGui::Render();
+	}
+
+	void VmcApp::addSplineAnimator()
+	{
+		// Initialize animators
+		std::shared_ptr<VmcModel> sphereModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
+
+		std::vector<ControlPoint> controlPoints{};
+		controlPoints.push_back({ { 0.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel });
+		controlPoints.push_back({ { 1.0f, 1.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel });
+		controlPoints.push_back({ { 2.0f, 1.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel });
+		controlPoints.push_back({ { 3.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel });
+		controlPoints.push_back({ { 4.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel });
+		controlPoints.push_back({ { 5.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel });
+		controlPoints.push_back({ { 6.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel });
+		controlPoints.push_back({ { 7.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel });
+
+		SplineAnimator splineAnimator{ {0.0f, 0.0f, 0.0f}, controlPoints, 4.0f };
+		splineAnimator.getSpline().generateSplineSegments();
+		animators.push_back(std::move(splineAnimator));
+
+		// Build forward differencing table based on curve points
+		animators.back().buildForwardDifferencingTable();
+		animators.back().printForwardDifferencingTable();
+	}
+
 
 	void VmcApp::initLSystems() 
 	{

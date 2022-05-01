@@ -61,7 +61,7 @@ namespace vae {
 	}
 
 	// Render loop
-	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, VkDescriptorSet globalDescriptorSet, std::vector<VmcGameObject> &gameObjects, Animator& animator, LSystem& lsystem, Skeleton& skeleton, RigidBody& rigid, const VmcCamera& camera, const float frameDeltaTime)
+	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, VkDescriptorSet globalDescriptorSet, std::vector<VmcGameObject> &gameObjects, std::vector<SplineAnimator>& animators, LSystem& lsystem, Skeleton& skeleton, RigidBody& rigid, const VmcCamera& camera, const float frameDeltaTime, std::shared_ptr<VmcModel> pointModel)
 	{
 		vmcPipeline->bind(commandBuffer);
 
@@ -74,17 +74,61 @@ namespace vae {
 			&globalDescriptorSet, 0,
 			nullptr);
 
-		// Advance time in animator and calculate the new position based on the current time
-		animator.advanceTime(frameDeltaTime);
-		glm::vec3 nextPosition = animator.calculateNextPositionSpeedControlled();
-		std::shared_ptr<VmcModel> pointModel = animator.getControlPoints()[0].model;
+		glm::vec3 nextPosition{ 0.0f, 0.0f, 0.0f };
+		glm::vec3 nextRotation{ 0.0f, 0.0f, 0.0f };
+		// Advance time in animators and calculate the new positions based on the current time
+		for (int i = 0; i < animators.size(); i++)
+		{
+			animators[i].advanceTime(frameDeltaTime);
+			animators[i].updateAnimatedObjects();
+			//glm::vec3 nextPosition = animators[i].calculateNextPositionSpeedControlled();
+			//glm::vec3 nextRotation = animators[i].calculateNextRotationParabolic();
+
+			// Draw spline control points
+			TestPushConstant pushSpline{};
+			for (auto& cpspline : animators[i].getControlPoints())
+			{
+				pushSpline.modelMatrix = cpspline.transform.mat4();
+				pushSpline.normalMatrix = cpspline.transform.normalMatrix();
+				pushSpline.color = cpspline.color;
+
+				vkCmdPushConstants(commandBuffer,
+					pipelineLayout,
+					VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+					0,
+					sizeof(TestPushConstant),
+					&pushSpline);
+
+				cpspline.model->bind(commandBuffer);
+				cpspline.model->draw(commandBuffer);
+			}
+
+			// Draw spline curve points
+			pushSpline.color = { 1.0f, 1.0f, 1.0f };
+			for (auto& curvePoint : animators[i].getCurvePoints())
+			{
+				pushSpline.modelMatrix = curvePoint.mat4();
+				pushSpline.normalMatrix = curvePoint.normalMatrix();
+				pushSpline.color = { 1.0f, 1.0f, 1.0f };
+
+				vkCmdPushConstants(commandBuffer,
+					pipelineLayout,
+					VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+					0,
+					sizeof(TestPushConstant),
+					&pushSpline);
+
+				pointModel->bind(commandBuffer);
+				pointModel->draw(commandBuffer);
+			}
+		}
 
 		// Draw gameobjects
 		for (auto& obj : gameObjects) {
 			
-			// Translate object with id 0 speed-controlled over a space curve
-			if (obj.getId() == 0)
-				obj.setPosition(nextPosition);
+			//// Translate object with id 0 speed-controlled over a space curve
+			//if (obj.getId() == 0)
+			//	obj.setPosition(nextPosition);
 
 			TestPushConstant push{};
 			push.modelMatrix = obj.transform.mat4();
@@ -106,8 +150,8 @@ namespace vae {
 			for (auto& child : obj.getChildren()) {
 
 				// Rotate arm
-				child.setPosition(nextPosition);
-				child.transform.rotation = animator.calculateNextRotationParabolic();
+				//child.setPosition(nextPosition);
+				//child.transform.rotation = nextRotation;
 
 				TestPushConstant pushChild{};
 				pushChild.modelMatrix = child.transform.mat4();
@@ -154,44 +198,6 @@ namespace vae {
 			}
 		}
 
-		TestPushConstant pushSpline{};
-
-		// Draw spline control points
-		for (auto& cpspline : animator.getControlPoints())
-		{
-			pushSpline.modelMatrix = cpspline.transform.mat4();
-			pushSpline.normalMatrix = cpspline.transform.normalMatrix();
-			pushSpline.color = cpspline.color;
-
-			vkCmdPushConstants(commandBuffer,
-				pipelineLayout,
-				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-				0,
-				sizeof(TestPushConstant),
-				&pushSpline);
-
-			cpspline.model->bind(commandBuffer);
-			cpspline.model->draw(commandBuffer);
-		}
-
-		// Draw spline curve points
-		pushSpline.color = { 1.0f, 1.0f, 1.0f };
-		for (auto& curvePoint : animator.getCurvePoints())
-		{
-			pushSpline.modelMatrix = curvePoint.mat4();
-			pushSpline.normalMatrix = curvePoint.normalMatrix();
-			pushSpline.color = { 1.0f, 1.0f, 1.0f };
-
-			vkCmdPushConstants(commandBuffer,
-				pipelineLayout,
-				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-				0,
-				sizeof(TestPushConstant),
-				&pushSpline);
-
-			pointModel->bind(commandBuffer);
-			pointModel->draw(commandBuffer);
-		}
 
 		// Draw L-System
 		TestPushConstant pushL{};

@@ -163,7 +163,7 @@ namespace vae {
 		info.renderArea.extent = vmcSwapChain->getSwapChainExtent();
 		info.clearValueCount = 1;
 
-		std::array<VkClearValue, 2> clearValues{};
+		std::array<VkClearValue, 1> clearValues{};
 		clearValues[0].color = { 0.01f, 0.01f, 0.01f, 1.0f };
 		info.clearValueCount = static_cast<uint32_t>(clearValues.size());
 		info.pClearValues = clearValues.data();

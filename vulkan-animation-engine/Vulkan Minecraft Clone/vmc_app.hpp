@@ -34,6 +34,8 @@ namespace vae {
 		void initImgui();
 	private:
 		void loadGameObjects();
+		void renderImGuiWindow();
+		void addSplineAnimator();
 		void initLSystems();
 		void initSkeletons();
 		void initRigidBodies();
@@ -46,12 +48,14 @@ namespace vae {
 		std::unique_ptr<VmcDescriptorPool> globalPool{};
 		VkDescriptorPool imGuiPool;
 
-
 		std::vector<LSystem> Lsystems;
 		std::vector<VmcGameObject> gameObjects;
 		std::vector<SplineAnimator> animators;
 		std::vector<Skeleton> skeletons;
 		std::vector<RigidBody> rigidBodies;
+
+		bool editMode = true;
+		std::shared_ptr<VmcModel> sphereModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
 	};
 }
 

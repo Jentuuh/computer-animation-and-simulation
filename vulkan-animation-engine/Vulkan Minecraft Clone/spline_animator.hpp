@@ -3,6 +3,8 @@
 #include "vmc_game_object.hpp"
 #include "animator.hpp"
 
+#include <glm/glm.hpp>
+
 namespace vae {
 	struct ControlPoint {
 		glm::vec3 pos;
@@ -13,14 +15,18 @@ namespace vae {
 	class SplineAnimator: public Animator
 	{
 	public:
-		SplineAnimator(std::vector<ControlPoint> controlPoints);
+		SplineAnimator(glm::vec3 pos, std::vector<ControlPoint> controlPoints, float animationTime);
 
 		Spline& getSpline() { return splineCurve; };
+		std::vector<TransformComponent>& getCurvePoints();
+		std::vector<VmcGameObject>& getControlPoints();
 
 		glm::vec3 calculateNextPositionSpeedControlled();
 		glm::vec3 calculateNextRotationParabolic();
-		std::vector<TransformComponent>& getCurvePoints();
-		std::vector<VmcGameObject>& getControlPoints();
+		void updateControlAndCurvePoints();
+
+		void addControlPoint(ControlPoint newControlPoint, glm::vec3 offset);
+		void removeControlPoint(int index);
 		void moveCurrentControlPoint(MoveDirection d, float dt);
 		void selectNextControlPoint();
 

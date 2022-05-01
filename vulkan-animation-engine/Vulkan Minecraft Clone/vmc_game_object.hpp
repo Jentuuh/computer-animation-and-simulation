@@ -18,6 +18,7 @@ namespace vae {
         glm::vec3 translation{};  // Position offset
         glm::vec3 scale{ 1.f, 1.f, 1.f };
         glm::vec3 rotation{};
+        glm::vec3 relativePos{.0f, .0f, .0f};
 
         glm::mat4 mat4();
         glm::mat3 normalMatrix();

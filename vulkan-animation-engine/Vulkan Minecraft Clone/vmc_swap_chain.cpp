@@ -325,8 +325,7 @@ void VmcSwapChain::createImGuiRenderPass()
 
 void VmcSwapChain::createFramebuffers() {
 
-  // Default swapchain Framebuffers
-
+  // Scene Framebuffers
   swapChainFramebuffers.resize(imageCount());
   for (size_t i = 0; i < imageCount(); i++) {
     std::array<VkImageView, 2> attachments = {swapChainImageViews[i], depthImageViews[i]};

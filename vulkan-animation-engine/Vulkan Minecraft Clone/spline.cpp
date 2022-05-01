@@ -8,11 +8,12 @@ namespace vae {
 
 	}
 
-	void Spline::addControlPoint(glm::vec3 pos, glm::vec3 color, std::shared_ptr<VmcModel> model)
+	void Spline::addControlPoint(glm::vec3 pos, glm::vec3 color, std::shared_ptr<VmcModel> model, glm::vec3 offset)
 	{
 		auto contr_point = VmcGameObject::createGameObject();
 		contr_point.model = model;
-		contr_point.transform.translation = pos;
+		contr_point.transform.translation = pos + offset;
+		contr_point.transform.relativePos = pos;
 		contr_point.transform.scale = { 0.05f, 0.05f, 0.05f };
 		contr_point.color = color;
 
@@ -54,6 +55,20 @@ namespace vae {
 		}
 		generateSplineSegments();
 	}
+
+	void Spline::updateControlPointsAndCurvePointsPositions(glm::vec3 offset)
+	{
+		for (auto& cp : controlPoints)
+		{
+			cp.transform.translation = cp.transform.relativePos + offset;
+		}
+
+		for (auto& cp : curvePoints)
+		{
+			cp.translation = cp.relativePos + offset;
+		}
+	}
+
 
 	void Spline::generateSplineSegments()
 	{
