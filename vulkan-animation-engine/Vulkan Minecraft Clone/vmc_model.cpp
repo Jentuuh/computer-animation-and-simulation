@@ -30,6 +30,7 @@ namespace std {
 namespace vae {
 
     VmcModel::VmcModel(VmcDevice& device, const VmcModel::Builder &builder) : vmcDevice{ device } {
+        og_vertex_data = builder.vertices;
         old_vertex_data = builder.vertices;
         new_vertex_data = builder.vertices;
         createVertexBuffers(builder.vertices);
@@ -176,6 +177,13 @@ namespace vae {
         stagingBuffer.writeToBuffer((void*)new_vertex_data.data());
 
         vmcDevice.copyBuffer(stagingBuffer.getBuffer(), vertexBuffer->getBuffer(), bufferSize);
+    }
+
+    void VmcModel::resetModel()
+    {
+        new_vertex_data = og_vertex_data;
+        old_vertex_data = og_vertex_data;
+        updateVertexBuffers();
     }
 
 

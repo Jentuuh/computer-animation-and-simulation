@@ -39,11 +39,15 @@ namespace vae {
 	private:
 		void loadGameObjects();
 		void initDescriptorsAndUBOs();
-		void renderImGuiWindow();
+
 		void addSplineAnimator();
 		void initLSystems();
 		void initSkeletons();
 		void initRigidBodies();
+
+		void renderImGuiWindow();
+		void renderImGuiPathAnimatorUI();
+		void renderImGuiDeformationUI();
 
 		void updateCamera(float frameTime);
 
@@ -72,6 +76,9 @@ namespace vae {
 		FFDKeyboardController ffdController;
 
 		int cameraMode = 0;
+		float animation_FPS = 60.0f;
+		int UI_Tab = 0;
+		int deformationIndex = 0;
 		std::shared_ptr<VmcModel> sphereModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
 	};
 }

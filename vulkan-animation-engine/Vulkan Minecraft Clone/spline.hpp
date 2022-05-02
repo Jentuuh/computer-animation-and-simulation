@@ -27,6 +27,7 @@ namespace vae {
 		void selectNextControlPoint();
 		
 		void updateControlPointsAndCurvePointsPositions(glm::vec3 offset);
+		void updateControlPointsRelativePositions();
 		void generateSplineSegments();
 
 	private:

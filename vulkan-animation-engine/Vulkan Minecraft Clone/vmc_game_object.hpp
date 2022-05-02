@@ -54,14 +54,17 @@ namespace vae {
         void setScale(glm::vec3 newScale);
 
         void deformObject();
+        void resetObjectForm();
         void confirmObjectDeformation();
         void initDeformationSystem();
+        void disableDeformationSystem();
 
         std::shared_ptr<VmcModel> model{};
         std::vector<VmcGameObject> children{};
         glm::vec3 color{};
         TransformComponent transform{};
         FFD deformationSystem;
+        bool deformationEnabled = false;
 
     private:
         VmcGameObject(id_t objId) : id{ objId } {}

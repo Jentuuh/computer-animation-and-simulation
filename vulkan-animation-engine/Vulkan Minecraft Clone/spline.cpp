@@ -63,9 +63,17 @@ namespace vae {
 			cp.transform.translation = cp.transform.relativePos + offset;
 		}
 
-		for (auto& cp : curvePoints)
+		//for (auto& cp : curvePoints)
+		//{
+		//	cp.translation = cp.relativePos + offset;
+		//}
+	}
+
+	void Spline::updateControlPointsRelativePositions()
+	{
+		for (auto& cp : controlPoints)
 		{
-			cp.translation = cp.relativePos + offset;
+			cp.transform.relativePos = cp.transform.translation;
 		}
 	}
 

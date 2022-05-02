@@ -33,12 +33,17 @@ namespace vae {
 		FFD(FFDInitializer init);
 
 		std::vector<TransformComponent> getControlPoints(){ return grid; };
+		int getAmountKeyframes() { return keyframes.size(); };
 		int getCurrentCPIndex() { return selectedControlPoint; };
+
 
 		void moveCurrentControlPoint(MoveDirection dir, float dt);
 		void resetControlPoints();
 		void selectNextControlPoint();
 		void selectPrevControlPoint();
+
+		void addKeyFrame();
+		void delKeyFrame(int index);
 
 		void translate(glm::vec3 transVec);
 
@@ -57,6 +62,8 @@ namespace vae {
 		int l;		// Resolutions per dimension
 		int m;
 		int n;
+
+		std::vector<std::vector<glm::vec3>> keyframes{};
 
 		int selectedControlPoint = 0;
 		float pointMovementSpeed = 5.0f;

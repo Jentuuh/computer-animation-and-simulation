@@ -95,6 +95,21 @@ namespace vae {
 		selectedControlPoint = (selectedControlPoint - 1) % grid.size();
 	}
 
+	void FFD::addKeyFrame()
+	{
+		std::vector<glm::vec3> newKeyFrame{};
+		for (auto& point : grid)
+		{
+			newKeyFrame.push_back(point.translation);
+		}
+		keyframes.push_back(newKeyFrame);
+	}
+
+	void FFD::delKeyFrame(int index)
+	{
+		keyframes.erase(keyframes.begin() + index);
+	}
+
 	glm::vec3 FFD::calcDeformedGlobalPosition(glm::vec3 oldPosition)
 	{
 		// Calculate s,t,u

@@ -74,12 +74,22 @@ namespace vae {
             float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
             currentTime = newTime;
             frameTime = glm::min(frameTime, MAX_FRAME_TIME);
+
+			// FPS cap (minimumed to 2)
+			while (frameTime < 1.0f / glm::max(animation_FPS, 2.0f))
+			{
+				auto newTime = std::chrono::high_resolution_clock::now();
+				float diff = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
+				currentTime = newTime;
+				frameTime += diff;
+			}
 			
 			updateCamera(frameTime);
 
 			// Controllers
 			splineController.updateSpline(vmcWindow.getGLFWwindow(), frameTime, animators[0]);
-			ffdController.updateDeformationGrid(vmcWindow.getGLFWwindow(), frameTime, gameObjects[1]);
+			if(gameObjects[deformationIndex].deformationEnabled)
+				ffdController.updateDeformationGrid(vmcWindow.getGLFWwindow(), frameTime, gameObjects[deformationIndex]);
 
 			// Generate L-system iterations
 			if (glfwGetKey(vmcWindow.getGLFWwindow(), GLFW_KEY_C) == GLFW_PRESS)
@@ -218,7 +228,6 @@ namespace vae {
 
 		auto sphere = VmcGameObject::createGameObject();
 		sphere.model = sphereModel;
-		sphere.initDeformationSystem();
 		sphere.setPosition({ .0f, .0f, .0f });
 		sphere.transform.rotation = { .0f, .0f, .0f };
 		sphere.setScale({ 1.0f, 1.0f, 1.0f });
@@ -270,25 +279,56 @@ namespace vae {
 
 	void VmcApp::renderImGuiWindow()
 	{
-		const char* controlPoints[] = { "1", };
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
 		ImGui::Begin("Vulkan Animation Engine UI");
 		ImGui::TextWrapped("This UI window allows you to manage the scene content.");
-		
+
+		ImGui::InputFloat("FPS cap: ", &animation_FPS);
+
 		ImGui::Text("Camera Mode:");
 		ImGui::RadioButton("Edit mode", &cameraMode, 0); ImGui::SameLine();
 		ImGui::RadioButton("Free roam mode", &cameraMode, 1); ImGui::SameLine();
 		ImGui::RadioButton("Animator mode", &cameraMode, 2);
 
-		//if (ImGui::Checkbox("Edit mode", &editMode))
-		//{
-		//	if (editMode)
-		//		viewerObject->transform.translation = { 0.0f, 0.0f, 0.0f };
-		//};
+		ImGui::Text("-----------------------------------------------------");
+		{
+			if (ImGui::Button("Path Animator", ImVec2(100, 25)))
+			{
+				UI_Tab = 0;
+			}
+			ImGui::SameLine();
 
+			if (ImGui::Button("Deformation", ImVec2(100, 25)))
+			{
+				UI_Tab = 1;
+			}
+		}
+
+		ImGui::Text("-----------------------------------------------------");
+		
+		switch (UI_Tab)
+		{
+		case 0:
+			renderImGuiPathAnimatorUI();
+			break;
+
+		case 1:
+			renderImGuiDeformationUI();
+			break;
+		default:
+			break;
+		}
+
+		ImGui::End();
+
+		ImGui::Render();
+	}
+
+	void VmcApp::renderImGuiPathAnimatorUI()
+	{
 		// =====================
 		// SPLINE ANIMATOR UI
 		// =====================
@@ -320,25 +360,26 @@ namespace vae {
 				animators[i].getSpline().generateSplineSegments();
 				animators[i].buildForwardDifferencingTable();
 			}
-			
+
 			std::string addCPLabel = "ADD CP (anim ";
 			if (ImGui::Button((addCPLabel + std::to_string(i) + ")").c_str()))
 			{
 				animators[i].addControlPoint(ControlPoint{ {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.1f}, sphereModel }, animators[i].getPosition());
 			}
-		
+
 			std::vector<VmcGameObject>& CPs = animators[i].getControlPoints();
-			for(int j = 0; j < CPs.size(); j++)
+			for (int j = 0; j < CPs.size(); j++)
 			{
 				std::string cpLabel = "CP ";
 				if (ImGui::DragFloat3((cpLabel + std::to_string(i) + "." + std::to_string(j)).c_str(), glm::value_ptr(CPs[j].transform.translation), 1.0f, -50.0f, 50.0f)) {
+					animators[i].getSpline().updateControlPointsRelativePositions();
 					animators[i].getSpline().generateSplineSegments();
 					animators[i].buildForwardDifferencingTable();
 				};
 
 				ImGui::SameLine();
 				std::string removeCPLabel = "DEL (";
-				
+
 				if (ImGui::Button((removeCPLabel + std::to_string(i) + "." + std::to_string(j) + ")").c_str()))
 				{
 					animators[i].removeControlPoint(j);
@@ -346,11 +387,61 @@ namespace vae {
 			}
 			ImGui::TextWrapped("==============================================");
 		}
-
-		ImGui::End();
-
-		ImGui::Render();
 	}
+
+	void VmcApp::renderImGuiDeformationUI()
+	{
+		ImGui::Text("Currently deforming: ");
+		for (int i = 0; i < gameObjects.size(); i++)
+		{
+			if (gameObjects[i].deformationEnabled)
+			{
+				ImGui::RadioButton(std::to_string(i).c_str(), &deformationIndex, i); ImGui::SameLine();
+			}
+		}
+		ImGui::NewLine();
+		ImGui::NewLine();
+
+		int index = 0;
+		for (auto& obj : gameObjects) {
+			std::string gameObjLabel = "GameObj ";
+			ImGui::Text((gameObjLabel + std::to_string(index)).c_str());
+
+			std::string gameObjCheckLabel = "Deformation enabled ";
+			if (ImGui::Checkbox((gameObjCheckLabel + "(" + std::to_string(index) + ")").c_str(), &obj.deformationEnabled))
+			{
+				if (obj.deformationEnabled)
+				{
+					obj.initDeformationSystem();
+				}
+				else {
+					obj.disableDeformationSystem();
+				}
+			}
+
+			std::string keyframeButtonLabel = "Add Keyframe to obj ";
+			if (ImGui::Button((keyframeButtonLabel + std::to_string(index)).c_str()))
+			{
+				obj.deformationSystem.addKeyFrame();
+				obj.resetObjectForm();
+				obj.deformationSystem.resetControlPoints();
+			}
+
+			ImGui::Text("Keyframes: ");
+			ImGui::NewLine();
+			for (int j = 0; j < obj.deformationSystem.getAmountKeyframes(); j++)
+			{
+				std::string keyframeButtonLabel = "DEL ";
+				if (ImGui::Button((keyframeButtonLabel + "(" + std::to_string(index) + "." + std::to_string(j) + ")").c_str()))
+				{
+					obj.deformationSystem.delKeyFrame(j);
+				}
+			}
+
+			index++;
+		}
+	}
+
 
 	void VmcApp::addSplineAnimator()
 	{

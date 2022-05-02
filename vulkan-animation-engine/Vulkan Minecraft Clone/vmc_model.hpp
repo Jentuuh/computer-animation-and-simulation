@@ -68,6 +68,7 @@ namespace vae {
 		void updateVertices(std::vector<glm::vec3>& newPositions);
 		void confirmModelDeformation();
 		void updateVertexBuffers();
+		void resetModel();
 
 	private:
 		void createVertexBuffers(const std::vector<Vertex> &vertices);
@@ -82,18 +83,16 @@ namespace vae {
 
 		VmcDevice& vmcDevice;
 
+		std::vector<Vertex> og_vertex_data;
 		std::vector<Vertex> old_vertex_data;
 		std::vector<Vertex> new_vertex_data;
 
-		//VkBuffer vertexBuffer;
-		//VkDeviceMemory vertexBufferMemory;
 		std::unique_ptr<VmcBuffer> vertexBuffer;
 		uint32_t vertexCount;
 
 		bool hasIndexBuffer = false;
 		std::unique_ptr<VmcBuffer> indexBuffer;
-		//VkBuffer indexBuffer;
-		//VkDeviceMemory indexBufferMemory;
+
 		uint32_t indexCount;
 	};
 }

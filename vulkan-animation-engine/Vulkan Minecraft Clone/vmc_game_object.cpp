@@ -86,8 +86,10 @@ namespace vae {
     void VmcGameObject::setScale(glm::vec3 newScale)
     {
         transform.scale = newScale;
+
         // Reset deformation system
-        deformationSystem = FFD{ {model->minimumX() * newScale.x, model->maximumX() * newScale.x, model->minimumY() * newScale.y, model->maximumY() * newScale.y, model->minimumZ() * newScale.z, model->maximumZ() * newScale.z, 3.0f, 3.0f, 3.0f} };
+        if(deformationEnabled)
+            deformationSystem = FFD{ {model->minimumX() * newScale.x, model->maximumX() * newScale.x, model->minimumY() * newScale.y, model->maximumY() * newScale.y, model->minimumZ() * newScale.z, model->maximumZ() * newScale.z, 3.0f, 3.0f, 3.0f} };
     }
 
     void VmcGameObject::addChild(VmcGameObject* child)
@@ -102,12 +104,16 @@ namespace vae {
         for (auto& v : vertices)
         {   
             glm::vec3 newPos = deformationSystem.calcDeformedGlobalPosition(v.position);
-            //std::cout << "BEFORE: " << "X: " << v.position.x << " Y: " << v.position.y << " Z: " << v.position.z << std::endl;
-            //std::cout << "AFTER: " << "X: " << newPos.x << " Y: " << newPos.y << " Z: " << newPos.z << std::endl;
             newPositions.push_back(newPos);
         }
         model->updateVertices(newPositions);
     }
+
+    void VmcGameObject::resetObjectForm()
+    {
+        model->resetModel();
+    }
+
 
     void VmcGameObject::confirmObjectDeformation()
     {
@@ -119,4 +125,11 @@ namespace vae {
     {
         deformationSystem = FFD{ {model->minimumX(), model->maximumX(), model->minimumY(), model->maximumY(), model->minimumZ(), model->maximumZ(), 3.0f, 3.0f, 3.0f} };
     }
+
+    void VmcGameObject::disableDeformationSystem()
+    {
+        FFD resetFFD = FFD{};
+        deformationSystem = resetFFD;
+    }
+
 }
