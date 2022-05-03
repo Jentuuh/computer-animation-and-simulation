@@ -114,6 +114,24 @@ namespace vae {
         model->resetModel();
     }
 
+    // Set the model mesh to the state of the first keyframe. 
+    // This is necessary at the beginning (and repetition of) the animation loop.
+    void VmcGameObject::setInitialAnimationForm()
+    {
+        model->resetModel();
+        deformationSystem.setInitialKeyFrameControlPoints();
+
+        std::vector<VmcModel::Vertex> vertices = model->getVertices();
+        std::vector<glm::vec3> newPositions;
+        for (auto& v : vertices)
+        {
+            glm::vec3 newPos = deformationSystem.calcDeformedGlobalPosition(v.position);
+            newPositions.push_back(newPos);
+        }
+        model->updateVertices(newPositions);
+    }
+
+
 
     void VmcGameObject::confirmObjectDeformation()
     {

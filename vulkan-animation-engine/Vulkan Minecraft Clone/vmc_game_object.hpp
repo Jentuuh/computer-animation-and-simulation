@@ -55,6 +55,7 @@ namespace vae {
 
         void deformObject();
         void resetObjectForm();
+        void setInitialAnimationForm();
         void confirmObjectDeformation();
         void initDeformationSystem();
         void disableDeformationSystem();
@@ -63,8 +64,10 @@ namespace vae {
         std::vector<VmcGameObject> children{};
         glm::vec3 color{};
         TransformComponent transform{};
+
         FFD deformationSystem;
         bool deformationEnabled = false;
+        bool runAnimation = false;
 
     private:
         VmcGameObject(id_t objId) : id{ objId } {}

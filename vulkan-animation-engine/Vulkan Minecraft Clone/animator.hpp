@@ -35,6 +35,8 @@ namespace vae {
 		float getTimePassed() { return timePassed; };
 		float& getTotalTime() { return totalTime; };
 		glm::vec3& getPosition() { return position; };
+		glm::vec3& getStartOrientation() { return startOrientation; }
+		glm::vec3& getEndOrientation() { return endOrientation; }
 		bool containsObject(VmcGameObject* gameObj); 
 
 		void addAnimatedObject(VmcGameObject* gameObject);

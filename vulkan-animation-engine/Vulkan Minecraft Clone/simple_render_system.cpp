@@ -60,6 +60,7 @@ namespace vae {
 		vmcPipeline = std::make_unique<VmcPipeline>(vmcDevice, "../Shaders/simple_shader.vert.spv", "../Shaders/simple_shader.frag.spv", pipelineConfig);
 	}
 
+	// TODO: State update of objects should be handled somewhere else!
 	// Render loop
 	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, VkDescriptorSet globalDescriptorSet, std::vector<VmcGameObject> &gameObjects, std::vector<SplineAnimator>& animators, LSystem& lsystem, Skeleton& skeleton, RigidBody& rigid, const VmcCamera& camera, const float frameDeltaTime, std::shared_ptr<VmcModel> pointModel, int camMode, VmcGameObject* viewerObj)
 	{
@@ -83,6 +84,7 @@ namespace vae {
 			// Only update the animated objects if it doesn't contain the camera object while the freeroam mode is active
 			if(!(animators[i].containsObject(viewerObj) && camMode == 1))
 				animators[i].updateAnimatedObjects();
+
 
 			// Draw spline control points
 			TestPushConstant pushSpline{};
@@ -128,10 +130,14 @@ namespace vae {
 
 		// Draw gameobjects
 		for (auto& obj : gameObjects) {
-			
-			//// Translate object with id 0 speed-controlled over a space curve
-			//if (obj.getId() == 0)
-			//	obj.setPosition(nextPosition);
+
+			// Update object deformation
+			if (obj.runAnimation)
+			{
+				obj.deformationSystem.advanceTime(frameDeltaTime);
+				obj.deformationSystem.interpolateControlPoints();
+				obj.deformObject();
+			}
 
 			TestPushConstant push{};
 			push.modelMatrix = obj.transform.mat4();

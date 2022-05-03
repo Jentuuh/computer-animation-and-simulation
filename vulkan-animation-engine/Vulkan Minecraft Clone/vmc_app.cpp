@@ -87,7 +87,7 @@ namespace vae {
 			updateCamera(frameTime);
 
 			// Controllers
-			splineController.updateSpline(vmcWindow.getGLFWwindow(), frameTime, animators[0]);
+			//splineController.updateSpline(vmcWindow.getGLFWwindow(), frameTime, animators[0]);
 			if(gameObjects[deformationIndex].deformationEnabled)
 				ffdController.updateDeformationGrid(vmcWindow.getGLFWwindow(), frameTime, gameObjects[deformationIndex]);
 
@@ -226,8 +226,10 @@ namespace vae {
 
 		gameObjects.push_back(std::move(stickObj));
 
+
+		std::shared_ptr<VmcModel> bolModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
 		auto sphere = VmcGameObject::createGameObject();
-		sphere.model = sphereModel;
+		sphere.model = bolModel;
 		sphere.setPosition({ .0f, .0f, .0f });
 		sphere.transform.rotation = { .0f, .0f, .0f };
 		sphere.setScale({ 1.0f, 1.0f, 1.0f });
@@ -361,6 +363,9 @@ namespace vae {
 				animators[i].buildForwardDifferencingTable();
 			}
 
+			ImGui::DragFloat3("Start orientation", glm::value_ptr(animators[i].getStartOrientation()), 1.0f, 0.0f, 2 * glm::pi<float>());
+			ImGui::DragFloat3("End orientation", glm::value_ptr(animators[i].getEndOrientation()), 1.0f, 0.0f, 2 * glm::pi<float>());
+
 			std::string addCPLabel = "ADD CP (anim ";
 			if (ImGui::Button((addCPLabel + std::to_string(i) + ")").c_str()))
 			{
@@ -407,6 +412,7 @@ namespace vae {
 			std::string gameObjLabel = "GameObj ";
 			ImGui::Text((gameObjLabel + std::to_string(index)).c_str());
 
+			// Deformation enabled checkbox
 			std::string gameObjCheckLabel = "Deformation enabled ";
 			if (ImGui::Checkbox((gameObjCheckLabel + "(" + std::to_string(index) + ")").c_str(), &obj.deformationEnabled))
 			{
@@ -419,25 +425,43 @@ namespace vae {
 				}
 			}
 
-			std::string keyframeButtonLabel = "Add Keyframe to obj ";
-			if (ImGui::Button((keyframeButtonLabel + std::to_string(index)).c_str()))
+			// Run animation checkbox
+			if (obj.deformationSystem.getAmountKeyframes() > 0)
 			{
-				obj.deformationSystem.addKeyFrame();
-				obj.resetObjectForm();
-				obj.deformationSystem.resetControlPoints();
+				std::string animLabel = "Run animation ";
+				if (ImGui::Checkbox((animLabel + "(" + std::to_string(index) + ")").c_str(), &obj.runAnimation))
+				{
+					obj.deformationSystem.resetTime();
+					obj.setInitialAnimationForm();
+				}; ImGui::SameLine();
 			}
 
-			ImGui::Text("Keyframes: ");
-			ImGui::NewLine();
-			for (int j = 0; j < obj.deformationSystem.getAmountKeyframes(); j++)
+			// Add keyframe button + list of keyframes
+			if (obj.deformationEnabled)
 			{
-				std::string keyframeButtonLabel = "DEL ";
-				if (ImGui::Button((keyframeButtonLabel + "(" + std::to_string(index) + "." + std::to_string(j) + ")").c_str()))
+				std::string keyframeButtonLabel = "Add Keyframe to obj ";
+				if (ImGui::Button((keyframeButtonLabel + std::to_string(index)).c_str()))
 				{
-					obj.deformationSystem.delKeyFrame(j);
+					obj.deformationSystem.addKeyFrame();
+					obj.confirmObjectDeformation();
+					obj.deformationSystem.resetControlPoints();
+				}
+
+				ImGui::Text("Keyframes: ");
+				ImGui::NewLine();
+				for (int j = 0; j < obj.deformationSystem.getAmountKeyframes(); j++)
+				{
+					std::string keyframeButtonLabel = "DEL ";
+					if (ImGui::Button((keyframeButtonLabel + "(" + std::to_string(index) + "." + std::to_string(j) + ")").c_str()))
+					{
+						if (obj.deformationSystem.getAmountKeyframes())
+						{
+							obj.runAnimation = false;
+						}
+						obj.deformationSystem.delKeyFrame(j);
+					}
 				}
 			}
-
 			index++;
 		}
 	}

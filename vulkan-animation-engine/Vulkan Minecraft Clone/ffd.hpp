@@ -44,11 +44,16 @@ namespace vae {
 
 		void addKeyFrame();
 		void delKeyFrame(int index);
+		void advanceTime(float dt);
+		void resetTime() { currentTime = 0.0f; };
+		void interpolateControlPoints();
+		void setInitialKeyFrameControlPoints();
 
 		void translate(glm::vec3 transVec);
 
 		glm::vec3 calcDeformedGlobalPosition(glm::vec3 oldPosition);
 
+		bool resetModel = false;
 	private:
 		int fact(int n);
 		int combinations(int n, int r);
@@ -65,6 +70,8 @@ namespace vae {
 
 		std::vector<std::vector<glm::vec3>> keyframes{};
 
+		float currentTime = 0.0f;
+		float animationTime = 4.0f;
 		int selectedControlPoint = 0;
 		float pointMovementSpeed = 5.0f;
 	};
