@@ -62,7 +62,7 @@ namespace vae {
 
 	// TODO: State update of objects should be handled somewhere else!
 	// Render loop
-	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, VkDescriptorSet globalDescriptorSet, std::vector<VmcGameObject> &gameObjects, std::vector<SplineAnimator>& animators, LSystem& lsystem, Skeleton& skeleton, RigidBody& rigid, const VmcCamera& camera, const float frameDeltaTime, std::shared_ptr<VmcModel> pointModel, int camMode, VmcGameObject* viewerObj)
+	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, VkDescriptorSet globalDescriptorSet, std::vector<VmcGameObject> &gameObjects, std::vector<SplineAnimator>& animators, LSystem& lsystem, Skeleton& skeleton, std::vector<RigidBody>& rigids, std::vector<RigidBody>& collidables, const VmcCamera& camera, const float frameDeltaTime, std::shared_ptr<VmcModel> pointModel, int camMode, VmcGameObject* viewerObj)
 	{
 		vmcPipeline->bind(commandBuffer);
 
@@ -231,20 +231,42 @@ namespace vae {
 		// Draw skeleton
 		//skeleton.drawSkeleton(commandBuffer, pipelineLayout, skeleton.getRoot(), projectionView);
 
-		// Draw rigid body
+		// Draw rigid bodies
 		TestPushConstant pushRigid{};
 
-		pushRigid.modelMatrix = rigid.S.mat4();
-		pushRigid.normalMatrix = rigid.S.normalMatrix();
-		pushRigid.color = { .5f, 1.0f, .5f };
-		vkCmdPushConstants(commandBuffer,
-			pipelineLayout,
-			VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-			0,
-			sizeof(TestPushConstant),
-			&pushRigid);
+		for (auto& rigid : rigids)
+		{
+			pushRigid.modelMatrix = rigid.S.mat4();
+			pushRigid.normalMatrix = rigid.S.normalMatrix();
+			pushRigid.color = { 0.17f, 0.73f, 0.84f };
+			vkCmdPushConstants(commandBuffer,
+				pipelineLayout,
+				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+				0,
+				sizeof(TestPushConstant),
+				&pushRigid);
 
-		rigid.model->bind(commandBuffer);
-		rigid.model->draw(commandBuffer);	
+			rigid.model->bind(commandBuffer);
+			rigid.model->draw(commandBuffer);
+		}
+
+		// Draw collidables
+		TestPushConstant pushCol{};
+
+		for (auto& col : collidables)
+		{
+			pushCol.modelMatrix = col.S.mat4();
+			pushCol.normalMatrix = col.S.normalMatrix();
+			pushCol.color = { 0.27f, 0.19f, 0.13f };
+			vkCmdPushConstants(commandBuffer,
+				pipelineLayout,
+				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+				0,
+				sizeof(TestPushConstant),
+				&pushCol);
+
+			col.model->bind(commandBuffer);
+			col.model->draw(commandBuffer);
+		}
 	}
 }

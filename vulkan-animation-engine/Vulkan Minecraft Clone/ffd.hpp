@@ -25,6 +25,13 @@ namespace vae {
 		float resZ;
 	};
 
+	struct AnimationProperties
+	{
+		std::vector<std::vector<glm::vec3>> keyframes{};
+		float currentTime = 0.0f;
+		float animationTime = 4.0f;
+	};
+
 
 	class FFD
 	{
@@ -33,7 +40,7 @@ namespace vae {
 		FFD(FFDInitializer init);
 
 		std::vector<TransformComponent> getControlPoints(){ return grid; };
-		int getAmountKeyframes() { return keyframes.size(); };
+		int getAmountKeyframes() { return animationProps.keyframes.size(); };
 		int getCurrentCPIndex() { return selectedControlPoint; };
 
 
@@ -45,7 +52,7 @@ namespace vae {
 		void addKeyFrame();
 		void delKeyFrame(int index);
 		void advanceTime(float dt);
-		void resetTime() { currentTime = 0.0f; };
+		void resetTime() { animationProps.currentTime = 0.0f; };
 		void interpolateControlPoints();
 		void setInitialKeyFrameControlPoints();
 
@@ -54,6 +61,7 @@ namespace vae {
 		glm::vec3 calcDeformedGlobalPosition(glm::vec3 oldPosition);
 
 		bool resetModel = false;
+		AnimationProperties animationProps;
 	private:
 		int fact(int n);
 		int combinations(int n, int r);
@@ -68,10 +76,6 @@ namespace vae {
 		int m;
 		int n;
 
-		std::vector<std::vector<glm::vec3>> keyframes{};
-
-		float currentTime = 0.0f;
-		float animationTime = 4.0f;
 		int selectedControlPoint = 0;
 		float pointMovementSpeed = 5.0f;
 	};

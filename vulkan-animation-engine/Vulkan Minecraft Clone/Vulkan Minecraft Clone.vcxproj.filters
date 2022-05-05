@@ -171,6 +171,9 @@
     <ClCompile Include="imgui_impl_vulkan.cpp">
       <Filter>Source Files\ImGui</Filter>
     </ClCompile>
+    <ClCompile Include="bounding_box.cpp">
+      <Filter>Source Files\Animation\Physics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vmc_window.hpp">
@@ -268,6 +271,9 @@
     </ClInclude>
     <ClInclude Include="vmc_descriptors.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bounding_box.hpp">
+      <Filter>Header Files\Animation\Physics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

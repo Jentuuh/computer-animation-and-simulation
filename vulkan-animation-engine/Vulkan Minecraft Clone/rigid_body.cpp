@@ -61,10 +61,21 @@ namespace vae {
 		S.angularImpulse = { .0f, .0f, .0f };
 
 		if (gravity)
-			applyForce({ .0f, 9.81f, .0f });
+			applyForce({ .0f, mass * 9.81f, .0f });
 
 		currRotationAngle = 0.0f;
 	}
+
+	void RigidBody::setBoundingBox(float minX, float maxX, float minY, float maxY, float minZ, float maxZ)
+	{
+		bound.props.minX = minX;
+		bound.props.maxX = maxX;
+		bound.props.minY = minY;
+		bound.props.maxY = maxY;
+		bound.props.minZ = minZ;
+		bound.props.maxZ = maxZ;
+	}
+
 
 	void RigidBody::applyForce(glm::vec3 forceVector)
 	{
@@ -88,16 +99,37 @@ namespace vae {
 		// ANGULAR MOVEMENT
 		// The direction of the torque (or angular speed, since both have the same direction) represents our rotation axis, 
 		// we use the current angular speed and time difference to calculate the angle that we need to rotate.
-		currRotationAngle += dt * glm::length(getAngularSpeed());
-		currRotationAngle = fmod(currRotationAngle, glm::pi<float>() * 2);
+		
+		if (massPts.size() > 1) {
+			currRotationAngle += dt * glm::length(getAngularSpeed());
+			currRotationAngle = fmod(currRotationAngle, glm::pi<float>() * 2);
 
-		S.rotMat = glm::rotate(glm::mat4(1.0f), currRotationAngle, glm::normalize(resultingTorque));
+			if (glm::length(getAngularSpeed()) != 0.0f)
+				S.rotMat = glm::rotate(glm::mat4(1.0f), currRotationAngle, glm::normalize(resultingTorque));
 
-		// omega(t_i) = omega(t_i - 1) + alpha*dt
-		glm::vec3 newRotSpeed = getAngularSpeed() + dt * getAngularAcceleration();
+			// omega(t_i) = omega(t_i - 1) + alpha*dt
+			glm::vec3 newRotSpeed = getAngularSpeed() + dt * getAngularAcceleration();
 
-		// I(t) = R(t) * I_obj * R(t)^T
-		inertiaTensor = S.rotMat * inertiaObject * glm::transpose(S.rotMat);
-		S.angularImpulse = inertiaTensor * newRotSpeed;
+			// I(t) = R(t) * I_obj * R(t)^T
+			inertiaTensor = S.rotMat * inertiaObject * glm::transpose(S.rotMat);
+			S.angularImpulse = inertiaTensor * newRotSpeed;
+		}
 	}
+
+
+	bool RigidBody::detectCollision(RigidBody& collidable, CollisionInfo& info)
+	{	
+		glm::vec3 normal = { 0.0f, 0.0f, 0.0f };
+		if (bound.intersects(S.pos, collidable.S.pos, collidable.bound, normal))
+		{
+			glm::vec3 incidentDirection = glm::normalize(S.linearImpulse);
+			glm::vec3 reflectionDirection = incidentDirection - 2.0f * glm::dot(normal, incidentDirection) * normal;
+
+			// Simulating "conservation" of momentum (not physically correct)
+			S.linearImpulse = (glm::max(0.0f, glm::length(S.linearImpulse) - MOMENTUM_DAMPING_FACTOR)) * reflectionDirection;
+			return true;
+		}
+		return false;
+	}
+
 }

@@ -149,6 +149,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="animator.cpp" />
+    <ClCompile Include="bounding_box.cpp" />
     <ClCompile Include="chunk_component.cpp" />
     <ClCompile Include="ffd.cpp" />
     <ClCompile Include="ffd_keyboard_controller.cpp" />
@@ -189,6 +190,7 @@
   <ItemGroup>
     <ClInclude Include="animator.hpp" />
     <ClInclude Include="block_model.hpp" />
+    <ClInclude Include="bounding_box.hpp" />
     <ClInclude Include="chunk_component.hpp" />
     <ClInclude Include="ffd.hpp" />
     <ClInclude Include="ffd_keyboard_controller.hpp" />

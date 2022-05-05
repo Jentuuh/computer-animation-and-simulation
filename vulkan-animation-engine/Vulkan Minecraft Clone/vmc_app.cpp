@@ -98,7 +98,11 @@ namespace vae {
 			}
 
 			// Update rigid bodies
-			rigidBodies[0].updateState(frameTime);
+			for (auto& rigid : rigidBodies)
+			{
+				rigid.updateState(frameTime);
+			}
+			checkRigidBodyCollisions();
 
 			// Render loop
 			if (auto commandBuffer = vmcRenderer.beginFrame()) {
@@ -119,7 +123,8 @@ namespace vae {
 					animators, 
 					Lsystems[0], 
 					skeletons[0], 
-					rigidBodies[0], 
+					rigidBodies, 
+					collidables,
 					camera, 
 					frameTime,
 					sphereModel,
@@ -227,14 +232,14 @@ namespace vae {
 		gameObjects.push_back(std::move(stickObj));
 
 
-		std::shared_ptr<VmcModel> bolModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
-		auto sphere = VmcGameObject::createGameObject();
-		sphere.model = bolModel;
-		sphere.setPosition({ .0f, .0f, .0f });
-		sphere.transform.rotation = { .0f, .0f, .0f };
-		sphere.setScale({ 1.0f, 1.0f, 1.0f });
+		//std::shared_ptr<VmcModel> bolModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
+		//auto sphere = VmcGameObject::createGameObject();
+		//sphere.model = bolModel;
+		//sphere.setPosition({ .0f, .0f, .0f });
+		//sphere.transform.rotation = { .0f, .0f, .0f };
+		//sphere.setScale({ 1.0f, 1.0f, 1.0f });
 
-		gameObjects.push_back(std::move(sphere));
+		//gameObjects.push_back(std::move(sphere));
 
 
 		// Initialize animator and animation curve
@@ -421,6 +426,7 @@ namespace vae {
 					obj.initDeformationSystem();
 				}
 				else {
+					obj.resetObjectForm();
 					obj.disableDeformationSystem();
 				}
 			}
@@ -439,11 +445,18 @@ namespace vae {
 			// Add keyframe button + list of keyframes
 			if (obj.deformationEnabled)
 			{
+				if (ImGui::InputFloat("Animation duration", &obj.deformationSystem.animationProps.animationTime))
+				{
+					obj.deformationSystem.resetTime();
+					obj.setInitialAnimationForm();
+				}
+
 				std::string keyframeButtonLabel = "Add Keyframe to obj ";
 				if (ImGui::Button((keyframeButtonLabel + std::to_string(index)).c_str()))
 				{
 					obj.deformationSystem.addKeyFrame();
 					obj.confirmObjectDeformation();
+					obj.resetObjectForm();
 					obj.deformationSystem.resetControlPoints();
 				}
 
@@ -514,17 +527,47 @@ namespace vae {
 
 	void VmcApp::initRigidBodies()
 	{
-		std::vector<std::pair<glm::vec3, float>> massPoints;
-		massPoints.push_back(std::make_pair(glm::vec3{ 1.0f, 0.0f, 0.0f }, 1.0f));
-		massPoints.push_back(std::make_pair(glm::vec3{ 0.0f, 1.0f, 0.0f }, 1.0f));
-		massPoints.push_back(std::make_pair(glm::vec3{ 0.0f, 0.0f, 1.0f }, 1.0f));
+		std::vector<std::pair<glm::vec3, float>> massPoints1;
+		massPoints1.push_back(std::make_pair(glm::vec3{ 1.0f, 0.0f, 0.0f }, 1.0f));
 
-		std::shared_ptr<VmcModel> rigidModel = VmcModel::createModelFromFile(vmcDevice, "../Models/cube.obj");
+		std::shared_ptr<VmcModel> groundModel = VmcModel::createModelFromFile(vmcDevice, "../Models/ground.obj");
+		RigidBody rigid_1{ massPoints1, false, groundModel };
+		rigid_1.S.pos = { 0.0f, 5.0f, 0.0f };
+		rigid_1.setBoundingBox(groundModel->minimumX(), groundModel->maximumX(), groundModel->minimumY(), groundModel->maximumY(), groundModel->minimumZ(), groundModel->maximumZ());
+		//rigidBodies.push_back(rigid_1);
+		collidables.push_back(rigid_1);
 
-		RigidBody rigid_1{massPoints, false, rigidModel};
-		rigid_1.applyTorque({ 1.0f, .0f, 1.0f });
-		rigidBodies.push_back(rigid_1);
+
+		for (int i = 0; i < 10; i++)
+		{
+			std::vector<std::pair<glm::vec3, float>> massPoints2;
+			massPoints2.push_back(std::make_pair(glm::vec3{ 1.0f + i, 0.0f, 0.0f }, 1.0f));
+			massPoints2.push_back(std::make_pair(glm::vec3{ 0.0f, 1.0f + i, 0.0f }, 1.0f));
+			massPoints2.push_back(std::make_pair(glm::vec3{ 0.0f, 0.0f, 1.0f + i }, 1.0f));
+
+			std::shared_ptr<VmcModel> rigidModel = VmcModel::createModelFromFile(vmcDevice, "../Models/cube.obj");
+			RigidBody rigid_2{ massPoints2, true, rigidModel };
+			//rigid_2.applyTorque({ 1.0f, .0f, 1.0f });
+			rigid_2.setBoundingBox(-0.5f, 0.5f, -0.5f, 0.5f, -0.5f, 0.5f);
+			rigidBodies.push_back(rigid_2);
+		}
 	}
+
+	void VmcApp::checkRigidBodyCollisions()
+	{
+		for (auto& rigid : rigidBodies)
+		{
+			for (auto& collidable : collidables)
+			{
+				CollisionInfo col{};
+				if (rigid.detectCollision(collidable, col))
+				{
+					std::cout << "Collision!" << std::endl;
+				}
+			}
+		}
+	}
+
 
 	void VmcApp::updateCamera(float frameTime)
 	{

@@ -102,32 +102,32 @@ namespace vae {
 		{
 			newKeyFrame.push_back(point.translation);
 		}
-		keyframes.push_back(newKeyFrame);
+		animationProps.keyframes.push_back(newKeyFrame);
 	}
 
 	void FFD::delKeyFrame(int index)
 	{
-		keyframes.erase(keyframes.begin() + index);
+		animationProps.keyframes.erase(animationProps.keyframes.begin() + index);
 	}
 
 	void FFD::advanceTime(float dt)
 	{
-		currentTime = fmod(currentTime + dt, animationTime);
+		animationProps.currentTime = fmod(animationProps.currentTime + dt, animationProps.animationTime);
 	}
 
 	void FFD::interpolateControlPoints()
 	{
-		float normalizedTimePassed = currentTime / animationTime;
-		float fractionPerKeyFrame = 1.0f / static_cast<float>(keyframes.size() - 1);
+		float normalizedTimePassed = animationProps.currentTime / animationProps.animationTime;
+		float fractionPerKeyFrame = 1.0f / static_cast<float>(animationProps.keyframes.size() - 1);
 
 		float index = normalizedTimePassed / fractionPerKeyFrame;
 		int roundedIndex = floor(index);
 		float keyFrameProgress = index - static_cast<float>(roundedIndex);
 
-		if (roundedIndex < keyframes.size() - 1)
+		if (roundedIndex < animationProps.keyframes.size() - 1)
 		{
-			std::vector<glm::vec3> prev_keyframe = keyframes[roundedIndex];
-			std::vector<glm::vec3> next_keyframe = keyframes[roundedIndex + 1];
+			std::vector<glm::vec3> prev_keyframe = animationProps.keyframes[roundedIndex];
+			std::vector<glm::vec3> next_keyframe = animationProps.keyframes[roundedIndex + 1];
 
 			for (int i = 0; i < prev_keyframe.size(); i++)
 			{
@@ -141,9 +141,9 @@ namespace vae {
 	// This is necessary at the start (or each repetition of) the deformation animation.
 	void FFD::setInitialKeyFrameControlPoints()
 	{
-		for (int i = 0; i < keyframes[0].size(); i++)
+		for (int i = 0; i < animationProps.keyframes[0].size(); i++)
 		{
-			grid[i].translation = keyframes[0][i];
+			grid[i].translation = animationProps.keyframes[0][i];
 		}
 	}
 

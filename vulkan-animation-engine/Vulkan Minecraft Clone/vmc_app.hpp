@@ -44,6 +44,7 @@ namespace vae {
 		void initLSystems();
 		void initSkeletons();
 		void initRigidBodies();
+		void checkRigidBodyCollisions();
 
 		void renderImGuiWindow();
 		void renderImGuiPathAnimatorUI();
@@ -59,7 +60,7 @@ namespace vae {
 
 		// Order of declarations matter!
 		std::unique_ptr<VmcDescriptorPool> globalPool{};
-		VkDescriptorPool imGuiPool;
+		VkDescriptorPool imGuiPool;	 // TODO: make use of VmcDescriptorPool class!
 
 		std::vector<std::unique_ptr<VmcBuffer>> uboBuffers;
 		std::unique_ptr<VmcDescriptorSetLayout> globalSetLayout;
@@ -70,6 +71,8 @@ namespace vae {
 		std::vector<SplineAnimator> animators;
 		std::vector<Skeleton> skeletons;
 		std::vector<RigidBody> rigidBodies;
+
+		std::vector<RigidBody> collidables;
 
 		KeyboardMovementController cameraController;
 		SplineKeyboardController splineController;
