@@ -12,7 +12,7 @@
 #include <vector>
 #include <iostream>
 
-#define MOMENTUM_DAMPING_FACTOR 2.0f
+#define MOMENTUM_DAMPING_FACTOR 20.0f
 
 namespace vae {
 
@@ -21,7 +21,8 @@ namespace vae {
 		glm::mat3 rotMat;
 		glm::vec3 linearImpulse;
 		glm::vec3 angularImpulse;
-
+		
+		glm::vec3 scale;
 		glm::mat4 mat4();
 		glm::mat4 normalMatrix();
 	};
@@ -34,7 +35,7 @@ namespace vae {
 	class RigidBody
 	{
 	public:
-		RigidBody(std::vector<std::pair<glm::vec3, float>> massPoints, bool gravity, std::shared_ptr<VmcModel> model);
+		RigidBody(std::vector<std::pair<glm::vec3, float>> massPoints, bool gravity, std::shared_ptr<VmcModel> model, glm::vec3 scale);
 
 		void setBoundingBox(float minX, float maxX, float minY, float maxY, float minZ, float maxZ);
 

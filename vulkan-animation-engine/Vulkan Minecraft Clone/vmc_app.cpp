@@ -103,6 +103,7 @@ namespace vae {
 				rigid.updateState(frameTime);
 			}
 			checkRigidBodyCollisions();
+			updateParticleSystems();
 
 			// Render loop
 			if (auto commandBuffer = vmcRenderer.beginFrame()) {
@@ -312,6 +313,13 @@ namespace vae {
 			{
 				UI_Tab = 1;
 			}
+
+			ImGui::SameLine();
+
+			if (ImGui::Button("Particles", ImVec2(100, 25)))
+			{
+				UI_Tab = 2;
+			}
 		}
 
 		ImGui::Text("-----------------------------------------------------");
@@ -325,6 +333,11 @@ namespace vae {
 		case 1:
 			renderImGuiDeformationUI();
 			break;
+
+		case 2:
+			renderImGuiParticleUI();
+			break;
+
 		default:
 			break;
 		}
@@ -401,6 +414,9 @@ namespace vae {
 
 	void VmcApp::renderImGuiDeformationUI()
 	{
+		// =====================
+		// DEFORMATION SYSTEM UI
+		// =====================
 		ImGui::Text("Currently deforming: ");
 		for (int i = 0; i < gameObjects.size(); i++)
 		{
@@ -478,6 +494,53 @@ namespace vae {
 			index++;
 		}
 	}
+	
+
+	void VmcApp::renderImGuiParticleUI()
+	{
+		// =====================
+		// PARTICLE SYSTEM UI
+		// =====================
+		if (ImGui::Button("Add particle system"))
+		{
+			addParticleSystem();
+		}
+
+		if (particleSystems.size() > 0)
+			ImGui::Text("Particle Systems:");
+		ImGui::NewLine();
+
+		int index = 0;
+		for (auto& p : particleSystems)
+		{
+			std::string particleSysLabel = "Particle system ";
+			ImGui::Text((particleSysLabel + std::to_string(index)).c_str());
+
+			std::string delLabel = "Delete (";
+			if (ImGui::Button((delLabel + std::to_string(index) + ")").c_str()))
+			{
+				particleSystems.erase(particleSystems.begin() + index);
+			}
+
+			std::string activeLabel = "Active? (";
+			ImGui::Checkbox((activeLabel + std::to_string(index) + ")").c_str(), &p.isOn);
+
+			std::string particlePositionLabel = "Position (";
+			ImGui::DragFloat3((particlePositionLabel + std::to_string(index) + ")").c_str(), glm::value_ptr(p.position), 1.0f, -20.0f, 20.0f);
+			
+			std::string shootLabel = "Shoot direction (";
+			ImGui::DragFloat3((shootLabel + std::to_string(index) + ")").c_str(), glm::value_ptr(p.shootDirection), 0.01f, -1.0f, 1.0f);
+
+			std::string powerLabel = "Power (";
+			ImGui::InputFloat((powerLabel + std::to_string(index) + ")").c_str(), &p.power);
+
+			std::string angleDevLabel = "Angle dev (";
+			ImGui::InputFloat((angleDevLabel + std::to_string(index) + ")").c_str(), &p.angleDeviation);
+
+			ImGui::NewLine();
+			index++;
+		}
+	}
 
 
 	void VmcApp::addSplineAnimator()
@@ -502,6 +565,14 @@ namespace vae {
 		// Build forward differencing table based on curve points
 		animators.back().buildForwardDifferencingTable();
 		animators.back().printForwardDifferencingTable();
+	}
+
+	void VmcApp::addParticleSystem()
+	{
+		std::shared_ptr<VmcModel> waterDropModel = VmcModel::createModelFromFile(vmcDevice, "../Models/cube.obj");
+
+		ParticleSystem hose{ {0.0f, 0.0f, 0.0f}, waterDropModel };
+		particleSystems.push_back(hose);
 	}
 
 
@@ -531,27 +602,39 @@ namespace vae {
 		massPoints1.push_back(std::make_pair(glm::vec3{ 1.0f, 0.0f, 0.0f }, 1.0f));
 
 		std::shared_ptr<VmcModel> groundModel = VmcModel::createModelFromFile(vmcDevice, "../Models/ground.obj");
-		RigidBody rigid_1{ massPoints1, false, groundModel };
+		RigidBody rigid_1{ massPoints1, false, groundModel, {1.0f, 1.0f, 1.0f} };
 		rigid_1.S.pos = { 0.0f, 5.0f, 0.0f };
-		rigid_1.setBoundingBox(groundModel->minimumX(), groundModel->maximumX(), groundModel->minimumY(), groundModel->maximumY(), groundModel->minimumZ(), groundModel->maximumZ());
+		//rigid_1.setBoundingBox(groundModel->minimumX(), groundModel->maximumX(), groundModel->minimumY(), groundModel->maximumY(), groundModel->minimumZ(), groundModel->maximumZ());
 		//rigidBodies.push_back(rigid_1);
 		collidables.push_back(rigid_1);
 
 
-		for (int i = 0; i < 10; i++)
-		{
-			std::vector<std::pair<glm::vec3, float>> massPoints2;
-			massPoints2.push_back(std::make_pair(glm::vec3{ 1.0f + i, 0.0f, 0.0f }, 1.0f));
-			massPoints2.push_back(std::make_pair(glm::vec3{ 0.0f, 1.0f + i, 0.0f }, 1.0f));
-			massPoints2.push_back(std::make_pair(glm::vec3{ 0.0f, 0.0f, 1.0f + i }, 1.0f));
+		//for (int i = 0; i < 10; i++)
+		//{
+		//	std::vector<std::pair<glm::vec3, float>> massPoints2;
+		//	massPoints2.push_back(std::make_pair(glm::vec3{ 1.0f + i, 0.0f, 0.0f }, 1.0f));
+		//	massPoints2.push_back(std::make_pair(glm::vec3{ 0.0f, 1.0f + i, 0.0f }, 1.0f));
+		//	massPoints2.push_back(std::make_pair(glm::vec3{ 0.0f, 0.0f, 1.0f + i }, 1.0f));
 
-			std::shared_ptr<VmcModel> rigidModel = VmcModel::createModelFromFile(vmcDevice, "../Models/cube.obj");
-			RigidBody rigid_2{ massPoints2, true, rigidModel };
-			//rigid_2.applyTorque({ 1.0f, .0f, 1.0f });
-			rigid_2.setBoundingBox(-0.5f, 0.5f, -0.5f, 0.5f, -0.5f, 0.5f);
-			rigidBodies.push_back(rigid_2);
-		}
+		//	float scale = ((float)rand() / RAND_MAX) * 0.6f;
+
+
+		//	std::shared_ptr<VmcModel> rigidModel = VmcModel::createModelFromFile(vmcDevice, "../Models/cube.obj");
+		//	RigidBody rigid_2{ massPoints2, true, rigidModel, {scale, scale, scale} };
+		//	//rigid_2.applyTorque({ 1.0f, .0f, 1.0f });
+		//	//rigid_2.setBoundingBox(-0.1f, 0.1f, -0.1f, 0.1f, -0.1f, 0.1f);
+		//	rigidBodies.push_back(rigid_2);
+		//}
 	}
+
+	void VmcApp::initParticleSystems()
+	{
+		std::shared_ptr<VmcModel> waterDropModel = VmcModel::createModelFromFile(vmcDevice, "../Models/cube.obj");
+
+		ParticleSystem hose{ {0.0f, 0.0f, 0.0f}, waterDropModel };
+		particleSystems.push_back(hose);
+	}
+
 
 	void VmcApp::checkRigidBodyCollisions()
 	{
@@ -562,9 +645,16 @@ namespace vae {
 				CollisionInfo col{};
 				if (rigid.detectCollision(collidable, col))
 				{
-					std::cout << "Collision!" << std::endl;
 				}
 			}
+		}
+	}
+
+	void VmcApp::updateParticleSystems()
+	{
+		for (auto& p : particleSystems)
+		{
+			p.generateParticles(rigidBodies);
 		}
 	}
 

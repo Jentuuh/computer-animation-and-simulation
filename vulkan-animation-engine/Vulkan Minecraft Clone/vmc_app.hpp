@@ -7,7 +7,7 @@
 #include "vmc_camera.hpp"
 #include "keyboard_movement_controller.hpp"
 #include "ffd_keyboard_controller.hpp"
-#include "spline_keyboard_controller.hpp"
+#include "particle_system.hpp"
 
 #include "animator.hpp"
 #include "spline_animator.hpp"
@@ -41,14 +41,18 @@ namespace vae {
 		void initDescriptorsAndUBOs();
 
 		void addSplineAnimator();
+		void addParticleSystem();
 		void initLSystems();
 		void initSkeletons();
 		void initRigidBodies();
+		void initParticleSystems();
 		void checkRigidBodyCollisions();
+		void updateParticleSystems();
 
 		void renderImGuiWindow();
 		void renderImGuiPathAnimatorUI();
 		void renderImGuiDeformationUI();
+		void renderImGuiParticleUI();
 
 		void updateCamera(float frameTime);
 
@@ -71,11 +75,11 @@ namespace vae {
 		std::vector<SplineAnimator> animators;
 		std::vector<Skeleton> skeletons;
 		std::vector<RigidBody> rigidBodies;
+		std::vector<ParticleSystem> particleSystems;
 
 		std::vector<RigidBody> collidables;
 
 		KeyboardMovementController cameraController;
-		SplineKeyboardController splineController;
 		FFDKeyboardController ffdController;
 
 		int cameraMode = 0;

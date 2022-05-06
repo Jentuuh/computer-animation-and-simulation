@@ -5,9 +5,9 @@ namespace vae {
 	glm::mat4 ObjectState::mat4()
 	{
 		glm::mat4 result = glm::mat4{
-			{0.2f * rotMat[0], 0.0f},
-			{0.2f * rotMat[1], 0.0f},
-			{0.2f * rotMat[2], 0.0f},
+			{scale.x * rotMat[0], 0.0f},
+			{scale.y * rotMat[1], 0.0f},
+			{scale.z * rotMat[2], 0.0f},
 			{pos.x, pos.y, pos.z, 1.0f} };
 
         return result;
@@ -18,8 +18,9 @@ namespace vae {
 		return (1.f / 0.2f) * rotMat;
 	}
 
-	RigidBody::RigidBody(std::vector<std::pair<glm::vec3, float>> massPoints, bool gravity, std::shared_ptr<VmcModel> model): model{model}
+	RigidBody::RigidBody(std::vector<std::pair<glm::vec3, float>> massPoints, bool gravity, std::shared_ptr<VmcModel> model, glm::vec3 scale): model{model}
 	{
+		S.scale = scale;
 		mass = 0.0f;
 		glm::vec3 positionSummed = { .0f, .0f, .0f };
 		for (auto& p : massPoints)
@@ -64,6 +65,8 @@ namespace vae {
 			applyForce({ .0f, mass * 9.81f, .0f });
 
 		currRotationAngle = 0.0f;
+
+		setBoundingBox(scale.x * model->minimumX(), scale.x * model->maximumX(), scale.y * model->minimumY(), scale.y * model->maximumY(), scale.z * model->minimumZ(), scale.z * model->maximumZ());
 	}
 
 	void RigidBody::setBoundingBox(float minX, float maxX, float minY, float maxY, float minZ, float maxZ)
