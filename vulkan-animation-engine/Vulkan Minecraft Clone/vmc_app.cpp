@@ -251,23 +251,14 @@ namespace vae {
 		skyboxObjects.push_back(std::move(skybox));
 
 
-		//std::shared_ptr<VmcModel> cubeModel = VmcModel::createModelFromFile(vmcDevice, "../Models/cube.obj");
-		//auto cube = VmcGameObject::createGameObject();
-		//cube.model = cubeModel;
-		//cube.setPosition({ .0f, .0f, .0f });
-		//cube.transform.rotation = { .0f, .0f, .0f };
-		//cube.setScale({ 1.0f, 1.0f, 1.0f });
+		std::shared_ptr<VmcModel> bolModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
+		auto sphere = VmcGameObject::createGameObject();
+		sphere.model = bolModel;
+		sphere.setPosition({ .0f, .0f, .0f });
+		sphere.transform.rotation = { .0f, .0f, .0f };
+		sphere.setScale({ 1.0f, 1.0f, 1.0f });
 
-		//gameObjects.push_back(std::move(cube));
-
-		//std::shared_ptr<VmcModel> bolModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
-		//auto sphere = VmcGameObject::createGameObject();
-		//sphere.model = bolModel;
-		//sphere.setPosition({ .0f, .0f, .0f });
-		//sphere.transform.rotation = { .0f, .0f, .0f };
-		//sphere.setScale({ 1.0f, 1.0f, 1.0f });
-
-		//gameObjects.push_back(std::move(sphere));
+		gameObjects.push_back(std::move(sphere));
 
 
 		// Initialize animator and animation curve
@@ -286,8 +277,8 @@ namespace vae {
 		const char* test = "../Textures/pepe.jpg";
 		testTexture = std::make_unique<VmcTexture>(vmcDevice, test, TEXTURE_TYPE_STANDARD_2D);
 
-		const char* cubemapPath = "../Textures/cubemaps/cubemap_yokohama_rgba.ktx";
-		skyboxTexture = std::make_unique<VmcTexture>(vmcDevice, cubemapPath, TEXTURE_TYPE_CUBE_MAP);
+		const char* japanCubemapPath = "../Textures/cubemaps/cubemap_yokohama_rgba.ktx";
+		skyboxTexture = std::make_unique<VmcTexture>(vmcDevice, japanCubemapPath, TEXTURE_TYPE_CUBE_MAP);
 	}
 
 
@@ -362,12 +353,10 @@ namespace vae {
 		ImGui::NewFrame();
 
 		ImGui::Begin("Vulkan Animation Engine UI");
-		ImGui::TextWrapped("This UI window allows you to manage the scene content.");
+		ImGui::TextWrapped("General settings");
 
-
-
-		ImGui::InputFloat("FPS cap: ", &animation_FPS);
-		ImGui::Checkbox("Skybox: ", &simpleRenderSystem->shouldRenderSkybox());
+		ImGui::InputFloat("FPS cap ", &animation_FPS);
+		ImGui::Checkbox("Skybox ", &simpleRenderSystem->shouldRenderSkybox());
 
 
 		ImGui::Text("Camera Mode:");
@@ -438,6 +427,7 @@ namespace vae {
 		if (ImGui::Button("Add Spline Curve Animator"))
 		{
 			addSplineAnimator();
+			// TODO: make it so that the user can choose objects to be animated according to this curve
 			animators.back().addAnimatedObject(&gameObjects[0]);
 		}
 

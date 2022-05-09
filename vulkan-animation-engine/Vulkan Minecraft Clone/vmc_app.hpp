@@ -38,6 +38,7 @@ namespace vae {
 
 		void run();
 		void initImgui();
+
 	private:
 		void loadGameObjects();
 		void loadTextures();
