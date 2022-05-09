@@ -45,10 +45,11 @@ namespace vae {
 
 		void addSplineAnimator();
 		void addParticleSystem();
-		void initLSystems();
+		void addLSystem(VegetationType type);
+
 		void initSkeletons();
-		void initRigidBodies();
-		void initParticleSystems();
+		void initCollidables();
+
 		void checkRigidBodyCollisions();
 		void updateParticleSystems();
 
@@ -56,6 +57,8 @@ namespace vae {
 		void renderImGuiPathAnimatorUI();
 		void renderImGuiDeformationUI();
 		void renderImGuiParticleUI();
+		void renderImGuiLSystemUI();
+
 
 		void updateCamera(float frameTime);
 

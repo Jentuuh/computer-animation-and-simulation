@@ -34,7 +34,7 @@ namespace vae {
 		bool& shouldRenderSkybox() { return renderSkybox; };
 		void renderGameObjects(VkCommandBuffer commandBuffer, VkDescriptorSet globalDescriptorSet, VkDescriptorSet skyboxDescriptorSet, std::vector<VmcGameObject>& skyBoxes,
 								std::vector<VmcGameObject> &gameObjects, std::vector<SplineAnimator>& animators, 
-								LSystem& lsystem, Skeleton& skeleton, std::vector<RigidBody>& rigids, std::vector<RigidBody>& collidables, const VmcCamera& camera,
+								std::vector<LSystem>& lsystems, Skeleton& skeleton, std::vector<RigidBody>& rigids, std::vector<RigidBody>& collidables, const VmcCamera& camera,
 								const float frameDeltaTime, std::shared_ptr<VmcModel> pointModel, int camMode, VmcGameObject* viewerObj);
 
 	private:

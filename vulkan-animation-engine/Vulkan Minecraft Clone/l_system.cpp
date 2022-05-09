@@ -1,9 +1,13 @@
 #include "l_system.hpp"
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
 
 
 namespace vae {
-	LSystem::LSystem(std::vector<std::pair<std::string, float>> prodRules, std::string axiom, glm::vec3 rootPos, int n, float delta): axiomState{axiom}, rootPosition{rootPos}, maxIterations{n}, delta{delta}
+	// Construct LSystem manually
+	LSystem::LSystem(std::vector<std::pair<std::string, float>> prodRules, std::string axiom, glm::vec3 rootPos, int n, float delta, VegetationType type): axiomState{axiom}, rootPosition{rootPos}, maxIterations{n}, delta{delta}
 	{
 		// Initialize production rules
 		for (auto const& r : prodRules) {
@@ -11,9 +15,94 @@ namespace vae {
 		}
 
 		// Initialize turtle stack (pos: origin, direction: upwards)
-		turtleStack.push({ {.0f, .0f, .0f}, {.0f, -1.0f, .0f} });
+		turtleStack.push({ rootPos, {.0f, -1.0f, .0f} });
 		render();
+
+		switch (type)
+		{
+		case vae::BUSH:
+			veg_type = "Bush";
+			break;
+		case vae::LONG_PLANT:
+			veg_type = "Long plant";
+			break;
+		case vae::TREE:
+			veg_type = "Tree";
+			break;
+		default:
+			break;
+		}
 	}
+
+	// Construct LSystem from file
+	LSystem::LSystem(const char* filePath, VegetationType type) :rootPosition{glm::vec3{0.0f,0.0f,0.0f}}
+	{
+		std::ifstream infile(filePath);
+
+		// First line: (n, delta)
+		std::string recursionParameters;
+		std::getline(infile, recursionParameters);
+		// Split on comma
+		std::string delimiter = ",";
+
+		std::string left = recursionParameters.substr(0, recursionParameters.find(delimiter)); 
+		recursionParameters.erase(0, recursionParameters.find(delimiter) + delimiter.length());
+		maxIterations = stoi(left);
+		delta = std::stof(recursionParameters);
+
+		// Second line: startAxiomState
+		std::string startAxiomState;
+		std::getline(infile, startAxiomState);
+		axiomState = startAxiomState;
+
+		// Rules
+		std::string line;
+		while (std::getline(infile, line))
+		{
+			std::string rule = line.substr(0, line.find(delimiter));
+			line.erase(0, line.find(delimiter) + delimiter.length());
+			float probability;
+			try {
+				probability = std::stof(line);
+			}
+			catch (std::invalid_argument)
+			{
+				throw std::runtime_error("Production rule needs a probability, separated by comma.");
+			}
+
+			productionRules.push_back(ProductionRule{ rule, probability });
+		}
+
+		infile.close();
+		
+		assert(productionRules.size() > 0 && "L-System needs to have at least 1 production rule!");
+
+		// Initialize turtle stack (pos: origin, direction: upwards)
+		turtleStack.push({ rootPosition, {.0f, -1.0f, .0f} });
+		render();
+
+		switch (type)
+		{
+		case vae::BUSH:
+			veg_type = "Bush";
+			break;
+		case vae::LONG_PLANT:
+			veg_type = "Long plant";
+			break;
+		case vae::TREE:
+			veg_type = "Tree";
+			break;
+		default:
+			break;
+		}
+	}
+
+	void LSystem::mature()
+	{
+		for (int i = 0; i < maxIterations; i++)
+			iterate();
+	}
+
 
 	void LSystem::iterate()
 	{
@@ -93,6 +182,16 @@ namespace vae {
 
 		}
 	}
+
+	void LSystem::resetTurtleAndRerender()
+	{
+		// Clear (reset) render points and turtle stack
+		renderPoints.clear();
+		turtleStack = std::stack<TurtleState>();
+		turtleStack.push({ rootPosition, {.0f, -1.0f, .0f} });
+		render();
+	}
+
 
 	void LSystem::printAxiomState()
 	{

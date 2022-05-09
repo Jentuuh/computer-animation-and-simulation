@@ -76,7 +76,7 @@ namespace vae {
 
 	// TODO: State update of objects should be handled somewhere else!
 	// Render loop
-	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, VkDescriptorSet globalDescriptorSet, VkDescriptorSet skyboxDescriptorSet, std::vector<VmcGameObject>& skyBoxes, std::vector<VmcGameObject> &gameObjects, std::vector<SplineAnimator>& animators, LSystem& lsystem, Skeleton& skeleton, std::vector<RigidBody>& rigids, std::vector<RigidBody>& collidables, const VmcCamera& camera, const float frameDeltaTime, std::shared_ptr<VmcModel> pointModel, int camMode, VmcGameObject* viewerObj)
+	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, VkDescriptorSet globalDescriptorSet, VkDescriptorSet skyboxDescriptorSet, std::vector<VmcGameObject>& skyBoxes, std::vector<VmcGameObject> &gameObjects, std::vector<SplineAnimator>& animators, std::vector<LSystem>& lsystems, Skeleton& skeleton, std::vector<RigidBody>& rigids, std::vector<RigidBody>& collidables, const VmcCamera& camera, const float frameDeltaTime, std::shared_ptr<VmcModel> pointModel, int camMode, VmcGameObject* viewerObj)
 	{
 		if (renderSkybox)
 		{
@@ -242,25 +242,28 @@ namespace vae {
 		}
 
 
-		// Draw L-System
+		// Draw L-Systems
 		TestPushConstant pushL{};
-
-		for (auto& lrenderpoint : lsystem.getRenderPoints())
+		for (auto& lsystem : lsystems)
 		{
-			pushL.modelMatrix = lrenderpoint.mat4();
-			pushL.normalMatrix = lrenderpoint.normalMatrix();
-			pushL.color = {1.0f, 1.0f, .0f};
+			for (auto& lrenderpoint : lsystem.getRenderPoints())
+			{
+				pushL.modelMatrix = lrenderpoint.mat4();
+				pushL.normalMatrix = lrenderpoint.normalMatrix();
+				pushL.color = lsystem.renderColor;
 
-			vkCmdPushConstants(commandBuffer,
-				pipelineLayout,
-				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-				0,
-				sizeof(TestPushConstant),
-				&pushL);
+				vkCmdPushConstants(commandBuffer,
+					pipelineLayout,
+					VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+					0,
+					sizeof(TestPushConstant),
+					&pushL);
 
-			pointModel->bind(commandBuffer);
-			pointModel->draw(commandBuffer);
+				pointModel->bind(commandBuffer);
+				pointModel->draw(commandBuffer);
+			}
 		}
+
 
 		// Draw skeleton
 		//skeleton.drawSkeleton(commandBuffer, pipelineLayout, skeleton.getRoot(), projectionView);

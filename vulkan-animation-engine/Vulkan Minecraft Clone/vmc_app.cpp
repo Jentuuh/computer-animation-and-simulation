@@ -41,9 +41,8 @@ namespace vae {
 
 		initImgui();
 		loadGameObjects();
-		initLSystems();
 		initSkeletons();
-		initRigidBodies();
+		initCollidables();
 		viewerObject = std::make_unique<VmcGameObject>(VmcGameObject::createGameObject());
 	}
 
@@ -135,7 +134,7 @@ namespace vae {
 					skyboxObjects,
 					gameObjects, 
 					animators, 
-					Lsystems[0], 
+					Lsystems, 
 					skeletons[0], 
 					rigidBodies, 
 					collidables,
@@ -395,6 +394,11 @@ namespace vae {
 			{
 				UI_Tab = 2;
 			}
+
+			if (ImGui::Button("L-Systems", ImVec2(100, 25)))
+			{
+				UI_Tab = 3;
+			}
 		}
 
 		ImGui::Text("-----------------------------------------------------");
@@ -411,6 +415,10 @@ namespace vae {
 
 		case 2:
 			renderImGuiParticleUI();
+			break;
+
+		case 3:
+			renderImGuiLSystemUI();
 			break;
 
 		default:
@@ -588,7 +596,7 @@ namespace vae {
 		int index = 0;
 		for (auto& p : particleSystems)
 		{
-			std::string particleSysLabel = "Particle system ";
+			std::string particleSysLabel = "Particle System (";
 			ImGui::Text((particleSysLabel + std::to_string(index)).c_str());
 
 			std::string delLabel = "Delete (";
@@ -611,6 +619,53 @@ namespace vae {
 
 			std::string angleDevLabel = "Angle dev (";
 			ImGui::InputFloat((angleDevLabel + std::to_string(index) + ")").c_str(), &p.angleDeviation);
+
+			ImGui::NewLine();
+			index++;
+		}
+	}
+
+	void VmcApp::renderImGuiLSystemUI()
+	{
+		// =====================
+		// L-SYSTEM UI
+		// =====================
+		if (ImGui::Button("Add Bush"))
+		{
+			addLSystem(BUSH);
+		} ImGui::SameLine();
+		if (ImGui::Button("Add long plant"))
+		{
+			addLSystem(LONG_PLANT);
+		} ImGui::SameLine();
+		if (ImGui::Button("Add tree"))
+		{
+			addLSystem(TREE);
+		}
+
+		if (Lsystems.size() > 0)
+			ImGui::Text("L-Systems:");
+		ImGui::NewLine();
+		
+		int index = 0;
+		for (auto& l : Lsystems)
+		{
+			std::string LSysLabel = l.getVegetationType() + " L-System (";
+			ImGui::Text((LSysLabel + std::to_string(index) + ")").c_str());
+
+			std::string delLabel = "Delete (";
+			if (ImGui::Button((delLabel + std::to_string(index) + ")").c_str()))
+			{
+				Lsystems.erase(Lsystems.begin() + index);
+			}
+
+			std::string LSysPositionLabel = "Position (";
+			if (ImGui::DragFloat3((LSysPositionLabel + std::to_string(index) + ")").c_str(), glm::value_ptr(l.rootPosition), 1.0f, -20.0f, 20.0f))
+			{
+				l.resetTurtleAndRerender();
+			}
+			std::string LSysColorLabel = "Color (";
+			ImGui::ColorEdit3((LSysColorLabel + std::to_string(index) + ")").c_str(), glm::value_ptr(l.renderColor));
 
 			ImGui::NewLine();
 			index++;
@@ -650,17 +705,27 @@ namespace vae {
 		particleSystems.push_back(hose);
 	}
 
-
-	void VmcApp::initLSystems() 
+	void VmcApp::addLSystem(VegetationType type)
 	{
-		std::vector<std::pair<std::string, float>> rules1;
-		rules1.push_back(std::make_pair("F=>F[+F]F[-F][F]", 0.25f));
-		rules1.push_back(std::make_pair("F=>F[+F]F[-F]F", 0.25f));
-		rules1.push_back(std::make_pair("F=>FFF", 0.5f));
-
-		std::string axiom1 = "F";
-		Lsystems.push_back(LSystem{ rules1, axiom1, {0.0f, 0.0f, 0.0f}, 5, 25.7f });
+		switch (type)
+		{
+		case vae::BUSH:
+			Lsystems.push_back(LSystem{ "../Misc/l-systems/bush.txt", BUSH });
+			Lsystems.back().mature();
+			break;
+		case vae::LONG_PLANT:
+			Lsystems.push_back(LSystem{ "../Misc/l-systems/long_plant.txt", LONG_PLANT });
+			Lsystems.back().mature();
+			break;
+		case vae::TREE:
+			Lsystems.push_back(LSystem{ "../Misc/l-systems/tree.txt", TREE });
+			Lsystems.back().mature();
+			break;
+		default:
+			break;
+		}
 	}
+
 
 	void VmcApp::initSkeletons()
 	{
@@ -671,43 +736,15 @@ namespace vae {
 		skeletons.push_back(skeleton);
 	}
 
-	void VmcApp::initRigidBodies()
+	void VmcApp::initCollidables()
 	{
 		std::vector<std::pair<glm::vec3, float>> massPoints1;
 		massPoints1.push_back(std::make_pair(glm::vec3{ 1.0f, 0.0f, 0.0f }, 1.0f));
 
 		std::shared_ptr<VmcModel> groundModel = VmcModel::createModelFromFile(vmcDevice, "../Models/ground.obj");
-		RigidBody rigid_1{ massPoints1, false, groundModel, {1.0f, 1.0f, 1.0f} };
-		rigid_1.S.pos = { 0.0f, 5.0f, 0.0f };
-		//rigid_1.setBoundingBox(groundModel->minimumX(), groundModel->maximumX(), groundModel->minimumY(), groundModel->maximumY(), groundModel->minimumZ(), groundModel->maximumZ());
-		//rigidBodies.push_back(rigid_1);
-		collidables.push_back(rigid_1);
-
-
-		//for (int i = 0; i < 10; i++)
-		//{
-		//	std::vector<std::pair<glm::vec3, float>> massPoints2;
-		//	massPoints2.push_back(std::make_pair(glm::vec3{ 1.0f + i, 0.0f, 0.0f }, 1.0f));
-		//	massPoints2.push_back(std::make_pair(glm::vec3{ 0.0f, 1.0f + i, 0.0f }, 1.0f));
-		//	massPoints2.push_back(std::make_pair(glm::vec3{ 0.0f, 0.0f, 1.0f + i }, 1.0f));
-
-		//	float scale = ((float)rand() / RAND_MAX) * 0.6f;
-
-
-		//	std::shared_ptr<VmcModel> rigidModel = VmcModel::createModelFromFile(vmcDevice, "../Models/cube.obj");
-		//	RigidBody rigid_2{ massPoints2, true, rigidModel, {scale, scale, scale} };
-		//	//rigid_2.applyTorque({ 1.0f, .0f, 1.0f });
-		//	//rigid_2.setBoundingBox(-0.1f, 0.1f, -0.1f, 0.1f, -0.1f, 0.1f);
-		//	rigidBodies.push_back(rigid_2);
-		//}
-	}
-
-	void VmcApp::initParticleSystems()
-	{
-		std::shared_ptr<VmcModel> waterDropModel = VmcModel::createModelFromFile(vmcDevice, "../Models/cube.obj");
-
-		ParticleSystem hose{ {0.0f, 0.0f, 0.0f}, waterDropModel };
-		particleSystems.push_back(hose);
+		RigidBody ground{ massPoints1, false, groundModel, {1.0f, 1.0f, 1.0f} };
+		ground.S.pos = { 0.0f, 5.0f, 0.0f };
+		collidables.push_back(ground);
 	}
 
 
@@ -718,9 +755,7 @@ namespace vae {
 			for (auto& collidable : collidables)
 			{
 				CollisionInfo col{};
-				if (rigid.detectCollision(collidable, col))
-				{
-				}
+				rigid.detectCollision(collidable, col);
 			}
 		}
 	}

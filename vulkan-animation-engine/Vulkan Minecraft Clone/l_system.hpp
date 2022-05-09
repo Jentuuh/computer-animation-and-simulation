@@ -19,17 +19,30 @@ namespace vae {
 		glm::vec3 dir;
 	};
 
+	enum VegetationType {
+		BUSH,
+		LONG_PLANT,
+		TREE
+	};
+
 	const float SEGMENT_LENGTH = .05f;
 
 	class LSystem
 	{
 	public:
-		LSystem(std::vector<std::pair<std::string, float>> prodRules, std::string axiom, glm::vec3 rootPos, int n, float delta);
+		LSystem(std::vector<std::pair<std::string, float>> prodRules, std::string axiom, glm::vec3 rootPos, int n, float delta, VegetationType type);
+		LSystem(const char* filePath, VegetationType type);
 		std::vector<TransformComponent>& getRenderPoints() { return renderPoints; };
+		std::string getVegetationType() { return veg_type; };
+
+		void mature();
 		void iterate();
 		void render();
+		void resetTurtleAndRerender();
 		void printAxiomState();
 
+		glm::vec3 rootPosition;
+		glm::vec3 renderColor;
 	private:
 		void drawSegment(glm::vec3 posStart, glm::vec3 posEnd, glm::vec3 scale);
 		std::vector<ProductionRule> getMatchingRules(std::vector<char>& leftSyms);
@@ -40,9 +53,10 @@ namespace vae {
 		std::vector<ProductionRule> productionRules;
 		std::vector<TransformComponent> renderPoints;
 
-		glm::vec3 rootPosition;
 		int currentIteration = 1;
 		int maxIterations;	// Iterations to perform 
 		float delta;		// Turning angle
+
+		std::string veg_type;
 	};
 }
