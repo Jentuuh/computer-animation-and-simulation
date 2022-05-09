@@ -70,6 +70,15 @@ namespace vae {
           VkImage &image,
           VkDeviceMemory &imageMemory);
 
+      void transitionImageLayout(VkImage image, 
+          VkImageLayout oldLayout, 
+          VkImageLayout newLayout,
+          uint32_t levelCount,
+          uint32_t layerCount);
+
+      VkImageView createImageView(VkImage image, VkFormat format, VkImageViewType imgViewType, uint32_t layerCount);
+      
+
       VkPhysicalDeviceProperties properties;
 
      private:

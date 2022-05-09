@@ -16,10 +16,12 @@
 
 namespace vae {
 
-	SimpleRenderSystem::SimpleRenderSystem(VmcDevice &device, VkRenderPass renderPass, VkDescriptorSetLayout globalSetLayout) : vmcDevice{device}
+	SimpleRenderSystem::SimpleRenderSystem(VmcDevice &device, VkRenderPass sceneRenderPass,  VkRenderPass skyboxRenderPass, VkDescriptorSetLayout globalSetLayout) : vmcDevice{device}
 	{
 		createPipelineLayout(globalSetLayout);
-		createPipeline(renderPass);
+		createPipeline(sceneRenderPass);
+		createSkyBoxPipeline(skyboxRenderPass);
+
 	}
 
 	SimpleRenderSystem::~SimpleRenderSystem()
@@ -60,12 +62,44 @@ namespace vae {
 		vmcPipeline = std::make_unique<VmcPipeline>(vmcDevice, "../Shaders/simple_shader.vert.spv", "../Shaders/simple_shader.frag.spv", pipelineConfig);
 	}
 
+	void SimpleRenderSystem::createSkyBoxPipeline(VkRenderPass renderPass)
+	{
+		assert(skyboxPipelineLayout != nullptr && "Pipeline layout should be created before pipeline creation!");
+
+		PipelineConfigInfo pipelineConfig{};
+		VmcPipeline::skyboxPipelineConfigInfo(pipelineConfig);
+		pipelineConfig.renderPass = renderPass;
+		pipelineConfig.pipelineLayout = pipelineLayout;
+		skyboxPipeline = std::make_unique<VmcPipeline>(vmcDevice, "../Shaders/skybox_shader.vert.spv", "../Shaders/skybox_shader.frag.spv", pipelineConfig);
+	}
+
+
 	// TODO: State update of objects should be handled somewhere else!
 	// Render loop
-	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, VkDescriptorSet globalDescriptorSet, std::vector<VmcGameObject> &gameObjects, std::vector<SplineAnimator>& animators, LSystem& lsystem, Skeleton& skeleton, std::vector<RigidBody>& rigids, std::vector<RigidBody>& collidables, const VmcCamera& camera, const float frameDeltaTime, std::shared_ptr<VmcModel> pointModel, int camMode, VmcGameObject* viewerObj)
+	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, VkDescriptorSet globalDescriptorSet, VkDescriptorSet skyboxDescriptorSet, std::vector<VmcGameObject>& skyBoxes, std::vector<VmcGameObject> &gameObjects, std::vector<SplineAnimator>& animators, LSystem& lsystem, Skeleton& skeleton, std::vector<RigidBody>& rigids, std::vector<RigidBody>& collidables, const VmcCamera& camera, const float frameDeltaTime, std::shared_ptr<VmcModel> pointModel, int camMode, VmcGameObject* viewerObj)
 	{
-		vmcPipeline->bind(commandBuffer);
+		if (renderSkybox)
+		{
+			// ============
+			// Draw skybox
+			// ============
+			vkCmdBindDescriptorSets(
+				commandBuffer,
+				VK_PIPELINE_BIND_POINT_GRAPHICS,
+				pipelineLayout,
+				0, 1,
+				&skyboxDescriptorSet, 0,
+				nullptr);
 
+			skyBoxes[0].model->bind(commandBuffer);
+			skyboxPipeline->bind(commandBuffer);
+			skyBoxes[0].model->draw(commandBuffer);
+		}
+
+		// ===========
+		// Draw scene
+		// ===========
+		vmcPipeline->bind(commandBuffer);
 		// Global descriptor set (index 0), can be reused by all game objects
 		vkCmdBindDescriptorSets(
 			commandBuffer,

@@ -38,6 +38,8 @@ namespace vae {
 
 		void bind(VkCommandBuffer commandBuffer);
 		static void defaultPipelineConfigInfo(PipelineConfigInfo& configInfo);
+		static void skyboxPipelineConfigInfo(PipelineConfigInfo& configInfo);
+
 	private:
 		static std::vector<char> readFile(const std::string& filePath);
 		void createGraphicsPipeline(const std::string vertFilePath, const std::string fragFilePath, const PipelineConfigInfo& configInfo);

@@ -5,9 +5,11 @@
 #include "vmc_game_object.hpp"
 #include "vmc_descriptors.hpp"
 #include "vmc_camera.hpp"
+#include "vmc_texture.hpp"
 #include "keyboard_movement_controller.hpp"
 #include "ffd_keyboard_controller.hpp"
 #include "particle_system.hpp"
+#include "simple_render_system.hpp"
 
 #include "animator.hpp"
 #include "spline_animator.hpp"
@@ -38,6 +40,7 @@ namespace vae {
 		void initImgui();
 	private:
 		void loadGameObjects();
+		void loadTextures();
 		void initDescriptorsAndUBOs();
 
 		void addSplineAnimator();
@@ -60,15 +63,22 @@ namespace vae {
 		VmcDevice vmcDevice{ vmcWindow };
 		VmcRenderer vmcRenderer{ vmcWindow, vmcDevice };
 		VmcCamera camera;
+		std::unique_ptr<SimpleRenderSystem> simpleRenderSystem;
 		std::unique_ptr<VmcGameObject> viewerObject{};
 
 		// Order of declarations matter!
 		std::unique_ptr<VmcDescriptorPool> globalPool{};
 		VkDescriptorPool imGuiPool;	 // TODO: make use of VmcDescriptorPool class!
 
+		std::unique_ptr<VmcTexture> testTexture;
 		std::vector<std::unique_ptr<VmcBuffer>> uboBuffers;
 		std::unique_ptr<VmcDescriptorSetLayout> globalSetLayout;
 		std::vector<VkDescriptorSet> globalDescriptorSets;
+
+		std::unique_ptr<VmcTexture> skyboxTexture;
+		std::vector<std::unique_ptr<VmcBuffer>> skyboxUbos;
+		std::vector<VkDescriptorSet> skyboxDescriptorSets;
+		std::vector<VmcGameObject> skyboxObjects;
 
 		std::vector<LSystem> Lsystems;
 		std::vector<VmcGameObject> gameObjects;

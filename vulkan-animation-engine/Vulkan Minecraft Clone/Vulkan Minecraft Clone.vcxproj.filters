@@ -177,6 +177,9 @@
     <ClCompile Include="particle_system.cpp">
       <Filter>Source Files\Animation\Physics</Filter>
     </ClCompile>
+    <ClCompile Include="vmc_texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vmc_window.hpp">
@@ -280,6 +283,9 @@
     </ClInclude>
     <ClInclude Include="particle_system.hpp">
       <Filter>Header Files\Animation\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="vmc_texture.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

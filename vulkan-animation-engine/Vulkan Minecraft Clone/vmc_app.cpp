@@ -1,5 +1,4 @@
 #include "vmc_app.hpp"
-#include "simple_render_system.hpp"
 #include "spline_animator.hpp"
 #include "vmc_buffer.hpp"
 
@@ -24,15 +23,19 @@
 namespace vae {
 
 	struct GlobalUbo {
-		alignas(16) glm::mat4 projectionView{ 1.0f };
+		alignas(16) glm::mat4 projection{ 1.0f };
 		alignas(16) glm::vec3 lightDirection = glm::normalize(glm::vec3{ 1.f, -3.f, -1.f });
+		alignas(16) glm::mat4 view{ 1.0f };
 	};
 
 	VmcApp::VmcApp()
 	{
+		loadTextures();
+
 		globalPool = VmcDescriptorPool::Builder(vmcDevice)
-			.setMaxSets(VmcSwapChain::MAX_FRAMES_IN_FLIGHT)
-			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VmcSwapChain::MAX_FRAMES_IN_FLIGHT)
+			.setMaxSets(2 * VmcSwapChain::MAX_FRAMES_IN_FLIGHT)
+			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 2 * VmcSwapChain::MAX_FRAMES_IN_FLIGHT)
+			.addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 2 * VmcSwapChain::MAX_FRAMES_IN_FLIGHT)
 			.build();
 		initDescriptorsAndUBOs();
 
@@ -51,10 +54,11 @@ namespace vae {
 	void VmcApp::run()
 	{
 
-		SimpleRenderSystem simpleRenderSystem{ 
+		simpleRenderSystem = std::make_unique<SimpleRenderSystem>(
 			vmcDevice, 
-			vmcRenderer.getSwapChainRenderPass(), 
-			globalSetLayout->getDescriptorSetLayout()};
+			vmcRenderer.getSwapChainRenderPass(),
+			vmcRenderer.getSwapChainRenderPass(),
+			globalSetLayout->getDescriptorSetLayout());
 	
         auto currentTime = std::chrono::high_resolution_clock::now();
 
@@ -111,15 +115,24 @@ namespace vae {
 				
 				// Update phase
 				GlobalUbo ubo{};
-				ubo.projectionView = camera.getProjection() * camera.getView();
+				ubo.projection = camera.getProjection();
+				ubo.view = camera.getView();
 				uboBuffers[frameIndex]->writeToBuffer(&ubo);
 				uboBuffers[frameIndex]->flush();
 
+				ubo.projection = camera.getProjection();;
+				ubo.view = camera.getView();
+				ubo.view[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+				skyboxUbos[frameIndex]->writeToBuffer(&ubo);
+				skyboxUbos[frameIndex]->flush();
+
 				// Render phase
 				vmcRenderer.beginSwapChainRenderPass(commandBuffer);
-				simpleRenderSystem.renderGameObjects(
+				simpleRenderSystem->renderGameObjects(
 					commandBuffer, 
 					globalDescriptorSets[frameIndex], 
+					skyboxDescriptorSets[frameIndex],
+					skyboxObjects,
 					gameObjects, 
 					animators, 
 					Lsystems[0], 
@@ -217,8 +230,6 @@ namespace vae {
 
 		auto stickObj = VmcGameObject::createGameObject();
 		stickObj.model = stickModel;
-		// Make sure to call initDeformationSystem() AFTER the model is assigned to the gameObj!
-		//stickObj.initDeformationSystem();
 		stickObj.setPosition({ .0f, .0f, .0f });
 		stickObj.transform.rotation = { .0f, .0f, -glm::pi<float>() };
 		stickObj.setScale({ .3f, .3f, .3f });
@@ -232,6 +243,23 @@ namespace vae {
 
 		gameObjects.push_back(std::move(stickObj));
 
+		std::shared_ptr<VmcModel> skyboxModel = VmcModel::createModelFromFile(vmcDevice, "../Models/skybox.obj");
+		auto skybox = VmcGameObject::createGameObject();
+		skybox.model = skyboxModel;
+		skybox.setPosition({ .0f, .0f, .0f });
+		skybox.transform.rotation = { .0f, .0f, .0f };
+		skybox.setScale({ 1.0f, 1.0f, 1.0f });
+		skyboxObjects.push_back(std::move(skybox));
+
+
+		//std::shared_ptr<VmcModel> cubeModel = VmcModel::createModelFromFile(vmcDevice, "../Models/cube.obj");
+		//auto cube = VmcGameObject::createGameObject();
+		//cube.model = cubeModel;
+		//cube.setPosition({ .0f, .0f, .0f });
+		//cube.transform.rotation = { .0f, .0f, .0f };
+		//cube.setScale({ 1.0f, 1.0f, 1.0f });
+
+		//gameObjects.push_back(std::move(cube));
 
 		//std::shared_ptr<VmcModel> bolModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
 		//auto sphere = VmcGameObject::createGameObject();
@@ -254,8 +282,19 @@ namespace vae {
 		//}
 	}
 
+	void VmcApp::loadTextures()
+	{
+		const char* test = "../Textures/pepe.jpg";
+		testTexture = std::make_unique<VmcTexture>(vmcDevice, test, TEXTURE_TYPE_STANDARD_2D);
+
+		const char* cubemapPath = "../Textures/cubemaps/cubemap_yokohama_rgba.ktx";
+		skyboxTexture = std::make_unique<VmcTexture>(vmcDevice, cubemapPath, TEXTURE_TYPE_CUBE_MAP);
+	}
+
+
 	void VmcApp::initDescriptorsAndUBOs()
 	{
+		// Create UBOs
 		uboBuffers.resize(VmcSwapChain::MAX_FRAMES_IN_FLIGHT);
 		for (int i = 0; i < uboBuffers.size(); i++)
 		{
@@ -269,18 +308,50 @@ namespace vae {
 			uboBuffers[i]->map();
 		}
 
+		skyboxUbos.resize(VmcSwapChain::MAX_FRAMES_IN_FLIGHT);
+		for (int i = 0; i < skyboxUbos.size(); i++)
+		{
+			skyboxUbos[i] = std::make_unique<VmcBuffer>(
+				vmcDevice,
+				sizeof(GlobalUbo),
+				1,
+				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+
+			skyboxUbos[i]->map();
+		}
+
+		// Create set layouts
 		 globalSetLayout = std::move(VmcDescriptorSetLayout::Builder(vmcDevice)
-			.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+			.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)	// UBO
+			.addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT, 1)	// Texture sampler
 			.build());
 
-	globalDescriptorSets.resize(VmcSwapChain::MAX_FRAMES_IN_FLIGHT);
+		// Write to descriptor sets
+		globalDescriptorSets.resize(VmcSwapChain::MAX_FRAMES_IN_FLIGHT);
 		for (int i = 0; i < globalDescriptorSets.size(); i++)
 		{
 			auto bufferInfo = uboBuffers[i]->descriptorInfo();
-			// Write buffer info to binding 0
+			auto textureInfo = testTexture->descriptorInfo();
+
+			// Write buffer info to binding 0, texture info to binding 1
 			VmcDescriptorWriter(*globalSetLayout, *globalPool)
 				.writeBuffer(0, &bufferInfo)
+				.writeImage(1, &textureInfo)
 				.build(globalDescriptorSets[i]);
+		}
+
+		skyboxDescriptorSets.resize(VmcSwapChain::MAX_FRAMES_IN_FLIGHT);
+		for (int i = 0; i < skyboxDescriptorSets.size(); i++)
+		{
+			auto skyboxUboInfo = skyboxUbos[i]->descriptorInfo();
+			auto skyboxTextureInfo = skyboxTexture->descriptorInfo();
+
+			// Write buffer info to binding 0, texture info to binding 1
+			VmcDescriptorWriter(*globalSetLayout, *globalPool)
+				.writeBuffer(0, &skyboxUboInfo)
+				.writeImage(1, &skyboxTextureInfo)
+				.build(skyboxDescriptorSets[i]);
 		}
 	}
 
@@ -294,7 +365,11 @@ namespace vae {
 		ImGui::Begin("Vulkan Animation Engine UI");
 		ImGui::TextWrapped("This UI window allows you to manage the scene content.");
 
+
+
 		ImGui::InputFloat("FPS cap: ", &animation_FPS);
+		ImGui::Checkbox("Skybox: ", &simpleRenderSystem->shouldRenderSkybox());
+
 
 		ImGui::Text("Camera Mode:");
 		ImGui::RadioButton("Edit mode", &cameraMode, 0); ImGui::SameLine();
