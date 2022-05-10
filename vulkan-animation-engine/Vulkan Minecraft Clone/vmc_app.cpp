@@ -8,6 +8,7 @@
 #include <array>
 #include <iostream>
 #include <chrono>
+#include <filesystem>
 
 // libs
 #define GLM_FORCE_RADIANS
@@ -220,6 +221,24 @@ namespace vae {
 		ImGui_ImplVulkan_DestroyFontUploadObjects();
 	}
 
+	void VmcApp::loadGameObject(const char* objName)
+	{
+		std::string objPath = std::string("../Models/") + std::string(objName);
+		if (!std::filesystem::exists(objPath))
+		{
+			std::cout << "Model file does not exist!" << std::endl;
+			return;
+		}
+
+		std::shared_ptr<VmcModel> model = VmcModel::createModelFromFile(vmcDevice, objPath.c_str());
+		auto newObj = VmcGameObject::createGameObject();
+		newObj.model = model;
+		newObj.setPosition({ .0f, .0f, .0f });
+		newObj.transform.rotation = { .0f, .0f, .0f };
+		newObj.setScale({ 1.0f, 1.0f, 1.0f });
+		gameObjects.push_back(std::move(newObj));
+	}
+
  
 	void VmcApp::loadGameObjects()
     {
@@ -388,6 +407,13 @@ namespace vae {
 			{
 				UI_Tab = 3;
 			}
+
+			ImGui::SameLine();
+
+			if (ImGui::Button("Game Objects", ImVec2(100, 25)))
+			{
+				UI_Tab = 4;
+			}
 		}
 
 		ImGui::Text("-----------------------------------------------------");
@@ -410,6 +436,10 @@ namespace vae {
 			renderImGuiLSystemUI();
 			break;
 
+		case 4:
+			renderImGuiGameObjectsUI();
+			break;
+
 		default:
 			break;
 		}
@@ -418,6 +448,59 @@ namespace vae {
 
 		ImGui::Render();
 	}
+
+	void VmcApp::renderImGuiGameObjectsUI()
+	{
+		// =====================
+		// GAMEOBJECTS UI
+		// =====================
+		ImGui::InputText(".obj file name", fileNameBuffer, 50 * sizeof(char));
+
+		if (ImGui::Button("Add Game Object"))
+		{
+			loadGameObject(fileNameBuffer);
+		}
+		ImGui::NewLine();
+
+		int index = 0;
+		for (auto& obj : gameObjects) {
+			std::string gameObjLabel = "GameObj ";
+			ImGui::Text((gameObjLabel + std::to_string(index)).c_str());
+			ImGui::SameLine();
+			std::string removeGameObjLabel = "Delete (";
+			if (ImGui::Button((removeGameObjLabel + std::to_string(index) + ")").c_str()))
+			{
+				gameObjects.erase(gameObjects.begin() + index);
+			}
+
+			std::string posLabel = "Pos (";
+			if (ImGui::DragFloat3((posLabel + std::to_string(index) + ")").c_str(), glm::value_ptr(obj.transform.translation)))
+			{
+				obj.setPosition(obj.transform.translation);
+			};
+
+			std::string rotLabel = "Rot (";
+			if(ImGui::DragFloat3((rotLabel + std::to_string(index) + ")").c_str(), glm::value_ptr(obj.transform.rotation), 0.01f, 0.0f, 2 * glm::pi<float>()))
+			{
+				obj.setRotation(obj.transform.rotation);
+			}
+
+			std::string scaleLabel = "Scale (";
+			float uniformScaling = obj.transform.scale.x;
+			if (ImGui::DragFloat((scaleLabel + std::to_string(index) + ")").c_str(), &uniformScaling, 0.01f, 0.01f, 5.0f))
+			{
+				obj.setScale(glm::vec3{uniformScaling, uniformScaling, uniformScaling});
+			}
+
+			std::string objColorLabel = "Color (";
+			ImGui::ColorEdit3((objColorLabel + std::to_string(index) + ")").c_str(), glm::value_ptr(obj.color));
+
+			ImGui::NewLine();
+			index++;
+		}
+
+	}
+
 
 	void VmcApp::renderImGuiPathAnimatorUI()
 	{
@@ -587,7 +670,9 @@ namespace vae {
 		for (auto& p : particleSystems)
 		{
 			std::string particleSysLabel = "Particle System (";
-			ImGui::Text((particleSysLabel + std::to_string(index)).c_str());
+			ImGui::Text((particleSysLabel + std::to_string(index) + ")").c_str());
+
+			ImGui::SameLine();
 
 			std::string delLabel = "Delete (";
 			if (ImGui::Button((delLabel + std::to_string(index) + ")").c_str()))

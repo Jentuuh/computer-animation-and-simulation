@@ -32,14 +32,8 @@ namespace vae {
 		glm::vec3 newRot = calculateIntermediateRotation();
 		for (auto gameObj : animatedObjects)
 		{
-			gameObj->transform.translation = newPos;
-			gameObj->transform.rotation = newRot;
-
-			for (auto& c : gameObj->children)
-			{
-				c.transform.translation = newPos;
-				c.transform.rotation = newRot;
-			}
+			gameObj->setPosition(newPos);
+			gameObj->setRotation(newRot);
 		}
 	}
 

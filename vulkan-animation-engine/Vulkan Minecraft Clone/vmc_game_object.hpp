@@ -62,7 +62,7 @@ namespace vae {
 
         std::shared_ptr<VmcModel> model{};
         std::vector<VmcGameObject> children{};
-        glm::vec3 color{};
+        glm::vec3 color{1.0f, 1.0f, 1.0f};
         TransformComponent transform{};
 
         FFD deformationSystem;
@@ -70,6 +70,7 @@ namespace vae {
         bool runAnimation = false;
 
     private:
+        glm::vec3 prevPos{0.0f, 0.0f, 0.0f};
         VmcGameObject(id_t objId) : id{ objId } {}
         id_t id;
     };

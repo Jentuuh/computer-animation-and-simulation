@@ -176,7 +176,7 @@ namespace vae {
 			TestPushConstant push{};
 			push.modelMatrix = obj.transform.mat4();
 			push.normalMatrix = obj.transform.normalMatrix();
-			push.color = { 1.f, 1.f, 1.f };
+			push.color = obj.color;
 			
 			vkCmdPushConstants(
 				commandBuffer,
@@ -199,7 +199,7 @@ namespace vae {
 				TestPushConstant pushChild{};
 				pushChild.modelMatrix = child.transform.mat4();
 				pushChild.normalMatrix = child.transform.normalMatrix();
-				pushChild.color = { 0.f, 1.f, 0.f };
+				pushChild.color = obj.color;
 
 				vkCmdPushConstants(
 					commandBuffer,

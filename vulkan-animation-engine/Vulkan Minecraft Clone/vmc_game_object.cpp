@@ -73,14 +73,25 @@ namespace vae {
 
     void VmcGameObject::setPosition(glm::vec3 newPosition)
     {
-        glm::vec3 transVec = newPosition - transform.translation;
+        glm::vec3 transVec = newPosition - prevPos;
         transform.translation = newPosition;
+        prevPos = newPosition;
         deformationSystem.translate(transVec);
+
+        for (auto& c : children)
+        {
+            c.setPosition(newPosition);
+        }
     }
 
     void VmcGameObject::setRotation(glm::vec3 newRotation)
     {
         transform.rotation = newRotation;
+       
+        for (auto& c : children)
+        {
+            c.setRotation(newRotation);
+        }
     }
 
     void VmcGameObject::setScale(glm::vec3 newScale)
@@ -90,6 +101,11 @@ namespace vae {
         // Reset deformation system
         if(deformationEnabled)
             deformationSystem = FFD{ {model->minimumX() * newScale.x, model->maximumX() * newScale.x, model->minimumY() * newScale.y, model->maximumY() * newScale.y, model->minimumZ() * newScale.z, model->maximumZ() * newScale.z, 3.0f, 3.0f, 3.0f} };
+        
+        for (auto& c : children)
+        {
+            c.setRotation(newScale);
+        }
     }
 
     void VmcGameObject::addChild(VmcGameObject* child)
@@ -141,7 +157,7 @@ namespace vae {
 
     void VmcGameObject::initDeformationSystem()
     {
-        deformationSystem = FFD{ {model->minimumX(), model->maximumX(), model->minimumY(), model->maximumY(), model->minimumZ(), model->maximumZ(), 3.0f, 3.0f, 3.0f} };
+        deformationSystem = FFD{ {transform.translation.x + model->minimumX(), transform.translation.x + model->maximumX(), transform.translation.y + model->minimumY(), transform.translation.y + model->maximumY(), transform.translation.z + model->minimumZ(), transform.translation.z + model->maximumZ(), 3.0f, 3.0f, 3.0f} };
     }
 
     void VmcGameObject::disableDeformationSystem()

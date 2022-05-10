@@ -19,7 +19,6 @@ namespace vae {
 		S = glm::vec3{ init.endX, init.startY, init.startZ } - glm::vec3{ init.startX, init.startY, init.startZ };
 		T = glm::vec3{ init.startX, init.endY, init.startZ } - glm::vec3{ init.startX, init.startY, init.startZ };
 		U = glm::vec3{ init.startX, init.startY, init.endZ } - glm::vec3{ init.startX, init.startY, init.startZ };
-		
 
 		// Generate control points
 		TransformComponent transform{};
@@ -155,11 +154,7 @@ namespace vae {
 		float t = glm::dot(glm::cross(U, S), oldPosition - P0) / (glm::dot(glm::cross(U, S), T));
 		float u = glm::dot(glm::cross(S, T), oldPosition - P0) / (glm::dot(glm::cross(S, T), U));
 
-		//std::cout << "s: " << s << std::endl;
-		//std::cout << "t: " << t << std::endl;
-		//std::cout << "u: " << u << std::endl;
-
-		// Sederberg (trivariate Bezier interpolating function) (mistake is probably somewhere here, maybe because I don't convert back from S,T,U space to X,Y,Z globals?)
+		// Sederberg (trivariate Bezier interpolating function)
 		glm::vec3 newPos_stu = { .0f, .0f, .0f };
 		for (int i = 0; i <= l; i++)
 		{
@@ -181,9 +176,6 @@ namespace vae {
 			}
 			newPos_stu += combinations(l, i) * powf(1 - s, l - i) * powf(s, i) * sumM;
 		}
-		//std::cout << "s_after: " << newPos_stu.x << std::endl;
-		//std::cout << "t_after: " << newPos_stu.y << std::endl;
-		//std::cout << "u_after: " << newPos_stu.z << std::endl;
 
 		glm::vec3 newPos_global = P0 + newPos_stu.x * S + newPos_stu.y * T + newPos_stu.z * U;
 

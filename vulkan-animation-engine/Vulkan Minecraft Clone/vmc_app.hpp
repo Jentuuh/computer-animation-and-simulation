@@ -40,6 +40,7 @@ namespace vae {
 		void initImgui();
 
 	private:
+		void loadGameObject(const char * objName);
 		void loadGameObjects();
 		void loadTextures();
 		void initDescriptorsAndUBOs();
@@ -55,6 +56,7 @@ namespace vae {
 		void updateParticleSystems();
 
 		void renderImGuiWindow();
+		void renderImGuiGameObjectsUI();
 		void renderImGuiPathAnimatorUI();
 		void renderImGuiDeformationUI();
 		void renderImGuiParticleUI();
@@ -100,6 +102,7 @@ namespace vae {
 		float animation_FPS = 60.0f;
 		int UI_Tab = 0;
 		int deformationIndex = 0;
+		char fileNameBuffer[50] = "Your file name";
 		std::shared_ptr<VmcModel> sphereModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
 	};
 }
