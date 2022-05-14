@@ -21,7 +21,6 @@ namespace vae {
 			endOrientation{endOrientation} {};
 
 		void updateAnimatable();
-		//void advanceTime(float deltaTime);
 		virtual glm::vec3 calculateNextPositionSpeedControlled() = 0;
 		virtual glm::vec3 calculateIntermediateRotation() = 0;
 
@@ -65,7 +64,5 @@ namespace vae {
 		std::vector<VmcGameObject*> animatedObjects{};
 
 		std::vector<std::pair<float, float>> forwardDiffTable;
-		//float timePassed;		// Time that has already passed
-		//float totalTime;		// Total time duration of the animation
 	};
 }

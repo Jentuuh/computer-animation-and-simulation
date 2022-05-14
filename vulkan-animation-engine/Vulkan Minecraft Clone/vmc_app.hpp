@@ -10,6 +10,7 @@
 #include "ffd_keyboard_controller.hpp"
 #include "particle_system.hpp"
 #include "simple_render_system.hpp"
+#include "story_board.hpp"
 
 #include "animator.hpp"
 #include "spline_animator.hpp"
@@ -27,8 +28,8 @@ namespace vae {
 	{
 	public:
 		const float MAX_FRAME_TIME = .1f;
-		static constexpr int WIDTH = 800;
-		static constexpr int HEIGHT = 600;
+		static constexpr int WIDTH = 1000;
+		static constexpr int HEIGHT = 700;
 
 		VmcApp();
 		~VmcApp();
@@ -56,12 +57,12 @@ namespace vae {
 		void updateParticleSystems();
 
 		void renderImGuiWindow();
+		void renderImGuiStoryBoardUI();
 		void renderImGuiGameObjectsUI();
 		void renderImGuiPathAnimatorUI();
 		void renderImGuiDeformationUI();
 		void renderImGuiParticleUI();
 		void renderImGuiLSystemUI();
-
 
 		void updateCamera(float frameTime);
 
@@ -86,14 +87,16 @@ namespace vae {
 		std::vector<VkDescriptorSet> skyboxDescriptorSets;
 		std::vector<VmcGameObject> skyboxObjects;
 
-		std::vector<LSystem> Lsystems;
 		std::vector<VmcGameObject> gameObjects;
 		std::vector<SplineAnimator> animators;
 		std::vector<Skeleton> skeletons;
 		std::vector<RigidBody> rigidBodies;
 		std::vector<ParticleSystem> particleSystems;
+		std::vector<LSystem> Lsystems;
 
 		std::vector<RigidBody> collidables;
+
+		StoryBoard storyboard;
 
 		KeyboardMovementController cameraController;
 		FFDKeyboardController ffdController;

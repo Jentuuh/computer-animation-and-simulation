@@ -3,8 +3,14 @@
 namespace vae {
 	Animatable::Animatable(float startTime, float duration):startTime{startTime}, duration{duration}{}
 
-	void Animatable::advanceTime(float dt)
+	void Animatable::animateAnimatable(float currentStoryBoardTime)
 	{
-		timePassed += dt;
+		if (currentStoryBoardTime < startTime)
+			return;
+		timePassed = currentStoryBoardTime - startTime;
+		if (timePassed > duration)
+			return;
+		updateAnimatable();
 	}
+
 }

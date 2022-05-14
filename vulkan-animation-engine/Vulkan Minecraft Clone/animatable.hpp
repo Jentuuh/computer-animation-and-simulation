@@ -8,8 +8,9 @@ namespace vae {
 		float getEndTime() { return startTime + duration; };
 		float getTimePassed() { return timePassed; };
 		float& getAnimationDuration() { return duration; };
+		float& getStartTime() { return startTime; };
 
-		void advanceTime(float dt);
+		void animateAnimatable(float currentStoryBoardTime);
 		virtual void updateAnimatable() = 0;
 
 	protected:

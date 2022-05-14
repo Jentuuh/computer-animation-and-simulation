@@ -6,7 +6,7 @@
 
 namespace vae {
 
-	FFD::FFD()
+	FFD::FFD(): Animatable(0.0f, 4.0f)
 	{
 		P0 = { .0f, .0f, .0f };
 		S = { 1.0f, .0f, .0f };
@@ -14,7 +14,7 @@ namespace vae {
 		T = { .0f, .0f, 1.0f };
 	}
 
-	FFD::FFD(FFDInitializer init) : l{int(init.resX)}, m{int(init.resY)}, n{int(init.resZ)}
+	FFD::FFD(FFDInitializer init) : Animatable(0.0f, 4.0f), l{int(init.resX)}, m{int(init.resY)}, n{int(init.resZ)}
 	{
 		// Construct local grid space + grid basis
 		P0 = { init.startX, init.startY, init.startZ };
@@ -37,6 +37,12 @@ namespace vae {
 			}
 		}
 	}
+
+	void FFD::updateAnimatable()
+	{
+		interpolateControlPoints();
+	}
+
 
 	void FFD::updateTransformation(glm::mat4 newTransformation)
 	{
@@ -145,14 +151,9 @@ namespace vae {
 		animationProps.keyframes.erase(animationProps.keyframes.begin() + index);
 	}
 
-	void FFD::advanceTime(float dt)
-	{
-		animationProps.currentTime = fmod(animationProps.currentTime + dt, animationProps.animationTime);
-	}
-
 	void FFD::interpolateControlPoints()
 	{
-		float normalizedTimePassed = animationProps.currentTime / animationProps.animationTime;
+		float normalizedTimePassed = timePassed / duration;
 		float fractionPerKeyFrame = 1.0f / static_cast<float>(animationProps.keyframes.size() - 1);
 
 		float index = normalizedTimePassed / fractionPerKeyFrame;

@@ -177,6 +177,7 @@
     <ClCompile Include="spline.cpp" />
     <ClCompile Include="spline_animator.cpp" />
     <ClCompile Include="spline_keyboard_controller.cpp" />
+    <ClCompile Include="story_board.cpp" />
     <ClCompile Include="vmc_buffer.cpp" />
     <ClCompile Include="vmc_camera.cpp" />
     <ClCompile Include="vmc_descriptors.cpp" />
@@ -214,6 +215,7 @@
     <ClInclude Include="spline.hpp" />
     <ClInclude Include="spline_animator.hpp" />
     <ClInclude Include="spline_keyboard_controller.hpp" />
+    <ClInclude Include="story_board.hpp" />
     <ClInclude Include="vmc_buffer.hpp" />
     <ClInclude Include="vmc_camera.hpp" />
     <ClInclude Include="vmc_app.hpp" />

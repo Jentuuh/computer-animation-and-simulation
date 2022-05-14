@@ -1,6 +1,7 @@
 #pragma once
 #include "enums.hpp"
 #include "vmc_model.hpp"
+#include "animatable.hpp"
 
 // std
 #include <vector>
@@ -29,17 +30,16 @@ namespace vae {
 	struct AnimationProperties
 	{
 		std::vector<std::vector<glm::vec3>> keyframes{};
-		float currentTime = 0.0f;
-		float animationTime = 4.0f;
 	};
 
 
-	class FFD
+	class FFD : public Animatable
 	{
 	public:
 		FFD();
 		FFD(FFDInitializer init);
 
+		void updateAnimatable();
 		std::vector<TransformComponent> getControlPoints(){ return grid; };
 		int getAmountKeyframes() { return animationProps.keyframes.size(); };
 		int getCurrentCPIndex() { return selectedControlPoint; };
@@ -53,8 +53,7 @@ namespace vae {
 
 		void addKeyFrame();
 		void delKeyFrame(int index);
-		void advanceTime(float dt);
-		void resetTime() { animationProps.currentTime = 0.0f; };
+		void resetTime() { timePassed = 0.0f; };
 		void interpolateControlPoints();
 		void setInitialKeyFrameControlPoints();
 
@@ -72,7 +71,6 @@ namespace vae {
 		glm::vec3 T;
 		glm::vec3 P0;
 		glm::mat4 transformation{1.0f};
-
 
 		int l;		// Resolutions per dimension
 		int m;

@@ -87,27 +87,20 @@ namespace vae {
 				currentTime = newTime;
 				frameTime += diff;
 			}
-			
-			updateCamera(frameTime);
 
 			// Controllers
-			//splineController.updateSpline(vmcWindow.getGLFWwindow(), frameTime, animators[0]);
 			if(gameObjects[deformationIndex].deformationEnabled)
 				ffdController.updateDeformationGrid(vmcWindow.getGLFWwindow(), frameTime, gameObjects[deformationIndex]);
-
-			// Generate L-system iterations
-			if (glfwGetKey(vmcWindow.getGLFWwindow(), GLFW_KEY_C) == GLFW_PRESS)
-			{
-				Lsystems[0].iterate();
-			}
 
 			// Update rigid bodies
 			for (auto& rigid : rigidBodies)
 			{
 				rigid.updateState(frameTime);
 			}
+			updateCamera(frameTime);
 			checkRigidBodyCollisions();
 			updateParticleSystems();
+			storyboard.updateAnimatables(frameTime);
 
 			// Render loop
 			if (auto commandBuffer = vmcRenderer.beginFrame()) {
@@ -414,6 +407,13 @@ namespace vae {
 			{
 				UI_Tab = 4;
 			}
+
+			ImGui::SameLine();
+
+			if (ImGui::Button("Storyboard", ImVec2(100, 25)))
+			{
+				UI_Tab = 5;
+			}
 		}
 
 		ImGui::Text("-----------------------------------------------------");
@@ -440,6 +440,10 @@ namespace vae {
 			renderImGuiGameObjectsUI();
 			break;
 
+		case 5:
+			renderImGuiStoryBoardUI();
+			break;
+
 		default:
 			break;
 		}
@@ -449,6 +453,79 @@ namespace vae {
 		ImGui::Render();
 	}
 
+	void VmcApp::renderImGuiStoryBoardUI()
+	{
+		// =====================
+		// STORYBOARD UI
+		// =====================
+		if (ImGui::Button("Start Animation"))
+		{
+			storyboard.startStoryBoardAnimation();
+		}
+
+		ImGui::Text("Storyboard panels:");
+		int index = 0;
+		for (auto a : storyboard.animatables)
+		{
+			ImGui::NewLine();
+			std::string titleLabel = "Animatable ";
+			ImGui::Text((titleLabel + std::to_string(index)).c_str());
+			ImGui::SameLine();
+			std::string removeAnimatableLabel = "Remove (";
+			if (ImGui::Button((removeAnimatableLabel + std::to_string(index) + ")").c_str()))
+			{
+				storyboard.removeAnimatable(index);
+			}
+
+			std::string startTimeLabel = "Start time (";
+			if (ImGui::InputFloat((startTimeLabel + std::to_string(index) + ")").c_str(), &a->getStartTime()))
+			{
+				storyboard.updateStoryBoardDuration();
+			}
+			std::string durationLabel = "Duration (";
+			if (ImGui::InputFloat((durationLabel + std::to_string(index) + ")").c_str(), &a->getAnimationDuration()))
+			{
+				storyboard.updateStoryBoardDuration();
+			}
+
+			index++;
+		}
+
+		ImGui::NewLine();
+
+		ImGui::Text("Available animatables:");
+		index = 0;
+		for (auto& a : animators)
+		{
+			if (!storyboard.containsAnimatable(&a))
+			{
+				std::string animatorButtonLabel = "Add Path Animator ";
+				if (ImGui::Button((animatorButtonLabel + std::to_string(index)).c_str()))
+				{
+					storyboard.addAnimatable(&a);
+				}
+			}
+			index++;;
+		}
+
+		index = 0;
+		for (auto& d : gameObjects)
+		{
+			if (!d.deformationEnabled)
+				continue;
+			if (!storyboard.containsAnimatable(&d.deformationSystem))
+			{
+				std::string deformableButtonLabel = "Add deformable object ";
+				if (ImGui::Button((deformableButtonLabel + std::to_string(index)).c_str()))
+				{
+					storyboard.addAnimatable(&d.deformationSystem);
+				}
+			}
+			index++;
+		}
+	}
+
+	// TODO: display error/success message after loading object
 	void VmcApp::renderImGuiGameObjectsUI()
 	{
 		// =====================
@@ -570,9 +647,6 @@ namespace vae {
 				ImGui::EndCombo();
 			}
 
-			ImGui::InputFloat("Duration", &animators[i].getAnimationDuration(), 0.0f, 0.0f, "%.3f s");
-
-
 			std::string animatorMoveLabel = "Pos anim ";
 			if (ImGui::DragFloat3((animatorMoveLabel + std::to_string(i)).c_str(), glm::value_ptr(animators[i].getPosition()), 1.0f, -20.0f, 20.0f))
 			{
@@ -584,6 +658,10 @@ namespace vae {
 			ImGui::DragFloat3("Start orientation", glm::value_ptr(animators[i].getStartOrientation()), 1.0f, 0.0f, 2 * glm::pi<float>());
 			ImGui::DragFloat3("End orientation", glm::value_ptr(animators[i].getEndOrientation()), 1.0f, 0.0f, 2 * glm::pi<float>());
 
+			ImGui::NewLine();
+
+			ImGui::Text("Spline control points: "); 
+			ImGui::SameLine();
 			std::string addCPLabel = "ADD CP (anim ";
 			if (ImGui::Button((addCPLabel + std::to_string(i) + ")").c_str()))
 			{
@@ -661,11 +739,11 @@ namespace vae {
 			// Add keyframe button + list of keyframes
 			if (obj.deformationEnabled)
 			{
-				if (ImGui::InputFloat("Animation duration", &obj.deformationSystem.animationProps.animationTime))
-				{
-					obj.deformationSystem.resetTime();
-					obj.setInitialAnimationForm();
-				}
+				//if (ImGui::InputFloat("Animation duration", &obj.deformationSystem.animationProps.animationTime))
+				//{
+				//	obj.deformationSystem.resetTime();
+				//	obj.setInitialAnimationForm();
+				//}
 
 				std::string keyframeButtonLabel = "Add Keyframe to obj ";
 				if (ImGui::Button((keyframeButtonLabel + std::to_string(index)).c_str()))
@@ -728,7 +806,7 @@ namespace vae {
 			ImGui::Checkbox((activeLabel + std::to_string(index) + ")").c_str(), &p.isOn);
 
 			std::string particlePositionLabel = "Position (";
-			ImGui::DragFloat3((particlePositionLabel + std::to_string(index) + ")").c_str(), glm::value_ptr(p.position), 1.0f, -20.0f, 20.0f);
+			ImGui::DragFloat3((particlePositionLabel + std::to_string(index) + ")").c_str(), glm::value_ptr(p.position), 0.05f, -20.0f, 20.0f);
 			
 			std::string shootLabel = "Shoot direction (";
 			ImGui::DragFloat3((shootLabel + std::to_string(index) + ")").c_str(), glm::value_ptr(p.shootDirection), 0.01f, -1.0f, 1.0f);

@@ -111,15 +111,9 @@ namespace vae {
 
 		glm::vec3 nextPosition{ 0.0f, 0.0f, 0.0f };
 		glm::vec3 nextRotation{ 0.0f, 0.0f, 0.0f };
-		// Advance time in animators and calculate the new positions based on the current time
+
 		for (int i = 0; i < animators.size(); i++)
 		{
-			animators[i].advanceTime(frameDeltaTime);
-			// Only update the animated objects if it doesn't contain the camera object while the freeroam mode is active
-			if(!(animators[i].containsObject(viewerObj) && camMode == 1))
-				animators[i].updateAnimatable();
-
-
 			// Draw spline control points
 			TestPushConstant pushSpline{};
 			for (auto& cpspline : animators[i].getControlPoints())
@@ -166,10 +160,8 @@ namespace vae {
 		for (auto& obj : gameObjects) {
 
 			// Update object deformation
-			if (obj.runAnimation)
+			if (obj.deformationEnabled)
 			{
-				obj.deformationSystem.advanceTime(frameDeltaTime);
-				obj.deformationSystem.interpolateControlPoints();
 				obj.deformObject();
 			}
 
