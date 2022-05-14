@@ -5,10 +5,16 @@
 
 namespace vae {
 
-	void Animator::advanceTime(float deltaTime)
+	//void Animator::advanceTime(float deltaTime)
+	//{
+	//	timePassed += deltaTime;
+	//}
+
+	void Animator::updateAnimatable()
 	{
-		timePassed += deltaTime;
+		updateAnimatedObjects();
 	}
+
 
 	bool Animator::containsObject(VmcGameObject* gameObj)
 	{
@@ -23,7 +29,17 @@ namespace vae {
 
 	void Animator::addAnimatedObject(VmcGameObject* gameObject)
 	{
+		gameObject->onPathAnimator = true;
 		animatedObjects.push_back(gameObject);
+	}
+
+	void Animator::removeAnimatedObject()
+	{
+		for (auto& o : animatedObjects)
+		{
+			o->onPathAnimator = false;
+		}
+		animatedObjects.clear();
 	}
 
 	void Animator::updateAnimatedObjects()
@@ -93,9 +109,9 @@ namespace vae {
 	float Animator::distanceTimeFuncSine()
 	{
 		// 1/2 sin(3x + (pi/2)) + 1/2
-		float distanceFraction = 0.5f * glm::sin(3 * (timePassed / totalTime) + (glm::pi<float>() / 2)) + 0.5f;
+		float distanceFraction = 0.5f * glm::sin(3 * (timePassed / duration) + (glm::pi<float>() / 2)) + 0.5f;
 		// Reset if we've reached the end of the animation loop
-		if (timePassed > totalTime) {
+		if (timePassed > duration) {
 			timePassed = 0.0f;
 		}
 		return distanceFraction;
@@ -104,10 +120,10 @@ namespace vae {
 	float Animator::distanceTimeFuncLinear()
 	{
 		// Linear relation between distance and time passed
-		float distanceFraction = timePassed / totalTime;
+		float distanceFraction = timePassed / duration;
 
 		// Reset if we've reached the end of the animation loop
-		if (timePassed > totalTime) {
+		if (timePassed > duration) {
 			timePassed = 0.0f;
 		}
 		return distanceFraction;
@@ -116,7 +132,7 @@ namespace vae {
 	float Animator::distanceTimeFuncParabolic()
 	{
 		// y = x^2
-		float distanceFraction = pow(timePassed / totalTime, 2);
+		float distanceFraction = pow(timePassed / duration, 2);
 		return distanceFraction;
 	}
 

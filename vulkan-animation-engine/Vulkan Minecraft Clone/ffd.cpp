@@ -1,6 +1,8 @@
 #include "ffd.hpp"
 #include <iostream>
 #include "vmc_game_object.hpp"
+#include "simple_render_system.hpp"
+
 
 namespace vae {
 
@@ -33,6 +35,40 @@ namespace vae {
 					grid.push_back(transform);
 				}
 			}
+		}
+	}
+
+	void FFD::updateTransformation(glm::mat4 newTransformation)
+	{
+		transformation = newTransformation;
+	}
+
+	void FFD::render(VkCommandBuffer& commandBuffer, VkPipelineLayout& pipelineLayout, std::shared_ptr<VmcModel> pointModel)
+	{
+		int idx = 0;
+		TestPushConstant pushFFD{};
+		for (auto& ffdControlPoint : grid)
+		{
+			pushFFD.modelMatrix = transformation * ffdControlPoint.mat4();
+			pushFFD.normalMatrix = ffdControlPoint.normalMatrix();
+			if (idx == getCurrentCPIndex())
+			{
+				pushFFD.color = { 1.0f, 1.0f, 1.0f };
+			}
+			else {
+				pushFFD.color = { .0f, 1.0f, 1.0f };
+			}
+
+			vkCmdPushConstants(commandBuffer,
+				pipelineLayout,
+				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+				0,
+				sizeof(TestPushConstant),
+				&pushFFD);
+
+			pointModel->bind(commandBuffer);
+			pointModel->draw(commandBuffer);
+			idx++;
 		}
 	}
 
@@ -180,15 +216,6 @@ namespace vae {
 		glm::vec3 newPos_global = P0 + newPos_stu.x * S + newPos_stu.y * T + newPos_stu.z * U;
 
 		return newPos_global;
-	}
-
-	void FFD::translate(glm::vec3 transVec)
-	{
-		P0 = P0 + transVec;
-		for (auto& p : grid)
-		{
-			p.translation += transVec;
-		}
 	}
 
 

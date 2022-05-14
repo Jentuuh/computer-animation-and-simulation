@@ -7,7 +7,7 @@ namespace vae {
 
 	SplineAnimator::SplineAnimator(glm::vec3 pos, glm::vec3 startOrientation,
 									glm::vec3 endOrientation, std::vector<ControlPoint> controlPoints, 
-									float animationTime) : Animator(pos, startOrientation, endOrientation, animationTime)
+									float animationTime, float startTime) : Animator(pos, startOrientation, endOrientation, animationTime, startTime)
 	{
 		for (ControlPoint& cp : controlPoints)
 		{

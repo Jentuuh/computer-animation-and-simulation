@@ -117,7 +117,7 @@ namespace vae {
 			animators[i].advanceTime(frameDeltaTime);
 			// Only update the animated objects if it doesn't contain the camera object while the freeroam mode is active
 			if(!(animators[i].containsObject(viewerObj) && camMode == 1))
-				animators[i].updateAnimatedObjects();
+				animators[i].updateAnimatable();
 
 
 			// Draw spline control points
@@ -192,10 +192,6 @@ namespace vae {
 			// Draw children
 			for (auto& child : obj.getChildren()) {
 
-				// Rotate arm
-				//child.setPosition(nextPosition);
-				//child.transform.rotation = nextRotation;
-
 				TestPushConstant pushChild{};
 				pushChild.modelMatrix = child.transform.mat4();
 				pushChild.normalMatrix = child.transform.normalMatrix();
@@ -214,31 +210,7 @@ namespace vae {
 			}
 
 			// Draw deformation grid
-			int idx = 0;
-			TestPushConstant pushFFD{};
-			for (auto& ffdControlPoint : obj.deformationSystem.getControlPoints())
-			{
-				pushFFD.modelMatrix = ffdControlPoint.mat4();
-				pushFFD.normalMatrix = ffdControlPoint.normalMatrix();
-				if (idx == obj.deformationSystem.getCurrentCPIndex())
-				{
-					pushFFD.color = { 1.0f, 1.0f, 1.0f };
-				}
-				else {
-					pushFFD.color = { .0f, 1.0f, 1.0f };
-				}
-
-				vkCmdPushConstants(commandBuffer,
-					pipelineLayout,
-					VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-					0,
-					sizeof(TestPushConstant),
-					&pushFFD);
-
-				pointModel->bind(commandBuffer);
-				pointModel->draw(commandBuffer);
-				idx++;
-			}
+			obj.deformationSystem.render(commandBuffer, pipelineLayout, pointModel);
 		}
 
 
@@ -294,7 +266,7 @@ namespace vae {
 		{
 			pushCol.modelMatrix = col.S.mat4();
 			pushCol.normalMatrix = col.S.normalMatrix();
-			pushCol.color = { 0.27f, 0.19f, 0.13f };
+			pushCol.color = { 0.04f, 0.22f, 0.08f };
 			vkCmdPushConstants(commandBuffer,
 				pipelineLayout,
 				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,

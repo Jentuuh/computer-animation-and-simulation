@@ -68,6 +68,7 @@ namespace vae {
         FFD deformationSystem;
         bool deformationEnabled = false;
         bool runAnimation = false;
+        bool onPathAnimator = false;
 
     private:
         glm::vec3 prevPos{0.0f, 0.0f, 0.0f};

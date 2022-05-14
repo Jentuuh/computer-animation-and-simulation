@@ -510,8 +510,6 @@ namespace vae {
 		if (ImGui::Button("Add Spline Curve Animator"))
 		{
 			addSplineAnimator();
-			// TODO: make it so that the user can choose objects to be animated according to this curve
-			animators.back().addAnimatedObject(&gameObjects[0]);
 		}
 
 		for (int i = 0; i < animators.size(); i++)
@@ -521,13 +519,59 @@ namespace vae {
 			std::string animatorTitle = "Spline animator ";
 			ImGui::TextWrapped((animatorTitle + std::to_string(i)).c_str());
 
-			ImGui::InputFloat("Duration", &animators[i].getTotalTime(), 0.0f, 0.0f, "%.3f s");
-
+			ImGui::SameLine();
 			std::string removeLabel = "Remove animator ";
 			if (ImGui::Button((removeLabel + std::to_string(i)).c_str()))
 			{
 				animators.erase(animators.begin() + i);
 			}
+
+			// Select game object to animate over the path
+			std::string objSelectTitle = "Animated object (";
+			if (ImGui::BeginCombo((objSelectTitle + std::to_string(i) + "): ").c_str(), animators[i].currentObjSelected.c_str()))
+			{
+				for (int n = 0; n < gameObjects.size() + 2; n++)
+				{
+					if (n == 0)
+					{
+						bool is_selected = (animators[i].currentObjSelected == "None");
+						if (ImGui::Selectable((std::string("Remove animated object for animator ") + std::to_string(i)).c_str(), is_selected))
+						{
+							animators[i].currentObjSelected = "None";
+							animators[i].removeAnimatedObject();
+						}
+					}
+					else if (n <= gameObjects.size()) {
+						if (gameObjects[n - 1].onPathAnimator) continue;
+
+						bool is_selected = (animators[i].currentObjSelected == std::to_string(gameObjects[n - 1].getId()));
+
+						if (ImGui::Selectable((std::string("Add to animator ") + std::to_string(i) + ": Object " + std::to_string(gameObjects[n - 1].getId())).c_str(), is_selected))
+						{
+							animators[i].currentObjSelected = std::string("Object ") + std::to_string(gameObjects[n - 1].getId());
+							// Remove the object that was currently being animated by the animator, and add the selected object
+							animators[i].removeAnimatedObject();
+							animators[i].addAnimatedObject(&gameObjects[n - 1]);
+						}
+						if (is_selected)
+							ImGui::SetItemDefaultFocus();
+					}
+					else {
+						bool is_selected = (animators[i].currentObjSelected == "Camera");
+
+						if (ImGui::Selectable((std::string("Add camera to animator ") + std::to_string(i)).c_str(), is_selected))
+						{
+							animators[i].currentObjSelected = "Camera";
+							animators[i].removeAnimatedObject();
+							animators[i].addAnimatedObject(viewerObject.get());
+						}
+					}
+				}
+				ImGui::EndCombo();
+			}
+
+			ImGui::InputFloat("Duration", &animators[i].getAnimationDuration(), 0.0f, 0.0f, "%.3f s");
+
 
 			std::string animatorMoveLabel = "Pos anim ";
 			if (ImGui::DragFloat3((animatorMoveLabel + std::to_string(i)).c_str(), glm::value_ptr(animators[i].getPosition()), 1.0f, -20.0f, 20.0f))
@@ -763,13 +807,12 @@ namespace vae {
 		controlPoints.push_back({ { 6.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel });
 		controlPoints.push_back({ { 7.0f, 3.0f, 2.5f }, { 0.0f, 0.0f, 1.0f }, sphereModel });
 
-		SplineAnimator splineAnimator{ {0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, controlPoints, 4.0f };
+		SplineAnimator splineAnimator{ {0.0f, 0.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, controlPoints, 4.0f, 0.0f };
 		splineAnimator.getSpline().generateSplineSegments();
 		animators.push_back(std::move(splineAnimator));
 
 		// Build forward differencing table based on curve points
 		animators.back().buildForwardDifferencingTable();
-		animators.back().printForwardDifferencingTable();
 	}
 
 	void VmcApp::addParticleSystem()

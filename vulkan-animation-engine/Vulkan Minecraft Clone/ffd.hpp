@@ -1,5 +1,6 @@
 #pragma once
 #include "enums.hpp"
+#include "vmc_model.hpp"
 
 // std
 #include <vector>
@@ -42,8 +43,9 @@ namespace vae {
 		std::vector<TransformComponent> getControlPoints(){ return grid; };
 		int getAmountKeyframes() { return animationProps.keyframes.size(); };
 		int getCurrentCPIndex() { return selectedControlPoint; };
+		void updateTransformation(glm::mat4 newTransformation);
 
-
+		void render(VkCommandBuffer& commandBuffer, VkPipelineLayout& pipelineLayout, std::shared_ptr<VmcModel> pointModel);
 		void moveCurrentControlPoint(MoveDirection dir, float dt);
 		void resetControlPoints();
 		void selectNextControlPoint();
@@ -55,8 +57,6 @@ namespace vae {
 		void resetTime() { animationProps.currentTime = 0.0f; };
 		void interpolateControlPoints();
 		void setInitialKeyFrameControlPoints();
-
-		void translate(glm::vec3 transVec);
 
 		glm::vec3 calcDeformedGlobalPosition(glm::vec3 oldPosition);
 
@@ -71,6 +71,8 @@ namespace vae {
 		glm::vec3 U;
 		glm::vec3 T;
 		glm::vec3 P0;
+		glm::mat4 transformation{1.0f};
+
 
 		int l;		// Resolutions per dimension
 		int m;

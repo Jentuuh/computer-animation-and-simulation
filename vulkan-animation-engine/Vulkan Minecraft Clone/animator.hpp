@@ -1,6 +1,7 @@
 #pragma once
 #include "vmc_game_object.hpp"
 #include "spline.hpp"
+#include "animatable.hpp"
 
 // glm
 #include <glm/glm.hpp>
@@ -12,14 +13,15 @@
 
 // Abstract Animator class
 namespace vae {
-	class Animator 
+	class Animator : public Animatable
 	{
 	public:
-		Animator(glm::vec3 pos, glm::vec3 startOrientation, glm::vec3 endOrientation, float animationTime) : position{ pos }, 
-			totalTime{ animationTime }, startOrientation{ startOrientation }, 
+		Animator(glm::vec3 pos, glm::vec3 startOrientation, glm::vec3 endOrientation, float animationTime, float startTime) : Animatable(startTime, animationTime), position{ pos }, 
+			startOrientation{ startOrientation }, 
 			endOrientation{endOrientation} {};
 
-		void advanceTime(float deltaTime);
+		void updateAnimatable();
+		//void advanceTime(float deltaTime);
 		virtual glm::vec3 calculateNextPositionSpeedControlled() = 0;
 		virtual glm::vec3 calculateIntermediateRotation() = 0;
 
@@ -32,18 +34,17 @@ namespace vae {
 
 
 		std::vector<std::pair<float, float>> getForwardDiffTable() { return forwardDiffTable; };
-		float getTimePassed() { return timePassed; };
-		float& getTotalTime() { return totalTime; };
 		glm::vec3& getPosition() { return position; };
 		glm::vec3& getStartOrientation() { return startOrientation; }
 		glm::vec3& getEndOrientation() { return endOrientation; }
 		bool containsObject(VmcGameObject* gameObj); 
 
 		void addAnimatedObject(VmcGameObject* gameObject);
-		void updateAnimatedObjects();
+		void removeAnimatedObject();
 		void buildForwardDifferencingTable();
 		void printForwardDifferencingTable();
 
+		std::string currentObjSelected = "None";
 	private:
 		void normalizeForwardDifferencingTable();
 
@@ -55,14 +56,16 @@ namespace vae {
 		int findUpperIndexOfArcLength(float arcLength);
 		int findLowerIndexOfArcLength(float arcLength);
 
+		void updateAnimatedObjects();
+
 		glm::vec3 position;
-		glm::vec3 startOrientation{};
-		glm::vec3 endOrientation{};
+		glm::vec3 startOrientation{ 0.0f, 0.0f, 0.0f };
+		glm::vec3 endOrientation{ 0.0f, 0.0f, 0.0f };
 
 		std::vector<VmcGameObject*> animatedObjects{};
 
 		std::vector<std::pair<float, float>> forwardDiffTable;
-		float timePassed;		// Time that has already passed
-		float totalTime;		// Total time duration of the animation
+		//float timePassed;		// Time that has already passed
+		//float totalTime;		// Total time duration of the animation
 	};
 }

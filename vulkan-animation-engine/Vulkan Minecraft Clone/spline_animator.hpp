@@ -15,7 +15,7 @@ namespace vae {
 	class SplineAnimator: public Animator
 	{
 	public:
-		SplineAnimator(glm::vec3 pos, glm::vec3 startOrientation, glm::vec3 endOrientation, std::vector<ControlPoint> controlPoints, float animationTime);
+		SplineAnimator(glm::vec3 pos, glm::vec3 startOrientation, glm::vec3 endOrientation, std::vector<ControlPoint> controlPoints, float animationTime, float startTime);
 
 		Spline& getSpline() { return splineCurve; };
 		std::vector<TransformComponent>& getCurvePoints();

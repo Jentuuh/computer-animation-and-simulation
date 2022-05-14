@@ -180,6 +180,9 @@
     <ClCompile Include="vmc_texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="animatable.cpp">
+      <Filter>Source Files\Animation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vmc_window.hpp">
@@ -286,6 +289,9 @@
     </ClInclude>
     <ClInclude Include="vmc_texture.hpp">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="animatable.hpp">
+      <Filter>Header Files\Animation</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
