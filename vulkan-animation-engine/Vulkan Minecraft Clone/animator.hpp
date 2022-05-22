@@ -13,6 +13,12 @@
 
 // Abstract Animator class
 namespace vae {
+	enum SPEED_CONTROL_FUNCTION {
+		SINE,
+		LINEAR,
+		PARABOLIC
+	};
+
 	class Animator : public Animatable
 	{
 	public:
@@ -44,6 +50,7 @@ namespace vae {
 		void printForwardDifferencingTable();
 
 		std::string currentObjSelected = "None";
+		int speedControl = SINE;
 	private:
 		void normalizeForwardDifferencingTable();
 

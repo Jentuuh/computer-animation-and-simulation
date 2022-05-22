@@ -16,6 +16,7 @@
 #include <glm/glm.hpp>
 #include <glm/vec3.hpp>
 #include <glm/gtc/constants.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <imgui_impl_vulkan.h>
@@ -101,6 +102,7 @@ namespace vae {
 			checkRigidBodyCollisions();
 			updateParticleSystems();
 			storyboard.updateAnimatables(frameTime);
+			skeletons[0].update();
 
 			// Render loop
 			if (auto commandBuffer = vmcRenderer.beginFrame()) {
@@ -414,6 +416,11 @@ namespace vae {
 			{
 				UI_Tab = 5;
 			}
+
+			if (ImGui::Button("Skeletons", ImVec2(100, 25)))
+			{
+				UI_Tab = 6;
+			}
 		}
 
 		ImGui::Text("-----------------------------------------------------");
@@ -442,6 +449,10 @@ namespace vae {
 
 		case 5:
 			renderImGuiStoryBoardUI();
+			break;
+
+		case 6:
+			renderImGuiSkeletonUI();
 			break;
 
 		default:
@@ -605,7 +616,7 @@ namespace vae {
 
 			// Select game object to animate over the path
 			std::string objSelectTitle = "Animated object (";
-			if (ImGui::BeginCombo((objSelectTitle + std::to_string(i) + "): ").c_str(), animators[i].currentObjSelected.c_str()))
+			if (ImGui::BeginCombo((objSelectTitle + std::to_string(i) + ") ").c_str(), animators[i].currentObjSelected.c_str()))
 			{
 				for (int n = 0; n < gameObjects.size() + 2; n++)
 				{
@@ -646,6 +657,11 @@ namespace vae {
 				}
 				ImGui::EndCombo();
 			}
+
+			ImGui::Text("Speed Control Function:"); ImGui::SameLine();
+			ImGui::RadioButton("Sine", &animators[i].speedControl, 0); ImGui::SameLine();
+			ImGui::RadioButton("Linear", &animators[i].speedControl, 1); ImGui::SameLine();
+			ImGui::RadioButton("Parabolic", &animators[i].speedControl, 2); 
 
 			std::string animatorMoveLabel = "Pos anim ";
 			if (ImGui::DragFloat3((animatorMoveLabel + std::to_string(i)).c_str(), glm::value_ptr(animators[i].getPosition()), 1.0f, -20.0f, 20.0f))
@@ -725,26 +741,9 @@ namespace vae {
 				}
 			}
 
-			// Run animation checkbox
-			if (obj.deformationSystem.getAmountKeyframes() > 0)
-			{
-				std::string animLabel = "Run animation ";
-				if (ImGui::Checkbox((animLabel + "(" + std::to_string(index) + ")").c_str(), &obj.runAnimation))
-				{
-					obj.deformationSystem.resetTime();
-					obj.setInitialAnimationForm();
-				}; ImGui::SameLine();
-			}
-
 			// Add keyframe button + list of keyframes
 			if (obj.deformationEnabled)
 			{
-				//if (ImGui::InputFloat("Animation duration", &obj.deformationSystem.animationProps.animationTime))
-				//{
-				//	obj.deformationSystem.resetTime();
-				//	obj.setInitialAnimationForm();
-				//}
-
 				std::string keyframeButtonLabel = "Add Keyframe to obj ";
 				if (ImGui::Button((keyframeButtonLabel + std::to_string(index)).c_str()))
 				{
@@ -869,6 +868,13 @@ namespace vae {
 		}
 	}
 
+	void VmcApp::renderImGuiSkeletonUI()
+	{
+		ImGui::DragFloat3("Focus point pos", glm::value_ptr(skeletons[0].focusPoint),0.01f);
+
+	}
+
+
 
 	void VmcApp::addSplineAnimator()
 	{
@@ -925,10 +931,17 @@ namespace vae {
 
 	void VmcApp::initSkeletons()
 	{
-		std::shared_ptr<VmcModel> jointModel = VmcModel::createModelFromFile(vmcDevice, "../Models/joint.obj");
-		std::shared_ptr<VmcModel> linkModel = VmcModel::createModelFromFile(vmcDevice, "../Models/stick_fig/arm_left.obj");
+		std::shared_ptr<VmcModel> boneModel = VmcModel::createModelFromFile(vmcDevice, "../Models/bone.obj");
+		
+		Skeleton2 skeleton{boneModel};
+		
+		skeleton.addRoot({ 0.0f, 0.0f, 0.0f }, 1.0f, { 1.0f, 0.0f, 0.0f });
+		skeleton.addBone(1.0f, { 90.0f, 90.0f, 0.0f });
+		skeleton.addBone(1.0f, { 0.0f, 45.0f, 0.0f });
+		skeleton.addBone(1.0f, { 0.0f, 45.0f, 0.0f });
+		skeleton.addBone(1.0f, { 0.0f, 45.0f, 0.0f });
+		skeleton.addBone(1.0f, { 0.0f, 45.0f, 0.0f });
 
-		Skeleton skeleton{linkModel, jointModel};
 		skeletons.push_back(skeleton);
 	}
 

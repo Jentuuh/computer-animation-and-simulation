@@ -14,7 +14,7 @@
 
 #include "animator.hpp"
 #include "spline_animator.hpp"
-#include "skeleton.hpp"
+#include "skeleton2.hpp"
 #include "l_system.hpp"
 #include "ffd.hpp"
 #include "rigid_body.hpp"
@@ -63,6 +63,8 @@ namespace vae {
 		void renderImGuiDeformationUI();
 		void renderImGuiParticleUI();
 		void renderImGuiLSystemUI();
+		void renderImGuiSkeletonUI();
+
 
 		void updateCamera(float frameTime);
 
@@ -89,7 +91,7 @@ namespace vae {
 
 		std::vector<VmcGameObject> gameObjects;
 		std::vector<SplineAnimator> animators;
-		std::vector<Skeleton> skeletons;
+		std::vector<Skeleton2> skeletons;
 		std::vector<RigidBody> rigidBodies;
 		std::vector<ParticleSystem> particleSystems;
 		std::vector<LSystem> Lsystems;

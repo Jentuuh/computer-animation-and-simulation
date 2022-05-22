@@ -18,11 +18,23 @@ namespace vae {
 
 	glm::vec3 SplineAnimator::calculateNextPositionSpeedControlled()
 	{
-		// Sine speed control function
-		float dist_time = distanceTimeFuncSine();
-
-		// Linear speed control function
-		//float dist_time = distanceTimeFuncLinear(deltaTime);
+		float dist_time;
+		switch (speedControl)
+		{
+		case SINE:
+			// Sine speed control function
+			dist_time = distanceTimeFuncSine();
+			break;
+		case LINEAR:
+			// Linear speed control function
+			dist_time = distanceTimeFuncLinear();
+			break;
+		case PARABOLIC:
+			dist_time = distanceTimeFuncParabolic();
+			break;
+		default:
+			break;
+		}
 
 		int index = findUpperIndexOfArcLength(dist_time);
 

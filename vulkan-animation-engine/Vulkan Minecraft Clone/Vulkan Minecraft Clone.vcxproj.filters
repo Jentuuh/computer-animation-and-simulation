@@ -58,6 +58,12 @@
     <Filter Include="Source Files\ImGui">
       <UniqueIdentifier>{22a27f52-95f1-44cd-bcae-a03ae0978cfb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Animation\Kinematics2">
+      <UniqueIdentifier>{c0236263-7317-407f-aa7b-76551a3c7c9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Animation\Kinematics2">
+      <UniqueIdentifier>{1bf4a3b7-9cd8-4f14-995d-d755139f62ab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -186,6 +192,12 @@
     <ClCompile Include="story_board.cpp">
       <Filter>Source Files\Animation</Filter>
     </ClCompile>
+    <ClCompile Include="bone.cpp">
+      <Filter>Source Files\Animation\Kinematics2</Filter>
+    </ClCompile>
+    <ClCompile Include="skeleton2.cpp">
+      <Filter>Source Files\Animation\Kinematics2</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="vmc_window.hpp">
@@ -298,6 +310,12 @@
     </ClInclude>
     <ClInclude Include="story_board.hpp">
       <Filter>Header Files\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="bone.hpp">
+      <Filter>Header Files\Animation\Kinematics2</Filter>
+    </ClInclude>
+    <ClInclude Include="skeleton2.hpp">
+      <Filter>Header Files\Animation\Kinematics2</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

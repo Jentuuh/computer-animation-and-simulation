@@ -150,6 +150,7 @@
   <ItemGroup>
     <ClCompile Include="animatable.cpp" />
     <ClCompile Include="animator.cpp" />
+    <ClCompile Include="bone.cpp" />
     <ClCompile Include="bounding_box.cpp" />
     <ClCompile Include="chunk_component.cpp" />
     <ClCompile Include="ffd.cpp" />
@@ -174,6 +175,7 @@
     <ClCompile Include="rigid_body.cpp" />
     <ClCompile Include="simple_render_system.cpp" />
     <ClCompile Include="skeleton.cpp" />
+    <ClCompile Include="skeleton2.cpp" />
     <ClCompile Include="spline.cpp" />
     <ClCompile Include="spline_animator.cpp" />
     <ClCompile Include="spline_keyboard_controller.cpp" />
@@ -195,6 +197,7 @@
     <ClInclude Include="animatable.hpp" />
     <ClInclude Include="animator.hpp" />
     <ClInclude Include="block_model.hpp" />
+    <ClInclude Include="bone.hpp" />
     <ClInclude Include="bounding_box.hpp" />
     <ClInclude Include="chunk_component.hpp" />
     <ClInclude Include="ffd.hpp" />
@@ -212,6 +215,7 @@
     <ClInclude Include="rigid_body.hpp" />
     <ClInclude Include="simple_render_system.hpp" />
     <ClInclude Include="skeleton.hpp" />
+    <ClInclude Include="skeleton2.hpp" />
     <ClInclude Include="spline.hpp" />
     <ClInclude Include="spline_animator.hpp" />
     <ClInclude Include="spline_keyboard_controller.hpp" />

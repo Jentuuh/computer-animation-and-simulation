@@ -20,7 +20,7 @@ namespace vae {
 			massPoints.push_back(std::make_pair(position + glm::vec3{ 0.0f, 1.0f, 0.0f }, 1.0f));
 			massPoints.push_back(std::make_pair(position + glm::vec3{ 0.0f, 0.0f, 1.0f }, 1.0f));
 
-			float scale = ((float)rand() / RAND_MAX) * 0.2f;
+			float scale = ((float)rand() / RAND_MAX) * 0.05f;
 
 			float devX = ((float)rand() / RAND_MAX) * angleDeviation;
 			float devY = ((float)rand() / RAND_MAX) * angleDeviation;

@@ -109,7 +109,7 @@ namespace vae {
 	float Animator::distanceTimeFuncSine()
 	{
 		// 1/2 sin(3x + (pi/2)) + 1/2
-		float distanceFraction = 0.5f * glm::sin(3 * (timePassed / duration) + (glm::pi<float>() / 2)) + 0.5f;
+		float distanceFraction = 1 - (0.5f * glm::sin(3 * (timePassed / duration) + (glm::pi<float>() / 2)) + 0.5f);
 		// Reset if we've reached the end of the animation loop
 		if (timePassed > duration) {
 			timePassed = 0.0f;
