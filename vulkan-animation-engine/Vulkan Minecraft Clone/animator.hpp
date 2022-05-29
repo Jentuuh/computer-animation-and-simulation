@@ -27,6 +27,7 @@ namespace vae {
 			endOrientation{endOrientation} {};
 
 		void updateAnimatable();
+		void cleanUpAnimatable();
 		virtual glm::vec3 calculateNextPositionSpeedControlled() = 0;
 		virtual glm::vec3 calculateIntermediateRotation() = 0;
 

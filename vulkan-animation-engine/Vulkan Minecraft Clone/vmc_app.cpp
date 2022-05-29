@@ -273,17 +273,6 @@ namespace vae {
 		sphere.setScale({ 1.0f, 1.0f, 1.0f });
 
 		gameObjects.push_back(std::move(sphere));
-
-
-		// Initialize animator and animation curve
-		//std::shared_ptr<VmcModel> sphereModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
-		//float delta_x = 0.1;
-		//float x = 0.0f;
-		//// Control points for animation path
-		//for (int i = 0; i < 200; i++) {
-		//	animator.addControlPoint({ 0.0f, glm::sin(x), x }, { 1.0f, 0.0f, 0.0f }, sphereModel);
-		//	x += delta_x;
-		//}
 	}
 
 	void VmcApp::loadTextures()
@@ -291,7 +280,7 @@ namespace vae {
 		const char* test = "../Textures/pepe.jpg";
 		testTexture = std::make_unique<VmcTexture>(vmcDevice, test, TEXTURE_TYPE_STANDARD_2D);
 
-		const char* japanCubemapPath = "../Textures/cubemaps/cubemap_yokohama_rgba.ktx";
+		const char* japanCubemapPath = "../Textures/cubemaps/cubemap_vulkan.ktx";
 		skyboxTexture = std::make_unique<VmcTexture>(vmcDevice, japanCubemapPath, TEXTURE_TYPE_CUBE_MAP);
 	}
 
@@ -530,6 +519,20 @@ namespace vae {
 				if (ImGui::Button((deformableButtonLabel + std::to_string(index)).c_str()))
 				{
 					storyboard.addAnimatable(&d.deformationSystem);
+				}
+			}
+			index++;
+		}
+
+		index = 0;
+		for (auto& p : particleSystems)
+		{
+			if (!storyboard.containsAnimatable(&p))
+			{
+				std::string pSystemLabel = "Add particle system ";
+				if (ImGui::Button((pSystemLabel + std::to_string(index)).c_str()))
+				{
+					storyboard.addAnimatable(&p);
 				}
 			}
 			index++;
@@ -816,6 +819,23 @@ namespace vae {
 			std::string angleDevLabel = "Angle dev (";
 			ImGui::InputFloat((angleDevLabel + std::to_string(index) + ")").c_str(), &p.angleDeviation);
 
+			// Keyframes
+			std::string addLabel = "Add keyframe (";
+			if (ImGui::Button((addLabel + std::to_string(index) + ")").c_str()))
+			{
+				p.addKeyFrame();
+			}
+			for (int i = 0; i < p.getAmountKeyFrames(); i++)
+			{
+				std::string kfLabel = "Keyframe (";
+				ImGui::Text((kfLabel + std::to_string(i) + ")").c_str());
+				ImGui::SameLine();
+				std::string delLabel = "Delete (";
+				if (ImGui::Button((delLabel + std::to_string(index) + ")").c_str()))
+				{
+					p.deleteKeyFrame(i);
+				}
+			}
 			ImGui::NewLine();
 			index++;
 		}
@@ -873,7 +893,6 @@ namespace vae {
 		ImGui::DragFloat3("Focus point pos", glm::value_ptr(skeletons[0].focusPoint),0.01f);
 
 	}
-
 
 
 	void VmcApp::addSplineAnimator()

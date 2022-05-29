@@ -15,6 +15,10 @@ namespace vae {
 		updateAnimatedObjects();
 	}
 
+	void Animator::cleanUpAnimatable()
+	{
+		// No cleanup needed for Animator
+	}
 
 	bool Animator::containsObject(VmcGameObject* gameObj)
 	{

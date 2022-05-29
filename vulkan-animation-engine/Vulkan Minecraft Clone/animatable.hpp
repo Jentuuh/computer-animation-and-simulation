@@ -12,6 +12,7 @@ namespace vae {
 
 		void animateAnimatable(float currentStoryBoardTime);
 		virtual void updateAnimatable() = 0;
+		virtual void cleanUpAnimatable() = 0;
 
 	protected:
 		float startTime;

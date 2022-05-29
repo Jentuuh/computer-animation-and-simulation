@@ -40,6 +40,7 @@ namespace vae {
 		FFD(FFDInitializer init);
 
 		void updateAnimatable();
+		void cleanUpAnimatable();
 		std::vector<TransformComponent> getControlPoints(){ return grid; };
 		int getAmountKeyframes() { return animationProps.keyframes.size(); };
 		int getCurrentCPIndex() { return selectedControlPoint; };

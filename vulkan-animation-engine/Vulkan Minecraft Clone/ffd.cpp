@@ -43,6 +43,10 @@ namespace vae {
 		interpolateControlPoints();
 	}
 
+	void FFD::cleanUpAnimatable()
+	{
+		// No cleanup needed for FFD
+	}
 
 	void FFD::updateTransformation(glm::mat4 newTransformation)
 	{

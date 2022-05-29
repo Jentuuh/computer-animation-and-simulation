@@ -50,6 +50,11 @@ namespace vae {
 		// Check if storyboard animation is completed
 		if (timePassed >= storyBoardDuration)
 		{
+			// Animatable cleanup
+			for (auto a : animatables)
+			{
+				a->cleanUpAnimatable();
+			}
 			animationRunning = false;
 			timePassed = 0;
 		}

@@ -1,7 +1,9 @@
 #pragma once
 #include "rigid_body.hpp"
+#include "animatable.hpp"
 
 #include <glm/glm.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 namespace vae {
 	struct ParticleArea {
@@ -13,11 +15,22 @@ namespace vae {
 		float maxZ;
 	};
 
-	class ParticleSystem
+	struct ParticleKeyFrame {
+		glm::vec3 shootDir;
+		glm::vec3 pos;
+		float power;
+	};
+
+	class ParticleSystem: public Animatable
 	{
 	public:
 		ParticleSystem(glm::vec3 pos, std::shared_ptr<VmcModel> particleModel);
 
+		void updateAnimatable();
+		void cleanUpAnimatable();
+		int getAmountKeyFrames() { return keyframes.size(); };
+		void addKeyFrame();
+		void deleteKeyFrame(int index);
 		void generateParticles(std::vector<RigidBody>& particleStorage);
 
 		glm::vec3 position;
@@ -29,6 +42,7 @@ namespace vae {
 		bool isOn = true;
 
 	private:
+		std::vector<ParticleKeyFrame> keyframes;
 		std::shared_ptr<VmcModel> particleModel;
 	};
 }
