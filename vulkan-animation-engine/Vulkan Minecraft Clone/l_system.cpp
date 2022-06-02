@@ -32,10 +32,12 @@ namespace vae {
 		default:
 			break;
 		}
+
+		fileName = "";
 	}
 
 	// Construct LSystem from file
-	LSystem::LSystem(const char* filePath, VegetationType type) :rootPosition{glm::vec3{0.0f,0.0f,0.0f}}
+	LSystem::LSystem(const char* filePath, VegetationType type) :rootPosition{glm::vec3{0.0f,0.0f,0.0f}}, fileName{filePath}
 	{
 		std::ifstream infile(filePath);
 

@@ -22,6 +22,7 @@
 // std 
 #include <memory>
 #include <vector>
+#include <fstream>
 
 namespace vae {
 	class VmcApp
@@ -41,6 +42,8 @@ namespace vae {
 		void initImgui();
 
 	private:
+		void loadSceneFromFile(const char* fileName);
+		void saveSceneToFile(const char* fileName);
 		void loadGameObject(const char * objName);
 		void loadGameObjects();
 		void loadTextures();
@@ -57,6 +60,7 @@ namespace vae {
 		void updateParticleSystems();
 
 		void renderImGuiWindow();
+		void renderImGuiSaveLoadUI();
 		void renderImGuiStoryBoardUI();
 		void renderImGuiGameObjectsUI();
 		void renderImGuiPathAnimatorUI();
@@ -65,8 +69,9 @@ namespace vae {
 		void renderImGuiLSystemUI();
 		void renderImGuiSkeletonUI();
 
-
 		void updateCamera(float frameTime);
+
+		std::vector<char*> split(char* stringToSplit, const char* separator);
 
 		VmcWindow vmcWindow{ WIDTH, HEIGHT, "Vulkan Animation Engine - Jente Vandersanden" };
 		VmcDevice vmcDevice{ vmcWindow };
@@ -108,6 +113,7 @@ namespace vae {
 		int UI_Tab = 0;
 		int deformationIndex = 0;
 		char fileNameBuffer[50] = "Your file name";
+		char saveLoadFileName[50] = "Your file name";
 		std::shared_ptr<VmcModel> sphereModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
 	};
 }

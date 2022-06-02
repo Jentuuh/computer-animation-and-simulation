@@ -31,9 +31,10 @@ namespace vae {
 
         static VmcGameObject createGameObject() {
             static id_t currentId = 0;
-
-
             return VmcGameObject{ currentId++ };
+        }
+        static VmcGameObject createGameObject(id_t id) {
+            return VmcGameObject{ id };
         }
         ~VmcGameObject() 
         {
@@ -60,6 +61,7 @@ namespace vae {
         void initDeformationSystem();
         void disableDeformationSystem();
 
+        std::string modelPath;
         std::shared_ptr<VmcModel> model{};
         std::vector<VmcGameObject> children{};
         glm::vec3 color{1.0f, 1.0f, 1.0f};

@@ -43,6 +43,8 @@ namespace vae {
 		glm::vec3& getPosition() { return position; };
 		glm::vec3& getStartOrientation() { return startOrientation; }
 		glm::vec3& getEndOrientation() { return endOrientation; }
+		int getAmountAnimatedObjects() { return animatedObjects.size(); };
+		std::vector<int> getAnimatedObjectIds();
 		bool containsObject(VmcGameObject* gameObj); 
 
 		void addAnimatedObject(VmcGameObject* gameObject);

@@ -58,7 +58,7 @@ namespace vae {
 			float devZ = ((float)rand() / RAND_MAX) * angleDeviation;
 
 			RigidBody particle{ massPoints, true, particleModel, {scale, scale, scale} };
-			particle.S.linearImpulse = (glm::normalize(shootDirection + glm::vec3{devX, devY, devZ})* power);
+			particle.S.linearImpulse = (glm::normalize(shootDirection + glm::vec3{devX, devY, devZ}) * power);
 
 			// Make sure particles die after some time
 			if (particleStorage.size() > 500)

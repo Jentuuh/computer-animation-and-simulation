@@ -34,6 +34,7 @@ namespace vae {
 		LSystem(const char* filePath, VegetationType type);
 		std::vector<TransformComponent>& getRenderPoints() { return renderPoints; };
 		std::string getVegetationType() { return veg_type; };
+		std::string getFileName() { return fileName; };
 
 		void mature();
 		void iterate();
@@ -57,6 +58,7 @@ namespace vae {
 		int maxIterations;	// Iterations to perform 
 		float delta;		// Turning angle
 
+		std::string fileName;
 		std::string veg_type;
 	};
 }

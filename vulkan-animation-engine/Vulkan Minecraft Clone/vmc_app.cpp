@@ -216,6 +216,214 @@ namespace vae {
 		ImGui_ImplVulkan_DestroyFontUploadObjects();
 	}
 
+	void VmcApp::loadSceneFromFile(const char* fileName)
+	{
+		std::shared_ptr<VmcModel> sphereModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
+		std::string objPath = std::string("../Scenes/") + std::string(fileName);
+
+		// Read from the text file
+		std::ifstream readFile(objPath);
+		std::string buffer;
+
+		if (readFile.is_open())
+		{
+			// ========================
+			// LOAD GAME OBJECTS
+			// ========================
+			if (std::getline(readFile, buffer)) {
+				int numOfGameObjs = std::stoi(buffer);
+
+				for (int i = 0; i < numOfGameObjs; i++)
+				{
+					// First line
+					std::getline(readFile, buffer);
+					char* lineString = &buffer[0];
+					std::vector<char*> tokens = split(lineString, " ");
+					int id = std::stoi(tokens[0]);
+					char* objFileName = tokens[1];
+					glm::vec3 pos = { std::stof(tokens[2]), std::stof(tokens[3]), std::stof(tokens[4]) };
+					glm::vec3 rot = { std::stof(tokens[5]), std::stof(tokens[6]), std::stof(tokens[7]) };
+					glm::vec3 scale = { std::stof(tokens[8]), std::stof(tokens[9]), std::stof(tokens[10]) };
+					bool deformationEnabled = std::stoi(tokens[11]);
+
+					// Load in game object
+					std::shared_ptr<VmcModel> model = VmcModel::createModelFromFile(vmcDevice, objFileName);
+					auto newObj = VmcGameObject::createGameObject(id);	// Make sure that the id of the gameobjects is the same as in the saved file, otherwise animatables that refer to this ID might lose their reference
+					newObj.modelPath = std::string(objFileName);
+					newObj.model = model;
+					newObj.deformationEnabled = deformationEnabled;
+					if (newObj.deformationEnabled) newObj.initDeformationSystem();
+					newObj.setPosition(pos);
+					newObj.transform.rotation = rot;
+					newObj.setScale(scale);
+				
+					// Amount keyframes line
+					std::getline(readFile, buffer);
+					int amountKeyframes = std::stoi(buffer);
+					for (int j = 0; j < amountKeyframes; j++)
+					{
+						// Amount CPs line
+						std::getline(readFile, buffer);
+						int amountCPs = std::stoi(buffer);
+						std::vector<glm::vec3> CPs;
+						for (int k = 0; k < amountCPs; k++)
+						{
+							std::getline(readFile, buffer);
+							lineString = &buffer[0];
+							std::vector<char*> tokens = split(lineString, " ");
+							glm::vec3 CPpos = { std::stof(tokens[0]), std::stof(tokens[1]), std::stof(tokens[2]) };
+							CPs.push_back(CPpos);
+						}
+						newObj.deformationSystem.addKeyFrame(CPs);
+					}
+					std::cout << newObj.deformationEnabled << std::endl;
+					gameObjects.push_back(std::move(newObj));
+				}
+
+				// ========================
+				// LOAD ANIMATORS
+				// ========================
+				std::getline(readFile, buffer);
+				int amountAnimators = std::stoi(buffer);
+				for (int i = 0; i < amountAnimators; i++)
+				{
+					// First line
+					std::getline(readFile, buffer);
+					char* lineString = &buffer[0];
+					std::vector<char*> tokens = split(lineString, " ");
+					glm::vec3 pos = { std::stof(tokens[0]), std::stof(tokens[1]), std::stof(tokens[2]) };
+					glm::vec3 startOr = { std::stof(tokens[3]), std::stof(tokens[4]), std::stof(tokens[5]) };
+					glm::vec3 endOr = { std::stof(tokens[6]), std::stof(tokens[7]), std::stof(tokens[8]) };
+					float startTime = std::stof(tokens[9]);
+					float animationTime = std::stof(tokens[10]);
+
+					// Amount CPs
+					std::getline(readFile, buffer);
+					int amountCPs = std::stoi(buffer);
+					std::vector<ControlPoint> controlPoints{};
+					for (int j = 0; j < amountCPs; j++)
+					{
+						std::getline(readFile, buffer);
+						lineString = &buffer[0];
+						std::vector<char*> tokens = split(lineString, " ");
+						glm::vec3 CPpos = { std::stof(tokens[0]), std::stof(tokens[1]), std::stof(tokens[2]) };
+						controlPoints.push_back({ CPpos, { 0.0f, 0.0f, 1.0f }, sphereModel });
+					}
+
+					SplineAnimator splineAnimator{ pos, startOr, endOr, controlPoints, animationTime, startTime };
+					splineAnimator.getSpline().generateSplineSegments();
+					animators.push_back(std::move(splineAnimator));
+
+					// Build forward differencing table based on curve points
+					animators.back().buildForwardDifferencingTable();
+				}
+			}
+			// Close the file
+			readFile.close();
+		}
+		else std::cout << "Unable to open file '" << fileName << "'.";
+	}
+
+
+	void VmcApp::saveSceneToFile(const char* fileName)
+	{
+		std::string objPath = std::string("../Scenes/") + std::string(fileName);
+
+		std::ofstream saveFile(objPath);
+		if (saveFile.is_open())
+		{
+			// GAME OBJECT FILE FORMAT: <id> <objfilename> <posX> <posY> <posZ> <rotX> <rotY> <rotZ> <scaleX> <scaleY> <scaleZ> <deformationEnabled> \n 
+			//					<amountKeyFrames> \n
+			//					for each keyframe:
+			//						<amountCPs> \n
+			//						for each CP:
+			//							<posCPX> <posCPY> <posCPZ> 
+		
+			// Amount gameobjects
+			saveFile << gameObjects.size() << std::endl;
+			for (auto& g : gameObjects)
+			{
+				// First line
+				saveFile << g.getId() << " " << g.modelPath << " " << g.transform.translation.x << " " << g.transform.translation.y << " "
+					<< g.transform.translation.z << " " << g.transform.rotation.x << " " << g.transform.rotation.y << " "
+					<< g.transform.rotation.z << " " << g.transform.scale.x << " " << g.transform.scale.y << " "
+					<< g.transform.scale.z << " " << g.deformationEnabled << std::endl; 
+				
+	
+				// Amount keyframes
+				saveFile << g.deformationSystem.getAmountKeyframes() << std::endl;
+				for (auto& k : g.deformationSystem.getKeyFrames())
+				{
+					// Amount control points 
+					saveFile << k.size() << std::endl;
+					for (auto& cp : k)
+					{
+						saveFile << cp.x << " " << cp.y << " " << cp.z << std::endl;
+					}
+				}
+				
+			}
+
+			// ANIMATOR FILE FORMAT: <posX> <posY> <posZ> <startOrX> <startOrY> <startOrZ> <endOrX> <endOrY> <endOrZ> <startTime> <animationTime> \n
+			//						<amountCPs> \n
+			//						for each CP:
+			//							<posCPX> <posCPY> <posCPZ> \n
+			saveFile << animators.size() << std::endl;
+			for (auto& a : animators)
+			{
+				saveFile << a.getPosition().x << " " << a.getPosition().y << " " << a.getPosition().z << " " << a.getStartOrientation().x << " "
+					<< a.getStartOrientation().y << " " << a.getStartOrientation().z << " " << a.getEndOrientation().x << " "
+					<< a.getEndOrientation().y << " " << a.getEndOrientation().z << " " << a.getStartTime() << " " << a.getAnimationDuration() << std::endl;
+
+				// Amount CPs
+				saveFile << a.getControlPoints().size() << std::endl;
+				for (auto& cp : a.getControlPoints())
+				{
+					saveFile << cp.transform.translation.x << " " << cp.transform.translation.y << " " << cp.transform.translation.z << std::endl;
+				}
+
+				// Animated objects
+				// Amount animated objects
+				saveFile << a.getAmountAnimatedObjects() << std::endl;
+				for (auto id : a.getAnimatedObjectIds())
+				{
+					saveFile << id << std::endl;
+				}
+			}
+
+			// PARTICLE SYSTEM FILE FORMAT: <posX> <posY> <posZ> \n
+			//						<amountKeyFrames> \n
+			//						For each keyframe:
+			//							<posX> <posY> <posZ> <shootDirX> <shootDirY> <shootDirZ> <power> \n
+
+			// Amount particle systems
+			saveFile << particleSystems.size() << std::endl;
+			for (auto& p : particleSystems)
+			{
+				saveFile << p.position.x << " " << p.position.y << " " << p.position.z << std::endl;
+
+				saveFile << p.getAmountKeyFrames() << std::endl;				
+				for (auto& kf : p.getKeyFrames())
+				{
+					saveFile << kf.pos.x << " " << kf.pos.y << " " << kf.pos.z << " " << kf.shootDir.x << " " << kf.shootDir.y << " " << kf.shootDir.z << " " << kf.power << std::endl;
+				}
+			}
+
+			// L SYSTEM FILE FORMAT: <fileName> <posX> <posY> <posZ> <colX> <colY> <colZ> \n
+
+			// Amount L-systems
+			saveFile << Lsystems.size() << std::endl;
+			for (auto& l : Lsystems)
+			{
+				saveFile << l.getFileName() << " " << l.rootPosition.x << " " << l.rootPosition.y << " " << l.rootPosition.z << " " << l.renderColor.x << " " << l.renderColor.y << " " << l.renderColor.z << std::endl;
+			}
+
+			saveFile.close();
+		}
+		else std::cout << "Unable to open file '" << fileName << "'.";
+	}
+
+
 	void VmcApp::loadGameObject(const char* objName)
 	{
 		std::string objPath = std::string("../Models/") + std::string(objName);
@@ -227,6 +435,7 @@ namespace vae {
 
 		std::shared_ptr<VmcModel> model = VmcModel::createModelFromFile(vmcDevice, objPath.c_str());
 		auto newObj = VmcGameObject::createGameObject();
+		newObj.modelPath = std::string(objName);
 		newObj.model = model;
 		newObj.setPosition({ .0f, .0f, .0f });
 		newObj.transform.rotation = { .0f, .0f, .0f };
@@ -242,12 +451,14 @@ namespace vae {
 		std::shared_ptr<VmcModel> armModel = VmcModel::createModelFromFile(vmcDevice, "../Models/stick_fig/arm_left.obj");
 
 		auto stickObj = VmcGameObject::createGameObject();
+		stickObj.modelPath = std::string("../Models/stick_fig/body_stick.obj");
 		stickObj.model = stickModel;
 		stickObj.setPosition({ .0f, .0f, .0f });
 		stickObj.transform.rotation = { .0f, .0f, -glm::pi<float>() };
 		stickObj.setScale({ .3f, .3f, .3f });
 
 		auto armObj = VmcGameObject::createGameObject();
+		armObj.modelPath = std::string("../Models/stick_fig/arm_left.obj");
 		armObj.model = armModel;
 		armObj.transform.translation = { .0f, .0f, 2.5f };
 		armObj.transform.rotation = { .0f, .0f, -glm::pi<float>() };
@@ -258,6 +469,7 @@ namespace vae {
 
 		std::shared_ptr<VmcModel> skyboxModel = VmcModel::createModelFromFile(vmcDevice, "../Models/skybox.obj");
 		auto skybox = VmcGameObject::createGameObject();
+		skybox.modelPath = std::string("../Models/skybox.obj");
 		skybox.model = skyboxModel;
 		skybox.setPosition({ .0f, .0f, .0f });
 		skybox.transform.rotation = { .0f, .0f, .0f };
@@ -267,6 +479,7 @@ namespace vae {
 
 		std::shared_ptr<VmcModel> bolModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
 		auto sphere = VmcGameObject::createGameObject();
+		sphere.modelPath = std::string("../Models/sphere.obj");
 		sphere.model = bolModel;
 		sphere.setPosition({ .0f, .0f, .0f });
 		sphere.transform.rotation = { .0f, .0f, .0f };
@@ -410,6 +623,11 @@ namespace vae {
 			{
 				UI_Tab = 6;
 			}
+
+			if (ImGui::Button("Save/Load scene", ImVec2(100, 25)))
+			{
+				UI_Tab = 7;
+			}
 		}
 
 		ImGui::Text("-----------------------------------------------------");
@@ -444,6 +662,9 @@ namespace vae {
 			renderImGuiSkeletonUI();
 			break;
 
+		case 7:
+			renderImGuiSaveLoadUI();
+			break;
 		default:
 			break;
 		}
@@ -452,6 +673,22 @@ namespace vae {
 
 		ImGui::Render();
 	}
+
+	void VmcApp::renderImGuiSaveLoadUI()
+	{
+		ImGui::InputText(".vaescene scene file name", saveLoadFileName, 50 * sizeof(char));
+
+		if (ImGui::Button("Load scene file"))
+		{
+			loadSceneFromFile(saveLoadFileName);
+		}
+
+		if (ImGui::Button("Save scene to file"))
+		{
+			saveSceneToFile(saveLoadFileName);
+		}
+	}
+
 
 	void VmcApp::renderImGuiStoryBoardUI()
 	{
@@ -1029,4 +1266,20 @@ namespace vae {
 			break;
 		}
 	}
+
+	std::vector<char*> VmcApp::split(char* stringToSplit, const char* separator)
+	{
+		std::vector<char*> result;
+
+		char* next_token = NULL;
+		char* token = strtok_s(stringToSplit, separator, &next_token);
+
+		while ((token != NULL))
+		{
+			result.push_back(token);
+			token = strtok_s(NULL, separator, &next_token);
+		}
+		return result;
+	}
+
 }

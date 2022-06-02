@@ -16,8 +16,8 @@ namespace vae {
 	};
 
 	struct ParticleKeyFrame {
-		glm::vec3 shootDir;
 		glm::vec3 pos;
+		glm::vec3 shootDir;
 		float power;
 	};
 
@@ -29,6 +29,7 @@ namespace vae {
 		void updateAnimatable();
 		void cleanUpAnimatable();
 		int getAmountKeyFrames() { return keyframes.size(); };
+		std::vector<ParticleKeyFrame>& getKeyFrames() { return keyframes; };
 		void addKeyFrame();
 		void deleteKeyFrame(int index);
 		void generateParticles(std::vector<RigidBody>& particleStorage);

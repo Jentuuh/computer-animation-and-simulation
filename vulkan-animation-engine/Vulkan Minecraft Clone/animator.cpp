@@ -20,6 +20,16 @@ namespace vae {
 		// No cleanup needed for Animator
 	}
 
+	std::vector<int> Animator::getAnimatedObjectIds()
+	{
+		std::vector<int> ids;
+		for (auto g : animatedObjects)
+		{
+			ids.push_back(g->getId());
+		}
+		return ids;
+	}
+
 	bool Animator::containsObject(VmcGameObject* gameObj)
 	{
 		for (auto obj : animatedObjects)

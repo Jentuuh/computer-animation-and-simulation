@@ -43,6 +43,7 @@ namespace vae {
 		void cleanUpAnimatable();
 		std::vector<TransformComponent> getControlPoints(){ return grid; };
 		int getAmountKeyframes() { return animationProps.keyframes.size(); };
+		std::vector<std::vector<glm::vec3>>& getKeyFrames() { return animationProps.keyframes; };
 		int getCurrentCPIndex() { return selectedControlPoint; };
 		void updateTransformation(glm::mat4 newTransformation);
 
@@ -53,6 +54,7 @@ namespace vae {
 		void selectPrevControlPoint();
 
 		void addKeyFrame();
+		void addKeyFrame(std::vector<glm::vec3> CPs);
 		void delKeyFrame(int index);
 		void resetTime() { timePassed = 0.0f; };
 		void interpolateControlPoints();

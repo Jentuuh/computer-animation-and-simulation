@@ -150,6 +150,11 @@ namespace vae {
 		animationProps.keyframes.push_back(newKeyFrame);
 	}
 
+	void FFD::addKeyFrame(std::vector<glm::vec3> CPs)
+	{
+		animationProps.keyframes.push_back(CPs);
+	}
+
 	void FFD::delKeyFrame(int index)
 	{
 		animationProps.keyframes.erase(animationProps.keyframes.begin() + index);
