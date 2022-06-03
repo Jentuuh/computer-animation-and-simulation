@@ -31,6 +31,7 @@ namespace vae {
 		int getAmountKeyFrames() { return keyframes.size(); };
 		std::vector<ParticleKeyFrame>& getKeyFrames() { return keyframes; };
 		void addKeyFrame();
+		void addKeyFrames(std::vector<ParticleKeyFrame> kfs);
 		void deleteKeyFrame(int index);
 		void generateParticles(std::vector<RigidBody>& particleStorage);
 

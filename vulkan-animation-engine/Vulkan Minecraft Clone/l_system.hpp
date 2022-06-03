@@ -34,6 +34,7 @@ namespace vae {
 		LSystem(const char* filePath, VegetationType type);
 		std::vector<TransformComponent>& getRenderPoints() { return renderPoints; };
 		std::string getVegetationType() { return veg_type; };
+		VegetationType getVegetationTypeEnum() { return veg_type_enum; };
 		std::string getFileName() { return fileName; };
 
 		void mature();
@@ -60,5 +61,6 @@ namespace vae {
 
 		std::string fileName;
 		std::string veg_type;
+		VegetationType veg_type_enum;
 	};
 }

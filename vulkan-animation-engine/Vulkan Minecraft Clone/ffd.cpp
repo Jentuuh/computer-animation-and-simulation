@@ -31,7 +31,7 @@ namespace vae {
 			{
 				for (float k = 0; k <= init.resZ; k++)
 				{
-					transform.translation = P0 + (i / init.resX) * S + (j / init.resY) * U + (k / init.resZ) * T;
+					transform.translation = P0 + (i / init.resX) * S + (j / init.resY) * T + (k / init.resZ) * U;
 					grid.push_back(transform);
 				}
 			}
@@ -122,7 +122,7 @@ namespace vae {
 			{
 				for (float k = 0; k <= n; k++)
 				{
-					transform.translation = P0 + (i / l) * S + (j / m) * U + (k / n) * T;
+					transform.translation = P0 + (i / l) * S + (j / m) * T + (k / n) * U;
 					grid[i * (l + 1) * (m + 1) + j * (m + 1) + k] = transform;
 				}
 			}

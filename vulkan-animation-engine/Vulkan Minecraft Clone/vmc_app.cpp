@@ -219,6 +219,7 @@ namespace vae {
 	void VmcApp::loadSceneFromFile(const char* fileName)
 	{
 		std::shared_ptr<VmcModel> sphereModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
+		std::shared_ptr<VmcModel> waterDropModel = VmcModel::createModelFromFile(vmcDevice, "../Models/cube.obj");
 		std::string objPath = std::string("../Scenes/") + std::string(fileName);
 
 		// Read from the text file
@@ -316,6 +317,72 @@ namespace vae {
 
 					// Build forward differencing table based on curve points
 					animators.back().buildForwardDifferencingTable();
+
+					std::getline(readFile, buffer);
+					int amountAnimatedObjects = std::stoi(buffer);
+					for (int j = 0; j < amountAnimatedObjects; j++)
+					{
+						std::getline(readFile, buffer);
+						int animatedObjId = std::stoi(buffer);
+						// TODO: add pointer to object with correct ID to the animator
+					}
+				}
+
+				// ========================
+				// LOAD PARTICLE SYSTEMS
+				// ========================
+				std::getline(readFile, buffer);
+				int amountParticleSystems = std::stoi(buffer);
+				for (int i = 0; i < amountParticleSystems; i++)
+				{
+					// First line
+					std::getline(readFile, buffer);
+					char* lineString = &buffer[0];
+					std::vector<char*> tokens = split(lineString, " ");
+					glm::vec3 pos = { std::stof(tokens[0]), std::stof(tokens[1]), std::stof(tokens[2]) };
+
+					ParticleSystem newParticleSystem { pos, waterDropModel };
+
+					// Amount keyframes line
+					std::getline(readFile, buffer);
+					int amountKeyframes = std::stoi(buffer);
+					std::vector<ParticleKeyFrame> keyframes;
+					for (int j = 0; j < amountKeyframes; j++)
+					{
+						// First line
+						std::getline(readFile, buffer);
+						char* lineString = &buffer[0];
+						std::vector<char*> tokens = split(lineString, " ");
+						glm::vec3 posKf = { std::stof(tokens[0]), std::stof(tokens[1]), std::stof(tokens[2]) };
+						glm::vec3 shootDirKf = { std::stof(tokens[3]), std::stof(tokens[4]), std::stof(tokens[5]) };
+						float power = std::stof(tokens[6]);
+						keyframes.push_back({ posKf, shootDirKf, power });
+					}
+					newParticleSystem.addKeyFrames(keyframes);
+					particleSystems.push_back(newParticleSystem);
+				}
+
+				// ========================
+				// LOAD L-SYSTEMS
+				// ========================
+				std::getline(readFile, buffer);
+				int amountLsystems = std::stoi(buffer);
+				for (int i = 0; i < amountLsystems; i++)
+				{
+					// First line
+					std::getline(readFile, buffer);
+					char* lineString = &buffer[0];
+					std::vector<char*> tokens = split(lineString, " ");
+					std::cout << lineString << std::endl;
+					int veg_type = std::stoi(tokens[0]);
+					glm::vec3 pos = { std::stof(tokens[1]), std::stof(tokens[2]), std::stof(tokens[3]) };
+					glm::vec3 col = { std::stof(tokens[4]), std::stof(tokens[5]), std::stof(tokens[6]) };
+
+					addLSystem(static_cast<VegetationType>(veg_type));
+					Lsystems.back().rootPosition = pos;
+					Lsystems.back().renderColor = col;
+					Lsystems.back().mature();
+					Lsystems.back().resetTurtleAndRerender();
 				}
 			}
 			// Close the file
@@ -415,7 +482,7 @@ namespace vae {
 			saveFile << Lsystems.size() << std::endl;
 			for (auto& l : Lsystems)
 			{
-				saveFile << l.getFileName() << " " << l.rootPosition.x << " " << l.rootPosition.y << " " << l.rootPosition.z << " " << l.renderColor.x << " " << l.renderColor.y << " " << l.renderColor.z << std::endl;
+				saveFile << l.getVegetationTypeEnum() << " " << l.rootPosition.x << " " << l.rootPosition.y << " " << l.rootPosition.z << " " << l.renderColor.x << " " << l.renderColor.y << " " << l.renderColor.z << std::endl;
 			}
 
 			saveFile.close();

@@ -34,7 +34,12 @@ namespace vae {
 
 	void ParticleSystem::addKeyFrame()
 	{
-		keyframes.push_back({ shootDirection, position, power });
+		keyframes.push_back({ position, shootDirection, power });
+	}
+
+	void ParticleSystem::addKeyFrames(std::vector<ParticleKeyFrame> kfs)
+	{
+		keyframes = kfs;
 	}
 
 	void ParticleSystem::deleteKeyFrame(int index)
@@ -61,7 +66,7 @@ namespace vae {
 			particle.S.linearImpulse = (glm::normalize(shootDirection + glm::vec3{devX, devY, devZ}) * power);
 
 			// Make sure particles die after some time
-			if (particleStorage.size() > 500)
+			if (particleStorage.size() > 1000)
 			{
 				particleStorage.erase(particleStorage.begin());
 			}

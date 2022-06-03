@@ -7,7 +7,7 @@
 
 namespace vae {
 	// Construct LSystem manually
-	LSystem::LSystem(std::vector<std::pair<std::string, float>> prodRules, std::string axiom, glm::vec3 rootPos, int n, float delta, VegetationType type): axiomState{axiom}, rootPosition{rootPos}, maxIterations{n}, delta{delta}
+	LSystem::LSystem(std::vector<std::pair<std::string, float>> prodRules, std::string axiom, glm::vec3 rootPos, int n, float delta, VegetationType type): axiomState{axiom}, rootPosition{rootPos}, maxIterations{n}, delta{delta}, veg_type_enum{type}
 	{
 		// Initialize production rules
 		for (auto const& r : prodRules) {
@@ -37,7 +37,7 @@ namespace vae {
 	}
 
 	// Construct LSystem from file
-	LSystem::LSystem(const char* filePath, VegetationType type) :rootPosition{glm::vec3{0.0f,0.0f,0.0f}}, fileName{filePath}
+	LSystem::LSystem(const char* filePath, VegetationType type) :rootPosition{glm::vec3{0.0f,0.0f,0.0f}}, fileName{filePath}, veg_type_enum{ type }
 	{
 		std::ifstream infile(filePath);
 
