@@ -230,7 +230,7 @@ namespace vae {
 
 
 		// Draw skeleton
-		skeleton.render(commandBuffer, pipelineLayout);
+		//skeleton.render(commandBuffer, pipelineLayout);
 
 		// Draw rigid bodies
 		TestPushConstant pushRigid{};
@@ -239,7 +239,7 @@ namespace vae {
 		{
 			pushRigid.modelMatrix = rigid.S.mat4();
 			pushRigid.normalMatrix = rigid.S.normalMatrix();
-			pushRigid.color = { 0.17f, 0.73f, 0.84f };
+			pushRigid.color = { 0.0f, 0.45f, 0.97f };
 			vkCmdPushConstants(commandBuffer,
 				pipelineLayout,
 				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,

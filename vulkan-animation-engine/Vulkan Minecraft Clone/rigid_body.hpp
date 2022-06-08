@@ -12,7 +12,7 @@
 #include <vector>
 #include <iostream>
 
-#define MOMENTUM_DAMPING_FACTOR 20.0f
+#define MOMENTUM_DAMPING_FACTOR 15.0f
 
 namespace vae {
 

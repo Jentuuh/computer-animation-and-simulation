@@ -109,7 +109,7 @@ namespace vae {
 		FFDKeyboardController ffdController;
 
 		int cameraMode = 0;
-		float animation_FPS = 60.0f;
+		float animation_FPS = 120.0f;
 		int UI_Tab = 0;
 		int deformationIndex = 0;
 		char fileNameBuffer[50] = "Your file name";

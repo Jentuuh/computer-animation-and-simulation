@@ -43,7 +43,7 @@ namespace vae {
 
 		initImgui();
 		loadGameObjects();
-		initSkeletons();
+		//initSkeletons();
 		initCollidables();
 		viewerObject = std::make_unique<VmcGameObject>(VmcGameObject::createGameObject());
 	}
@@ -90,8 +90,11 @@ namespace vae {
 			}
 
 			// Controllers
-			if(gameObjects[deformationIndex].deformationEnabled)
-				ffdController.updateDeformationGrid(vmcWindow.getGLFWwindow(), frameTime, gameObjects[deformationIndex]);
+			if (gameObjects.size() > deformationIndex)
+			{
+				if (gameObjects[deformationIndex].deformationEnabled)
+					ffdController.updateDeformationGrid(vmcWindow.getGLFWwindow(), frameTime, gameObjects[deformationIndex]);
+			}
 
 			// Update rigid bodies
 			for (auto& rigid : rigidBodies)
@@ -102,7 +105,7 @@ namespace vae {
 			checkRigidBodyCollisions();
 			updateParticleSystems();
 			storyboard.updateAnimatables(frameTime);
-			skeletons[0].update();
+			//skeletons[0].update();
 
 			// Render loop
 			if (auto commandBuffer = vmcRenderer.beginFrame()) {
@@ -245,7 +248,8 @@ namespace vae {
 					glm::vec3 pos = { std::stof(tokens[2]), std::stof(tokens[3]), std::stof(tokens[4]) };
 					glm::vec3 rot = { std::stof(tokens[5]), std::stof(tokens[6]), std::stof(tokens[7]) };
 					glm::vec3 scale = { std::stof(tokens[8]), std::stof(tokens[9]), std::stof(tokens[10]) };
-					bool deformationEnabled = std::stoi(tokens[11]);
+					glm::vec3 color = { std::stof(tokens[11]), std::stof(tokens[12]), std::stof(tokens[13]) };
+					bool deformationEnabled = std::stoi(tokens[14]);
 
 					// Load in game object
 					std::shared_ptr<VmcModel> model = VmcModel::createModelFromFile(vmcDevice, objFileName);
@@ -257,6 +261,7 @@ namespace vae {
 					newObj.setPosition(pos);
 					newObj.transform.rotation = rot;
 					newObj.setScale(scale);
+					newObj.color = color;
 				
 					// Amount keyframes line
 					std::getline(readFile, buffer);
@@ -277,7 +282,6 @@ namespace vae {
 						}
 						newObj.deformationSystem.addKeyFrame(CPs);
 					}
-					std::cout << newObj.deformationEnabled << std::endl;
 					gameObjects.push_back(std::move(newObj));
 				}
 
@@ -414,9 +418,8 @@ namespace vae {
 				saveFile << g.getId() << " " << g.modelPath << " " << g.transform.translation.x << " " << g.transform.translation.y << " "
 					<< g.transform.translation.z << " " << g.transform.rotation.x << " " << g.transform.rotation.y << " "
 					<< g.transform.rotation.z << " " << g.transform.scale.x << " " << g.transform.scale.y << " "
-					<< g.transform.scale.z << " " << g.deformationEnabled << std::endl; 
+					<< g.transform.scale.z << " " << g.color.x << " " << g.color.y << " " << g.color.z << " " << g.deformationEnabled << std::endl;
 				
-	
 				// Amount keyframes
 				saveFile << g.deformationSystem.getAmountKeyframes() << std::endl;
 				for (auto& k : g.deformationSystem.getKeyFrames())
@@ -502,10 +505,10 @@ namespace vae {
 
 		std::shared_ptr<VmcModel> model = VmcModel::createModelFromFile(vmcDevice, objPath.c_str());
 		auto newObj = VmcGameObject::createGameObject();
-		newObj.modelPath = std::string(objName);
+		newObj.modelPath = objPath;
 		newObj.model = model;
 		newObj.setPosition({ .0f, .0f, .0f });
-		newObj.transform.rotation = { .0f, .0f, .0f };
+		newObj.transform.rotation = { glm::pi<float>(), .0f, .0f };
 		newObj.setScale({ 1.0f, 1.0f, 1.0f });
 		gameObjects.push_back(std::move(newObj));
 	}
@@ -513,27 +516,7 @@ namespace vae {
  
 	void VmcApp::loadGameObjects()
     {
-		// Stick figure
-		std::shared_ptr<VmcModel> stickModel = VmcModel::createModelFromFile(vmcDevice, "../Models/stick_fig/body_stick.obj");
-		std::shared_ptr<VmcModel> armModel = VmcModel::createModelFromFile(vmcDevice, "../Models/stick_fig/arm_left.obj");
-
-		auto stickObj = VmcGameObject::createGameObject();
-		stickObj.modelPath = std::string("../Models/stick_fig/body_stick.obj");
-		stickObj.model = stickModel;
-		stickObj.setPosition({ .0f, .0f, .0f });
-		stickObj.transform.rotation = { .0f, .0f, -glm::pi<float>() };
-		stickObj.setScale({ .3f, .3f, .3f });
-
-		auto armObj = VmcGameObject::createGameObject();
-		armObj.modelPath = std::string("../Models/stick_fig/arm_left.obj");
-		armObj.model = armModel;
-		armObj.transform.translation = { .0f, .0f, 2.5f };
-		armObj.transform.rotation = { .0f, .0f, -glm::pi<float>() };
-		armObj.transform.scale = { .3f, .3f, .3f };
-		stickObj.addChild(&armObj);
-
-		gameObjects.push_back(std::move(stickObj));
-
+		// Skybox model
 		std::shared_ptr<VmcModel> skyboxModel = VmcModel::createModelFromFile(vmcDevice, "../Models/skybox.obj");
 		auto skybox = VmcGameObject::createGameObject();
 		skybox.modelPath = std::string("../Models/skybox.obj");
@@ -542,17 +525,6 @@ namespace vae {
 		skybox.transform.rotation = { .0f, .0f, .0f };
 		skybox.setScale({ 1.0f, 1.0f, 1.0f });
 		skyboxObjects.push_back(std::move(skybox));
-
-
-		std::shared_ptr<VmcModel> bolModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
-		auto sphere = VmcGameObject::createGameObject();
-		sphere.modelPath = std::string("../Models/sphere.obj");
-		sphere.model = bolModel;
-		sphere.setPosition({ .0f, .0f, .0f });
-		sphere.transform.rotation = { .0f, .0f, .0f };
-		sphere.setScale({ 1.0f, 1.0f, 1.0f });
-
-		gameObjects.push_back(std::move(sphere));
 	}
 
 	void VmcApp::loadTextures()
@@ -645,7 +617,7 @@ namespace vae {
 		ImGui::Text("Camera Mode:");
 		ImGui::RadioButton("Edit mode", &cameraMode, 0); ImGui::SameLine();
 		ImGui::RadioButton("Free roam mode", &cameraMode, 1); ImGui::SameLine();
-		ImGui::RadioButton("Animator mode", &cameraMode, 2);
+		ImGui::RadioButton("Animated mode", &cameraMode, 2);
 
 		ImGui::Text("-----------------------------------------------------");
 		{
@@ -686,14 +658,9 @@ namespace vae {
 				UI_Tab = 5;
 			}
 
-			if (ImGui::Button("Skeletons", ImVec2(100, 25)))
-			{
-				UI_Tab = 6;
-			}
-
 			if (ImGui::Button("Save/Load scene", ImVec2(100, 25)))
 			{
-				UI_Tab = 7;
+				UI_Tab = 6;
 			}
 		}
 
@@ -726,10 +693,6 @@ namespace vae {
 			break;
 
 		case 6:
-			renderImGuiSkeletonUI();
-			break;
-
-		case 7:
 			renderImGuiSaveLoadUI();
 			break;
 		default:
@@ -869,7 +832,7 @@ namespace vae {
 			}
 
 			std::string posLabel = "Pos (";
-			if (ImGui::DragFloat3((posLabel + std::to_string(index) + ")").c_str(), glm::value_ptr(obj.transform.translation)))
+			if (ImGui::DragFloat3((posLabel + std::to_string(index) + ")").c_str(), glm::value_ptr(obj.transform.translation), 0.01f))
 			{
 				obj.setPosition(obj.transform.translation);
 			};
@@ -930,7 +893,7 @@ namespace vae {
 					if (n == 0)
 					{
 						bool is_selected = (animators[i].currentObjSelected == "None");
-						if (ImGui::Selectable((std::string("Remove animated object for animator ") + std::to_string(i)).c_str(), is_selected))
+						if (ImGui::Selectable((std::string("Set no animated object for animator ") + std::to_string(i)).c_str(), is_selected))
 						{
 							animators[i].currentObjSelected = "None";
 							animators[i].removeAnimatedObject();
@@ -978,8 +941,11 @@ namespace vae {
 				animators[i].buildForwardDifferencingTable();
 			}
 
-			ImGui::DragFloat3("Start orientation", glm::value_ptr(animators[i].getStartOrientation()), 1.0f, 0.0f, 2 * glm::pi<float>());
-			ImGui::DragFloat3("End orientation", glm::value_ptr(animators[i].getEndOrientation()), 1.0f, 0.0f, 2 * glm::pi<float>());
+			std::string startOrLabel = "Start orientation anim ";
+			std::string endOrLabel = "End orientation anim ";
+
+			ImGui::DragFloat3((startOrLabel + std::to_string(i)).c_str(), glm::value_ptr(animators[i].getStartOrientation()), 0.01f, 0.0f, 2 * glm::pi<float>());
+			ImGui::DragFloat3((endOrLabel + std::to_string(i)).c_str(), glm::value_ptr(animators[i].getEndOrientation()), 0.01f, 0.0f, 2 * glm::pi<float>());
 
 			ImGui::NewLine();
 
