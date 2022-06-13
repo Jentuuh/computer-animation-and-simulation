@@ -11,16 +11,16 @@ namespace vae {
 		child_ = nullptr;
 
 		// Local transform (first rotate, then translate)
+		glm::mat4 sx = glm::scale(glm::mat4(1.0f), { len, 1.0f, 1.0f });
 		glm::mat4 rx = glm::rotate(glm::mat4(1.0f), glm::radians(rotation.x), { 1.0f, 0.0f, 0.0f });
 		glm::mat4 ry = glm::rotate(glm::mat4(1.0f), glm::radians(rotation.y), { 0.0f, 1.0f, 0.0f });
 		glm::mat4 rz = glm::rotate(glm::mat4(1.0f), glm::radians(rotation.z), { 0.0f, 0.0f, 1.0f });
 		glm::mat4 trans = glm::translate(glm::mat4(1.0f), { 1.0f, 0.0f, 0.0f });
-		localTransform = trans * rx * ry * rz;
+		localTransformation = trans * rx * ry * rz;
 		
 		// Global transform
-		transformationMatrix = glm::mat4(1.0f);
-		transformationMatrix = parent_->transformationMatrix * localTransform;
-		posOffset = glm::vec3(transformationMatrix[3].x, transformationMatrix[3].y, transformationMatrix[3].z);
+		globalTransformationMatrix = parent_->globalTransformationMatrix * localTransformation;
+		//posOffset = glm::vec3(globalTransformationMatrix[3].x, globalTransformationMatrix[3].y, globalTransformationMatrix[3].z);
 	}
 
 	// Root constructor
@@ -29,18 +29,20 @@ namespace vae {
 		parent_ = nullptr;
 		child_ = nullptr;
 
+		glm::mat4 sx = glm::scale(glm::mat4(1.0f), { len, 1.0f, 1.0f });
 		glm::mat4 rx = glm::rotate(glm::mat4(1.0f), glm::radians(rotation.x), { 1.0f, 0.0f, 0.0f });
 		glm::mat4 ry = glm::rotate(glm::mat4(1.0f), glm::radians(rotation.y), { 0.0f, 1.0f, 0.0f });
 		glm::mat4 rz = glm::rotate(glm::mat4(1.0f), glm::radians(rotation.z), { 0.0f, 0.0f, 1.0f });
 		glm::mat4 trans = glm::translate(glm::mat4(1.0f), pos);
-		transformationMatrix = trans * rx * ry * rz;
+		globalTransformationMatrix = trans * rx * ry * rz;
+		localTransformation = trans * rx * ry * rz;
 	}
 
 
 	void Bone::render(VkCommandBuffer& commandBuffer, VkPipelineLayout& pipelineLayout, std::shared_ptr<VmcModel> boneModel)
 	{
 		TestPushConstant pushBone{};
-		pushBone.modelMatrix = transformationMatrix;
+		pushBone.modelMatrix = globalTransformationMatrix;
 		pushBone.normalMatrix = glm::mat4(1.0f);
 		pushBone.color = { 1.0f, 1.0f, 1.0f };
 		
@@ -54,6 +56,32 @@ namespace vae {
 		boneModel->bind(commandBuffer);
 		boneModel->draw(commandBuffer);
 	}
+
+	void Bone::updateAnimatable(float kfIndex, float kfFraction)
+	{
+		glm::vec3 interpolatedRotation = keyframes[(int)kfIndex] + kfFraction * (keyframes[(int)kfIndex + 1] - keyframes[(int)kfIndex]);
+		rotation = interpolatedRotation;
+		updateRotation();
+	}
+
+
+	void Bone::updateRotation()
+	{
+		glm::mat4 rx = glm::rotate(glm::mat4(1.0f), glm::radians(rotation.x), { 1.0f, 0.0f, 0.0f });
+		glm::mat4 ry = glm::rotate(glm::mat4(1.0f), glm::radians(rotation.y), { 0.0f, 1.0f, 0.0f });
+		glm::mat4 rz = glm::rotate(glm::mat4(1.0f), glm::radians(rotation.z), { 0.0f, 0.0f, 1.0f });
+		glm::mat4 trans = glm::translate(glm::mat4(1.0f), { 1.0f, 0.0f, 0.0f });
+		localTransformation = trans * rx * ry * rz;
+
+		if (parent_ != nullptr)
+			globalTransformationMatrix = parent_->globalTransformationMatrix * localTransformation;
+		else {
+			globalTransformationMatrix = localTransformation;
+		}
+		if (child_ != nullptr)
+			child_->updateRotation();
+	}
+
 
 	void Bone::setChild(Bone* child)
 	{
@@ -74,7 +102,7 @@ namespace vae {
 		//transformationMatrix = trans * rotMatrix;
 		// 
 		// Extract translation from transformation matrix
-		glm::vec3 bonePosition = glm::vec3(transformationMatrix[3].x, transformationMatrix[3].y, transformationMatrix[3].z);
+		glm::vec3 bonePosition = glm::vec3(globalTransformationMatrix[3].x, globalTransformationMatrix[3].y, globalTransformationMatrix[3].z);
 		//std::cout << "Bone pos:" << glm::to_string(bonePosition) << std::endl;
 
 		glm::vec3 boneDirection = target - bonePosition;
@@ -95,7 +123,7 @@ namespace vae {
 		glm::mat4 ry = glm::rotate(glm::mat4(1.0f), y_angle, { 0.0f, 1.0f, 0.0f });
 		glm::mat4 rz = glm::rotate(glm::mat4(1.0f), z_angle, { 0.0f, 0.0f, 1.0f });
 		glm::mat4 trans = glm::translate(glm::mat4(1.0f), bonePosition);
-		transformationMatrix = trans * rx * ry * rz;
+		globalTransformationMatrix = trans * rx * ry * rz;
 
 	/*	if (parent_ != nullptr)
 		{
@@ -103,6 +131,8 @@ namespace vae {
 		}*/
 	}
 
-
-
+	void Bone::addKeyFrame()
+	{
+		keyframes.push_back(rotation);
+	}
 }

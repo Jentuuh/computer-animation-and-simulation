@@ -67,6 +67,7 @@ namespace vae {
 
 			RigidBody particle{ massPoints, true, particleModel, {scale, scale, scale} };
 			particle.S.linearImpulse = (glm::normalize(shootDirection + glm::vec3{devX, devY, devZ}) * power);
+			particle.applyTorque({ 1.0f, .0f, 1.0f });
 
 			// Make sure particles die after some time
 			if (particleStorage.size() > 1000)

@@ -43,7 +43,7 @@ namespace vae {
 
 		initImgui();
 		loadGameObjects();
-		//initSkeletons();
+		initSkeletons();
 		initCollidables();
 		viewerObject = std::make_unique<VmcGameObject>(VmcGameObject::createGameObject());
 	}
@@ -658,10 +658,17 @@ namespace vae {
 				UI_Tab = 5;
 			}
 
-			if (ImGui::Button("Save/Load scene", ImVec2(100, 25)))
+			if (ImGui::Button("Forward kin.", ImVec2(100, 25)))
 			{
 				UI_Tab = 6;
 			}
+			ImGui::SameLine();
+
+			if (ImGui::Button("Save/Load scene", ImVec2(100, 25)))
+			{
+				UI_Tab = 7;
+			}
+	
 		}
 
 		ImGui::Text("-----------------------------------------------------");
@@ -693,8 +700,14 @@ namespace vae {
 			break;
 
 		case 6:
+			renderImGuiSkeletonUI();
+			break;
+
+		case 7:
 			renderImGuiSaveLoadUI();
 			break;
+
+
 		default:
 			break;
 		}
@@ -800,6 +813,20 @@ namespace vae {
 				if (ImGui::Button((pSystemLabel + std::to_string(index)).c_str()))
 				{
 					storyboard.addAnimatable(&p);
+				}
+			}
+			index++;
+		}
+
+		index = 0;
+		for (auto& s : skeletons)
+		{
+			if (!storyboard.containsAnimatable(&s))
+			{
+				std::string skeletonLabel = "Add skeleton ";
+				if (ImGui::Button((skeletonLabel + std::to_string(index)).c_str()))
+				{
+					storyboard.addAnimatable(&s);
 				}
 			}
 			index++;
@@ -1160,8 +1187,31 @@ namespace vae {
 
 	void VmcApp::renderImGuiSkeletonUI()
 	{
-		ImGui::DragFloat3("Focus point pos", glm::value_ptr(skeletons[0].focusPoint),0.01f);
 
+		int index = 0;
+		for (auto& l : skeletons)
+		{
+			std::string SkeletonLabel = " Skeleton (";
+			ImGui::Text((SkeletonLabel + std::to_string(index) + ")").c_str());
+
+			std::string addKFLabel = "Add keyframe (";
+			if (ImGui::Button((addKFLabel + std::to_string(index) + ")").c_str()))
+			{
+				skeletons[index].addKeyFrame();
+			}
+
+			ImGui::Text("Skeleton bones:");
+			std::vector<std::shared_ptr<Bone>> bones = skeletons[index].getBones();
+			for (int i = 0; i < bones.size(); i++)
+			{
+				std::string rotLabel = "Rotation (";
+				if (ImGui::DragFloat3((rotLabel + std::to_string(i) + ")").c_str(), glm::value_ptr(bones[i]->getRotation()), 1.0f))
+				{
+					bones[i]->updateRotation();
+				}
+			}
+			index++;
+		}
 	}
 
 
@@ -1225,7 +1275,7 @@ namespace vae {
 		Skeleton2 skeleton{boneModel};
 		
 		skeleton.addRoot({ 0.0f, 0.0f, 0.0f }, 1.0f, { 1.0f, 0.0f, 0.0f });
-		skeleton.addBone(1.0f, { 90.0f, 90.0f, 0.0f });
+		skeleton.addBone(3.0f, { 90.0f, 90.0f, 0.0f });
 		skeleton.addBone(1.0f, { 0.0f, 45.0f, 0.0f });
 		skeleton.addBone(1.0f, { 0.0f, 45.0f, 0.0f });
 		skeleton.addBone(1.0f, { 0.0f, 45.0f, 0.0f });

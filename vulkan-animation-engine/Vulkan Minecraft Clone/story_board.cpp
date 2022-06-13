@@ -1,4 +1,5 @@
 #include "story_board.hpp"
+#include <iostream>
 
 namespace vae {
 	StoryBoard::StoryBoard() {}

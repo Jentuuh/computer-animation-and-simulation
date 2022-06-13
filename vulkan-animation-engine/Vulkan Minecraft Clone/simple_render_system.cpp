@@ -230,7 +230,7 @@ namespace vae {
 
 
 		// Draw skeleton
-		//skeleton.render(commandBuffer, pipelineLayout);
+		skeleton.render(commandBuffer, pipelineLayout);
 
 		// Draw rigid bodies
 		TestPushConstant pushRigid{};

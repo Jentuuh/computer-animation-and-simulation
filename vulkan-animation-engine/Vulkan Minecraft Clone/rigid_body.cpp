@@ -130,6 +130,7 @@ namespace vae {
 
 			// Simulating "conservation" of momentum (not physically correct)
 			S.linearImpulse = (glm::max(0.0f, glm::length(S.linearImpulse) - MOMENTUM_DAMPING_FACTOR)) * reflectionDirection;
+			S.angularImpulse = MOMENTUM_DAMPING_FACTOR * S.angularImpulse;
 			return true;
 		}
 		return false;
