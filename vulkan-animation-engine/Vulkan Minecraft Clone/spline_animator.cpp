@@ -50,14 +50,6 @@ namespace vae {
 	}
 
 
-	glm::vec3 SplineAnimator::calculateNextRotationParabolic()
-	{
-		// Normalized fraction of time that has passed
-		float timePassedNormalized = distanceTimeFuncParabolic();
-
-		return glm::vec3{ .0f, .0f, timePassedNormalized * 2 * glm::pi<float>() };
-	}
-
 	std::vector<TransformComponent>& SplineAnimator::getCurvePoints()
 	{
 		return splineCurve.getCurvePoints();

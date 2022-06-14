@@ -66,14 +66,6 @@ namespace vae {
 		return controlPoints[index].transform.translation;
 	}
 
-	glm::vec3 FunctionAnimator::calculateNextRotationParabolic()
-	{
-		// Normalized fraction of time that has passed
-		float timePassedNormalized = distanceTimeFuncParabolic();
-
-		return glm::vec3{ .0f, .0f, timePassedNormalized * 2 * glm::pi<float>() };
-	}
-
 
 	void FunctionAnimator::buildForwardDifferencingTable()
 	{

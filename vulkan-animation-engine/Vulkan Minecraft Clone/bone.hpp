@@ -20,6 +20,7 @@ namespace vae {
 		glm::vec3& getRotation() { return rotation; };
 		Bone* getChild() { return child_; };
 		std::vector<glm::vec3>& getKeyFrames() { return keyframes; };
+		void setRotation(glm::vec3 newRot) { rotation = newRot; updateRotation(); };
 
 		void render(VkCommandBuffer& commandBuffer, VkPipelineLayout& pipelineLayout, std::shared_ptr<VmcModel> boneModel);
 		void updateAnimatable(float kfIndex, float kfFraction);

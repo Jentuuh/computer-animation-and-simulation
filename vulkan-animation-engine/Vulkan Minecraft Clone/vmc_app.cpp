@@ -1191,13 +1191,22 @@ namespace vae {
 		int index = 0;
 		for (auto& l : skeletons)
 		{
-			std::string SkeletonLabel = " Skeleton (";
+			std::string SkeletonLabel = "Skeleton (";
 			ImGui::Text((SkeletonLabel + std::to_string(index) + ")").c_str());
 
 			std::string addKFLabel = "Add keyframe (";
 			if (ImGui::Button((addKFLabel + std::to_string(index) + ")").c_str()))
 			{
 				skeletons[index].addKeyFrame();
+			}
+
+			std::string IKLabel = "IK (";
+			ImGui::Text((IKLabel + std::to_string(index) + ")").c_str());
+
+			std::string targetLabel = "Target (";
+			if (ImGui::DragFloat3((targetLabel + std::to_string(index) + ")").c_str(), glm::value_ptr(skeletons[index].focusPoint), 0.1f))
+			{
+				skeletons[index].solveIK();
 			}
 
 			ImGui::Text("Skeleton bones:");

@@ -18,7 +18,6 @@ namespace vae {
 		void advanceTime(float deltaTime);
 		glm::vec3 calculateNextPositionLinearInterp(float deltaTime);
 		glm::vec3 calculateNextPositionSpeedControlled();
-		glm::vec3 calculateNextRotationParabolic();
 
 		void buildForwardDifferencingTable();
 		void printForwardDifferencingTable();

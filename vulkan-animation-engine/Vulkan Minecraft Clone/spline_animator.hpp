@@ -23,7 +23,6 @@ namespace vae {
 
 		glm::vec3 calculateNextPositionSpeedControlled();
 		glm::vec3 calculateIntermediateRotation();
-		glm::vec3 calculateNextRotationParabolic();
 		void updateControlAndCurvePoints();
 
 		void addControlPoint(ControlPoint newControlPoint, glm::vec3 offset);

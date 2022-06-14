@@ -31,7 +31,6 @@ namespace vae {
 		virtual glm::vec3 calculateNextPositionSpeedControlled() = 0;
 		virtual glm::vec3 calculateIntermediateRotation() = 0;
 
-		virtual glm::vec3 calculateNextRotationParabolic() = 0;
 		virtual std::vector<TransformComponent>& getCurvePoints() = 0;
 		virtual std::vector<VmcGameObject>& getControlPoints() = 0;
 		virtual void updateControlAndCurvePoints() = 0;
