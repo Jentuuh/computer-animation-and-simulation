@@ -76,7 +76,7 @@ namespace vae {
 
 	// TODO: State update of objects should be handled somewhere else!
 	// Render loop
-	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, VkDescriptorSet globalDescriptorSet, VkDescriptorSet skyboxDescriptorSet, std::vector<VmcGameObject>& skyBoxes, std::vector<VmcGameObject> &gameObjects, std::vector<SplineAnimator>& animators, std::vector<LSystem>& lsystems, Skeleton2& skeleton, std::vector<RigidBody>& rigids, std::vector<RigidBody>& collidables, const VmcCamera& camera, const float frameDeltaTime, std::shared_ptr<VmcModel> pointModel, int camMode, VmcGameObject* viewerObj)
+	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, VkDescriptorSet globalDescriptorSet, VkDescriptorSet skyboxDescriptorSet, std::vector<VmcGameObject>& skyBoxes, std::vector<VmcGameObject> &gameObjects, std::vector<SplineAnimator>& animators, std::vector<LSystem>& lsystems, std::vector<Skeleton2>& skeletons, std::vector<RigidBody>& rigids, std::vector<RigidBody>& collidables, const VmcCamera& camera, const float frameDeltaTime, std::shared_ptr<VmcModel> pointModel, int camMode, VmcGameObject* viewerObj)
 	{
 		if (renderSkybox)
 		{
@@ -230,7 +230,10 @@ namespace vae {
 
 
 		// Draw skeleton
-		skeleton.render(commandBuffer, pipelineLayout, pointModel);
+		for (auto& skel : skeletons)
+		{
+			skel.render(commandBuffer, pipelineLayout, pointModel);
+		}
 
 		// Draw rigid bodies
 		TestPushConstant pushRigid{};

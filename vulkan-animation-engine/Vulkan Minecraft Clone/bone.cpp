@@ -131,7 +131,7 @@ namespace vae {
 		}*/
 	}
 
-	void Bone::addKeyFrame()
+	void Bone::addKeyFrameFK()
 	{
 		keyframes.push_back(rotation);
 	}

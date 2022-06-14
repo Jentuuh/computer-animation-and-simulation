@@ -7,17 +7,35 @@ namespace vae {
 
 	void Skeleton2::updateAnimatable()
 	{
-		int amountKeyFrames = root->getKeyFrames().size();
-		if (amountKeyFrames == 0)
-			return;
-		float timePassedFraction = timePassed / duration;
-		float kfFraction = 1.0 / (amountKeyFrames - 1);
-		float kfIndex = std::floorf(timePassedFraction / kfFraction);
-		float currentKfFraction = (timePassedFraction / kfFraction) - kfIndex;
-
-		for(auto b: boneData)
+		if (mode == FORWARD)
 		{
-			b->updateAnimatable(kfIndex, currentKfFraction);
+			int amountKeyFrames = root->getKeyFrames().size();
+			if (amountKeyFrames == 0)
+				return;
+			float timePassedFraction = timePassed / duration;
+			float kfFraction = 1.0f / (static_cast<float>(amountKeyFrames - 1));
+			float kfIndex = std::floorf(timePassedFraction / kfFraction);
+			float currentKfFraction = (timePassedFraction / kfFraction) - kfIndex;
+
+			for (auto b : boneData)
+			{
+				b->updateAnimatable(kfIndex, currentKfFraction);
+			}
+
+		} else if (mode == INVERSE)
+		{
+			int amountKeyFrames = IK_Keyframes.size();
+			if (amountKeyFrames == 0)
+				return;
+			float normalizedTimePassed = timePassed / duration;
+			float fractionPerKeyFrame = 1.0f / static_cast<float>(amountKeyFrames - 1);
+
+			float index = normalizedTimePassed / fractionPerKeyFrame;
+			int roundedIndex = floor(index);
+			float keyFrameProgress = index - static_cast<float>(roundedIndex);
+
+			focusPoint = IK_Keyframes[roundedIndex] + keyFrameProgress * (IK_Keyframes[roundedIndex + 1] - IK_Keyframes[roundedIndex]);
+			solveIK_Z();
 		}
 	}
 
@@ -81,7 +99,7 @@ namespace vae {
 	}
 
 
-	void Skeleton2::solveIK(int maxIterations, float errorMin)
+	void Skeleton2::solveIK_Z(int maxIterations, float errorMin)
 	{
 		for (auto b : boneData)
 		{
@@ -144,16 +162,20 @@ namespace vae {
 		}
 	}
 
-
-
-	void Skeleton2::addKeyFrame()
+	void Skeleton2::addKeyFrameFK()
 	{
 		Bone* curr = root;
 		while (curr != nullptr)
 		{
-			curr->addKeyFrame();
+			curr->addKeyFrameFK();
 			curr = curr->getChild();
 		}
 	}
+
+	void Skeleton2::addKeyFrameIK()
+	{
+		IK_Keyframes.push_back(glm::vec3{ focusPoint.x, focusPoint.y, focusPoint.z });
+	}
+
 	
 }

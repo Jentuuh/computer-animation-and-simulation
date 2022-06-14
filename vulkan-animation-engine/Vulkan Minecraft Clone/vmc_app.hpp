@@ -45,6 +45,7 @@ namespace vae {
 		void loadSceneFromFile(const char* fileName);
 		void saveSceneToFile(const char* fileName);
 		void loadGameObject(const char * objName);
+		void loadSkeleton(const char* fileName);
 		void loadGameObjects();
 		void loadTextures();
 		void initDescriptorsAndUBOs();
@@ -114,6 +115,7 @@ namespace vae {
 		int deformationIndex = 0;
 		char fileNameBuffer[50] = "Your file name";
 		char saveLoadFileName[50] = "Your file name";
+		char skeletonFileName[50] = "Your file name";
 		std::shared_ptr<VmcModel> sphereModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
 	};
 }

@@ -105,7 +105,6 @@ namespace vae {
 			checkRigidBodyCollisions();
 			updateParticleSystems();
 			storyboard.updateAnimatables(frameTime);
-			//skeletons[0].update();
 
 			// Render loop
 			if (auto commandBuffer = vmcRenderer.beginFrame()) {
@@ -134,7 +133,7 @@ namespace vae {
 					gameObjects, 
 					animators, 
 					Lsystems, 
-					skeletons[0], 
+					skeletons, 
 					rigidBodies, 
 					collidables,
 					camera, 
@@ -513,6 +512,52 @@ namespace vae {
 		gameObjects.push_back(std::move(newObj));
 	}
 
+	void VmcApp::loadSkeleton(const char* fileName)
+	{
+		std::string objPath = std::string("../Misc/") + std::string(fileName);
+		std::shared_ptr<VmcModel> boneModel = VmcModel::createModelFromFile(vmcDevice, "../Models/bone.obj");
+
+		Skeleton2 skeleton{ boneModel };
+
+		// Read from the text file
+		std::ifstream readFile(objPath);
+		std::string buffer;
+
+		if (readFile.is_open())
+		{
+			// Root
+			std::getline(readFile, buffer);
+			char* lineString = &buffer[0];
+			std::vector<char*> tokens = split(lineString, " ");
+
+			glm::vec3 pos = { std::stof(tokens[0]), std::stof(tokens[1]), std::stof(tokens[2]) };
+			float len = std::stof(tokens[3]);
+			glm::vec3 rot = { std::stof(tokens[4]), std::stof(tokens[5]), std::stof(tokens[6]) };
+			skeleton.addRoot(pos, len, rot);
+
+			// Number of bones
+			std::getline(readFile, buffer);
+			int numOfBones = std::stoi(buffer);
+			for (int i = 0; i < numOfBones; i++)
+			{
+				// Bone
+				std::getline(readFile, buffer);
+				char* lineString = &buffer[0];
+				std::vector<char*> tokens = split(lineString, " ");
+
+				float len = std::stof(tokens[0]);
+				glm::vec3 rot = { std::stof(tokens[1]), std::stof(tokens[2]), std::stof(tokens[3]) };
+				skeleton.addBone(len, rot);
+			}
+			skeletons.push_back(skeleton);
+			// Close the file
+			readFile.close();
+		}
+
+		else std::cout << "Unable to open file '" << fileName << "'.";
+	}
+
+
  
 	void VmcApp::loadGameObjects()
     {
@@ -658,7 +703,7 @@ namespace vae {
 				UI_Tab = 5;
 			}
 
-			if (ImGui::Button("Forward kin.", ImVec2(100, 25)))
+			if (ImGui::Button("Kinematics", ImVec2(100, 25)))
 			{
 				UI_Tab = 6;
 			}
@@ -1187,6 +1232,14 @@ namespace vae {
 
 	void VmcApp::renderImGuiSkeletonUI()
 	{
+		ImGui::InputText(".skel file name", skeletonFileName, 50 * sizeof(char));
+
+		if (ImGui::Button("Add skeleton"))
+		{
+			loadSkeleton(skeletonFileName);
+		}
+		ImGui::NewLine();
+
 
 		int index = 0;
 		for (auto& l : skeletons)
@@ -1194,31 +1247,59 @@ namespace vae {
 			std::string SkeletonLabel = "Skeleton (";
 			ImGui::Text((SkeletonLabel + std::to_string(index) + ")").c_str());
 
+			ImGui::SameLine();
+
+			std::string delLabel = "Delete (";
+			if (ImGui::Button((delLabel + std::to_string(index) + ")").c_str()))
+			{
+				skeletons.erase(skeletons.begin() + index);
+			}
+
+			std::string modeLabel = "Kinematics mode (";
+			ImGui::Text((modeLabel + std::to_string(index) + ")").c_str());
+			ImGui::RadioButton("Forward", &skeletons[index].mode, 0); ImGui::SameLine();
+			ImGui::RadioButton("Inverse", &skeletons[index].mode, 1);
+
 			std::string addKFLabel = "Add keyframe (";
 			if (ImGui::Button((addKFLabel + std::to_string(index) + ")").c_str()))
 			{
-				skeletons[index].addKeyFrame();
-			}
-
-			std::string IKLabel = "IK (";
-			ImGui::Text((IKLabel + std::to_string(index) + ")").c_str());
-
-			std::string targetLabel = "Target (";
-			if (ImGui::DragFloat3((targetLabel + std::to_string(index) + ")").c_str(), glm::value_ptr(skeletons[index].focusPoint), 0.1f))
-			{
-				skeletons[index].solveIK();
-			}
-
-			ImGui::Text("Skeleton bones:");
-			std::vector<std::shared_ptr<Bone>> bones = skeletons[index].getBones();
-			for (int i = 0; i < bones.size(); i++)
-			{
-				std::string rotLabel = "Rotation (";
-				if (ImGui::DragFloat3((rotLabel + std::to_string(i) + ")").c_str(), glm::value_ptr(bones[i]->getRotation()), 1.0f))
+				if (skeletons[index].mode == FORWARD)
 				{
-					bones[i]->updateRotation();
+					skeletons[index].addKeyFrameFK();
+				}
+				else if (skeletons[index].mode == INVERSE){
+					skeletons[index].addKeyFrameIK();
 				}
 			}
+			ImGui::NewLine();
+
+			if (skeletons[index].mode == INVERSE)
+			{
+				std::string IKLabel = "IK (";
+				ImGui::Text((IKLabel + std::to_string(index) + ")").c_str());
+
+				std::string targetLabel = "Target pos (";
+				if (ImGui::DragFloat3((targetLabel + std::to_string(index) + ")").c_str(), glm::value_ptr(skeletons[index].focusPoint), 0.1f))
+				{
+					skeletons[index].solveIK_Z();
+				}
+				std::string drawLabel = "Draw target (";
+				ImGui::Checkbox((drawLabel + std::to_string(index) + ")").c_str(), &skeletons[index].drawIKTarget);
+			}
+			else if (skeletons[index].mode == FORWARD) {
+
+				ImGui::Text("Skeleton bones:");
+				std::vector<std::shared_ptr<Bone>> bones = skeletons[index].getBones();
+				for (int i = 0; i < bones.size(); i++)
+				{
+					std::string rotLabel = "Rotation (";
+					if (ImGui::DragFloat3((rotLabel + std::to_string(i) + ")").c_str(), glm::value_ptr(bones[i]->getRotation()), 1.0f))
+					{
+						bones[i]->updateRotation();
+					}
+				}
+			}
+			ImGui::NewLine();
 			index++;
 		}
 	}

@@ -27,7 +27,7 @@ namespace vae {
 		void updateRotation();
 		void setChild(Bone* child);
 		void follow(glm::vec3 target);
-		void addKeyFrame();
+		void addKeyFrameFK();
 
 	private:
 		Bone* parent_;
