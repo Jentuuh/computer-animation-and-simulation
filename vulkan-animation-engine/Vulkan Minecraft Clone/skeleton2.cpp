@@ -3,7 +3,7 @@
 #include <iostream>
 
 namespace vae {
-	Skeleton2::Skeleton2(std::shared_ptr<VmcModel> boneMod) :boneModel{ boneMod }, Animatable(0.0f, 4.0f) {}
+	Skeleton2::Skeleton2(std::shared_ptr<VmcModel> boneMod, std::string fileName) :boneModel{ boneMod }, fileName{ fileName }, Animatable(0.0f, 4.0f) {}
 
 	void Skeleton2::updateAnimatable()
 	{
@@ -35,7 +35,7 @@ namespace vae {
 			float keyFrameProgress = index - static_cast<float>(roundedIndex);
 
 			focusPoint = IK_Keyframes[roundedIndex] + keyFrameProgress * (IK_Keyframes[roundedIndex + 1] - IK_Keyframes[roundedIndex]);
-			solveIK_Z();
+			solveIK_2D();
 		}
 	}
 
@@ -98,8 +98,54 @@ namespace vae {
 		return points;
 	}
 
+	void Skeleton2::solveIK_3D(int maxIterations, float errorMin)
+	{
+		bool solved = false;
+		for (int j = 0; j < maxIterations; j++)
+		{	
+			for (int i = boneData.size() - 1; i >= 0; i--)
+			{
+				std::vector<glm::vec3> pointCoords = FK();
+				glm::vec3 end = pointCoords.back();
+				glm::vec3 baseToEndpointVec = glm::normalize(end - pointCoords[i]);
+				glm::vec3 baseToDestinationVec = glm::normalize(focusPoint - pointCoords[i]);
 
-	void Skeleton2::solveIK_Z(int maxIterations, float errorMin)
+				float cosAlpha = glm::clamp(glm::dot(baseToDestinationVec, baseToEndpointVec), -1.0f, 1.0f);
+				float alpha = glm::acos(cosAlpha);
+				rotateLinksIK_3D(i + 1, alpha, glm::cross(baseToEndpointVec, baseToDestinationVec));
+
+				glm::vec3 distanceVec = focusPoint - end;
+				float IKdistance = glm::length(distanceVec);
+
+				if (IKdistance < errorMin) {
+					solved = true;
+				}
+			}
+			if (solved) {
+				break;
+			}
+		}
+	}
+
+	void Skeleton2::rotateLinksIK_3D(int startIdx, float angle, glm::vec3 rotVec)
+	{
+		std::vector<glm::vec3> pointCoords = FK();
+
+		// Translate to origin, rotate, translate back
+		glm::mat4 translationMat = glm::translate(-pointCoords[startIdx - 1]);
+		glm::mat4 inverseTranslationMat = glm::inverse(translationMat);
+		glm::mat4 rotMatrix = glm::rotate(angle, rotVec);
+
+		for (int i = startIdx; i < boneData.size(); i++) {
+			boneData[i]->applyMatrix(translationMat);
+			boneData[i]->applyMatrix(rotMatrix);
+			boneData[i]->applyMatrix(inverseTranslationMat);
+		}
+	}
+
+
+
+	void Skeleton2::solveIK_2D(int maxIterations, float errorMin)
 	{
 		for (auto b : boneData)
 		{
@@ -172,10 +218,25 @@ namespace vae {
 		}
 	}
 
+	void Skeleton2::addKeyFramesFK(std::vector<std::vector<glm::vec3>> kfs)
+	{
+		int idx = 0;
+		for (auto b : boneData)
+		{
+			b->addKeyFramesFK(kfs[idx]);
+			idx++;
+		}
+	}
+
+
 	void Skeleton2::addKeyFrameIK()
 	{
 		IK_Keyframes.push_back(glm::vec3{ focusPoint.x, focusPoint.y, focusPoint.z });
 	}
 
-	
+	void Skeleton2::addKeyFramesIK(std::vector<glm::vec3> kfs)
+	{
+		IK_Keyframes = kfs;
+	}
+
 }

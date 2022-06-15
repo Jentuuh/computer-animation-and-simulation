@@ -376,7 +376,6 @@ namespace vae {
 					std::getline(readFile, buffer);
 					char* lineString = &buffer[0];
 					std::vector<char*> tokens = split(lineString, " ");
-					std::cout << lineString << std::endl;
 					int veg_type = std::stoi(tokens[0]);
 					glm::vec3 pos = { std::stof(tokens[1]), std::stof(tokens[2]), std::stof(tokens[3]) };
 					glm::vec3 col = { std::stof(tokens[4]), std::stof(tokens[5]), std::stof(tokens[6]) };
@@ -386,6 +385,56 @@ namespace vae {
 					Lsystems.back().renderColor = col;
 					Lsystems.back().mature();
 					Lsystems.back().resetTurtleAndRerender();
+				}
+
+				// ========================
+				// LOAD SKELETONS
+				// ========================
+				std::getline(readFile, buffer);
+				int amountSkeletons = std::stoi(buffer);
+				for (int i = 0; i < amountSkeletons; i++)
+				{
+					// First line
+					std::getline(readFile, buffer);
+					std::string fileName = buffer;
+
+					std::getline(readFile, buffer);
+					int amountBones = std::stoi(buffer);
+
+					std::getline(readFile, buffer);
+					int amountKeyframesFK = std::stoi(buffer);
+
+					std::vector<std::vector<glm::vec3>> keyframeContainer;
+					for (int j = 0; j < amountBones; j++)
+					{
+						std::vector<glm::vec3> boneKeyframes;
+						for (int k = 0; k < amountKeyframesFK; k++)
+						{
+							std::getline(readFile, buffer);
+							char* lineString = &buffer[0];
+							std::vector<char*> tokens = split(lineString, " ");
+							glm::vec3 rot = { std::stof(tokens[0]), std::stof(tokens[1]), std::stof(tokens[2]) };
+							boneKeyframes.push_back(rot);
+						}
+						keyframeContainer.push_back(boneKeyframes);
+					}
+
+					std::getline(readFile, buffer);
+					int amountKeyframesIK = std::stoi(buffer);
+					std::vector<glm::vec3> IK_keyframes;
+
+					for (int j = 0; j < amountKeyframesIK; j++)
+					{
+						std::getline(readFile, buffer);
+						char* lineString = &buffer[0];
+						std::vector<char*> tokens = split(lineString, " ");
+						glm::vec3 pos = { std::stof(tokens[0]), std::stof(tokens[1]), std::stof(tokens[2]) };
+						IK_keyframes.push_back(pos);
+					}
+
+					loadSkeleton(fileName.c_str());
+					skeletons.back().addKeyFramesFK(keyframeContainer);
+					skeletons.back().addKeyFramesIK(IK_keyframes);
 				}
 			}
 			// Close the file
@@ -487,6 +536,39 @@ namespace vae {
 				saveFile << l.getVegetationTypeEnum() << " " << l.rootPosition.x << " " << l.rootPosition.y << " " << l.rootPosition.z << " " << l.renderColor.x << " " << l.renderColor.y << " " << l.renderColor.z << std::endl;
 			}
 
+			// KINEMATICS FORMAT: <fileName> \n
+			//					  <amountBones> \n
+			//					  <amountKeyFramesFK> \n
+			//					  For each bone:
+			//						For each keyframe FK:
+			//							<rotX> <rotY> <rotZ>
+			//					  <amountKeyFramesIK> \n
+			//					  For each keyframe IK:
+			//						<posX> <posY> <posZ>
+
+			// Amount skeletons
+			saveFile << skeletons.size() << std::endl;
+			for (auto& s : skeletons)
+			{
+				std::vector<std::shared_ptr<Bone>> bones = s.getBones();
+				saveFile << s.getFileName() << std::endl;
+				saveFile << bones.size() << std::endl;
+				saveFile << bones[0]->getKeyFrames().size() << std::endl;
+				for (auto b : bones)
+				{
+					for (auto k : b->getKeyFrames())
+					{
+						saveFile << k.x << " " << k.y << " " << k.z << std::endl;
+					}
+				}
+				std::vector<glm::vec3> IK_keys = s.getIK_Keyframes();
+				saveFile << IK_keys.size() << std::endl;
+				for (auto k : IK_keys)
+				{
+					saveFile << k.x << " " << k.y << " " << k.z << std::endl;
+				}
+			}
+
 			saveFile.close();
 		}
 		else std::cout << "Unable to open file '" << fileName << "'.";
@@ -517,7 +599,7 @@ namespace vae {
 		std::string objPath = std::string("../Misc/") + std::string(fileName);
 		std::shared_ptr<VmcModel> boneModel = VmcModel::createModelFromFile(vmcDevice, "../Models/bone.obj");
 
-		Skeleton2 skeleton{ boneModel };
+		Skeleton2 skeleton{ boneModel, fileName };
 
 		// Read from the text file
 		std::ifstream readFile(objPath);
@@ -709,7 +791,7 @@ namespace vae {
 			}
 			ImGui::SameLine();
 
-			if (ImGui::Button("Save/Load scene", ImVec2(100, 25)))
+			if (ImGui::Button("Save/Load", ImVec2(100, 25)))
 			{
 				UI_Tab = 7;
 			}
@@ -1079,6 +1161,7 @@ namespace vae {
 				if (obj.deformationEnabled)
 				{
 					obj.initDeformationSystem();
+					obj.setPosition(obj.transform.translation);
 				}
 				else {
 					obj.resetObjectForm();
@@ -1281,7 +1364,7 @@ namespace vae {
 				std::string targetLabel = "Target pos (";
 				if (ImGui::DragFloat3((targetLabel + std::to_string(index) + ")").c_str(), glm::value_ptr(skeletons[index].focusPoint), 0.1f))
 				{
-					skeletons[index].solveIK_Z();
+					skeletons[index].solveIK_2D();
 				}
 				std::string drawLabel = "Draw target (";
 				ImGui::Checkbox((drawLabel + std::to_string(index) + ")").c_str(), &skeletons[index].drawIKTarget);
@@ -1362,7 +1445,7 @@ namespace vae {
 	{
 		std::shared_ptr<VmcModel> boneModel = VmcModel::createModelFromFile(vmcDevice, "../Models/bone.obj");
 		
-		Skeleton2 skeleton{boneModel};
+		Skeleton2 skeleton{boneModel, "robot_arm.skel"};
 		
 		skeleton.addRoot({ 0.0f, 0.0f, 0.0f }, 1.0f, { 1.0f, 0.0f, 0.0f });
 		skeleton.addBone(3.0f, { 90.0f, 90.0f, 0.0f });

@@ -20,7 +20,6 @@ namespace vae {
 		
 		// Global transform
 		globalTransformationMatrix = parent_->globalTransformationMatrix * localTransformation;
-		//posOffset = glm::vec3(globalTransformationMatrix[3].x, globalTransformationMatrix[3].y, globalTransformationMatrix[3].z);
 	}
 
 	// Root constructor
@@ -37,6 +36,12 @@ namespace vae {
 		globalTransformationMatrix = trans * rx * ry * rz;
 		localTransformation = trans * rx * ry * rz;
 	}
+
+	void Bone::applyMatrix(glm::mat4 transformMatrix)
+	{
+		globalTransformationMatrix = transformMatrix * globalTransformationMatrix;
+	}
+
 
 
 	void Bone::render(VkCommandBuffer& commandBuffer, VkPipelineLayout& pipelineLayout, std::shared_ptr<VmcModel> boneModel)
@@ -135,4 +140,10 @@ namespace vae {
 	{
 		keyframes.push_back(rotation);
 	}
+
+	void Bone::addKeyFramesFK(std::vector<glm::vec3> kfs)
+	{
+		keyframes = kfs;
+	}
+
 }

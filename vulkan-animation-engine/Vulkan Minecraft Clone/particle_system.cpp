@@ -13,8 +13,10 @@ namespace vae {
 
 	void ParticleSystem::updateAnimatable()
 	{
-		if (keyframes.size() == 0);
+		if (keyframes.size() == 0)
+		{
 			return;
+		}
 		isOn = true;
 		float timePassedFraction = timePassed / duration;
 		float kfFraction = 1.0 / (keyframes.size() - 1);

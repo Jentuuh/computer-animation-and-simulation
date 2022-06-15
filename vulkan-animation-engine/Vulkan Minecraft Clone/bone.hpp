@@ -21,13 +21,17 @@ namespace vae {
 		Bone* getChild() { return child_; };
 		std::vector<glm::vec3>& getKeyFrames() { return keyframes; };
 		void setRotation(glm::vec3 newRot) { rotation = newRot; updateRotation(); };
+		
+		void applyMatrix(glm::mat4 transformMatrix);
 
 		void render(VkCommandBuffer& commandBuffer, VkPipelineLayout& pipelineLayout, std::shared_ptr<VmcModel> boneModel);
 		void updateAnimatable(float kfIndex, float kfFraction);
 		void updateRotation();
 		void setChild(Bone* child);
 		void follow(glm::vec3 target);
+
 		void addKeyFrameFK();
+		void addKeyFramesFK(std::vector<glm::vec3> kfs);
 
 	private:
 		Bone* parent_;
