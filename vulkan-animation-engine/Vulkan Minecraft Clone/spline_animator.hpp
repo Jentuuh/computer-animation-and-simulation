@@ -30,6 +30,7 @@ namespace vae {
 		void moveCurrentControlPoint(MoveDirection d, float dt);
 		void selectNextControlPoint();
 
+		bool drawCurve = true;
 	private:
 		Spline splineCurve;
 	};

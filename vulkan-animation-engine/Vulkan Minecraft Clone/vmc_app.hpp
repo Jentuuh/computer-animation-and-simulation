@@ -54,7 +54,6 @@ namespace vae {
 		void addParticleSystem();
 		void addLSystem(VegetationType type);
 
-		void initSkeletons();
 		void initCollidables();
 
 		void checkRigidBodyCollisions();

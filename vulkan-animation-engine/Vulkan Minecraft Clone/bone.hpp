@@ -15,6 +15,7 @@ namespace vae {
 	public:
 		Bone(Bone* parent, float len, glm::vec3 rot);
 		Bone(glm::vec3 pos, float len, glm::vec3 rot);
+		~Bone();
 
 		glm::mat4 getTransform() { return globalTransformationMatrix; };
 		glm::vec3& getRotation() { return rotation; };

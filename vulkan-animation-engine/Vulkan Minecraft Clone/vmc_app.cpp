@@ -43,7 +43,6 @@ namespace vae {
 
 		initImgui();
 		loadGameObjects();
-		initSkeletons();
 		initCollidables();
 		viewerObject = std::make_unique<VmcGameObject>(VmcGameObject::createGameObject());
 	}
@@ -139,7 +138,6 @@ namespace vae {
 					camera, 
 					frameTime,
 					sphereModel,
-					cameraMode,
 					viewerObject.get());
 				vmcRenderer.endSwapChainRenderPass(commandBuffer);
 
@@ -218,6 +216,7 @@ namespace vae {
 		ImGui_ImplVulkan_DestroyFontUploadObjects();
 	}
 
+	/* Loads scene from a .vaescene file */
 	void VmcApp::loadSceneFromFile(const char* fileName)
 	{
 		std::shared_ptr<VmcModel> sphereModel = VmcModel::createModelFromFile(vmcDevice, "../Models/sphere.obj");
@@ -443,7 +442,7 @@ namespace vae {
 		else std::cout << "Unable to open file '" << fileName << "'.";
 	}
 
-
+	/* Saves scene to a .vaescene file */
 	void VmcApp::saveSceneToFile(const char* fileName)
 	{
 		std::string objPath = std::string("../Scenes/") + std::string(fileName);
@@ -574,7 +573,7 @@ namespace vae {
 		else std::cout << "Unable to open file '" << fileName << "'.";
 	}
 
-
+	/* Add game object to scene (.obj files only) */
 	void VmcApp::loadGameObject(const char* objName)
 	{
 		std::string objPath = std::string("../Models/") + std::string(objName);
@@ -594,6 +593,7 @@ namespace vae {
 		gameObjects.push_back(std::move(newObj));
 	}
 
+	/* Add skeleton to scene (.skel file format) */
 	void VmcApp::loadSkeleton(const char* fileName)
 	{
 		std::string objPath = std::string("../Misc/") + std::string(fileName);
@@ -640,7 +640,7 @@ namespace vae {
 	}
 
 
- 
+	/* Initializer for game objects that are always loaded into the scene (e.g. skybox) */
 	void VmcApp::loadGameObjects()
     {
 		// Skybox model
@@ -654,6 +654,7 @@ namespace vae {
 		skyboxObjects.push_back(std::move(skybox));
 	}
 
+	/* Initialize textures */
 	void VmcApp::loadTextures()
 	{
 		const char* test = "../Textures/pepe.jpg";
@@ -1038,6 +1039,9 @@ namespace vae {
 				animators.erase(animators.begin() + i);
 			}
 
+			std::string drawCurveLabel = "Draw curve (";
+			ImGui::Checkbox((drawCurveLabel + std::to_string(i) + ") ").c_str(), &animators[i].drawCurve);
+
 			// Select game object to animate over the path
 			std::string objSelectTitle = "Animated object (";
 			if (ImGui::BeginCombo((objSelectTitle + std::to_string(i) + ") ").c_str(), animators[i].currentObjSelected.c_str()))
@@ -1301,7 +1305,7 @@ namespace vae {
 			}
 
 			std::string LSysPositionLabel = "Position (";
-			if (ImGui::DragFloat3((LSysPositionLabel + std::to_string(index) + ")").c_str(), glm::value_ptr(l.rootPosition), 1.0f, -20.0f, 20.0f))
+			if (ImGui::DragFloat3((LSysPositionLabel + std::to_string(index) + ")").c_str(), glm::value_ptr(l.rootPosition), 0.1f, -20.0f, 20.0f))
 			{
 				l.resetTurtleAndRerender();
 			}
@@ -1335,13 +1339,17 @@ namespace vae {
 			std::string delLabel = "Delete (";
 			if (ImGui::Button((delLabel + std::to_string(index) + ")").c_str()))
 			{
+				l.~Skeleton2();
 				skeletons.erase(skeletons.begin() + index);
 			}
 
 			std::string modeLabel = "Kinematics mode (";
 			ImGui::Text((modeLabel + std::to_string(index) + ")").c_str());
-			ImGui::RadioButton("Forward", &skeletons[index].mode, 0); ImGui::SameLine();
-			ImGui::RadioButton("Inverse", &skeletons[index].mode, 1);
+
+			std::string forwardLabel = "Forward (";
+			std::string inverseLabel = "Inverse (";
+			ImGui::RadioButton((forwardLabel + std::to_string(index) + ")").c_str(), &skeletons[index].mode, 0); ImGui::SameLine();
+			ImGui::RadioButton((inverseLabel + std::to_string(index) + ")").c_str(), &skeletons[index].mode, 1);
 
 			std::string addKFLabel = "Add keyframe (";
 			if (ImGui::Button((addKFLabel + std::to_string(index) + ")").c_str()))
@@ -1387,7 +1395,7 @@ namespace vae {
 		}
 	}
 
-
+	/* Add spline animator to scene */
 	void VmcApp::addSplineAnimator()
 	{
 		// Initialize animators
@@ -1411,6 +1419,7 @@ namespace vae {
 		animators.back().buildForwardDifferencingTable();
 	}
 
+	/* Add particle system to scene */
 	void VmcApp::addParticleSystem()
 	{
 		std::shared_ptr<VmcModel> waterDropModel = VmcModel::createModelFromFile(vmcDevice, "../Models/cube.obj");
@@ -1419,6 +1428,7 @@ namespace vae {
 		particleSystems.push_back(hose);
 	}
 
+	/* Add L-System to scene */
 	void VmcApp::addLSystem(VegetationType type)
 	{
 		switch (type)
@@ -1440,23 +1450,7 @@ namespace vae {
 		}
 	}
 
-
-	void VmcApp::initSkeletons()
-	{
-		std::shared_ptr<VmcModel> boneModel = VmcModel::createModelFromFile(vmcDevice, "../Models/bone.obj");
-		
-		Skeleton2 skeleton{boneModel, "robot_arm.skel"};
-		
-		skeleton.addRoot({ 0.0f, 0.0f, 0.0f }, 1.0f, { 1.0f, 0.0f, 0.0f });
-		skeleton.addBone(3.0f, { 90.0f, 90.0f, 0.0f });
-		skeleton.addBone(1.0f, { 0.0f, 45.0f, 0.0f });
-		skeleton.addBone(1.0f, { 0.0f, 45.0f, 0.0f });
-		skeleton.addBone(1.0f, { 0.0f, 45.0f, 0.0f });
-		skeleton.addBone(1.0f, { 0.0f, 45.0f, 0.0f });
-
-		skeletons.push_back(skeleton);
-	}
-
+	/* Initialize objects that can collide with rigid bodies */
 	void VmcApp::initCollidables()
 	{
 		std::vector<std::pair<glm::vec3, float>> massPoints1;
@@ -1468,7 +1462,7 @@ namespace vae {
 		collidables.push_back(ground);
 	}
 
-
+	/* Check if any collidables collide with rigid bodies */
 	void VmcApp::checkRigidBodyCollisions()
 	{
 		for (auto& rigid : rigidBodies)
@@ -1481,6 +1475,7 @@ namespace vae {
 		}
 	}
 
+	/* Generate new particles for each particle system */
 	void VmcApp::updateParticleSystems()
 	{
 		for (auto& p : particleSystems)
@@ -1489,7 +1484,7 @@ namespace vae {
 		}
 	}
 
-
+	/* Update camera view/model matrix */
 	void VmcApp::updateCamera(float frameTime)
 	{
 		float aspect = vmcRenderer.getAspectRatio();
@@ -1523,6 +1518,7 @@ namespace vae {
 		}
 	}
 
+	/* Parser helper function */
 	std::vector<char*> VmcApp::split(char* stringToSplit, const char* separator)
 	{
 		std::vector<char*> result;

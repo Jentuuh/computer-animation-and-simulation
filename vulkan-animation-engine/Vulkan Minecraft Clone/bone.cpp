@@ -37,6 +37,13 @@ namespace vae {
 		localTransformation = trans * rx * ry * rz;
 	}
 
+	Bone::~Bone()
+	{
+		parent_ = nullptr;
+		child_ = nullptr;
+	}
+
+
 	void Bone::applyMatrix(glm::mat4 transformMatrix)
 	{
 		globalTransformationMatrix = transformMatrix * globalTransformationMatrix;

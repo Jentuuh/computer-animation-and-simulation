@@ -35,7 +35,7 @@ namespace vae {
 		void renderGameObjects(VkCommandBuffer commandBuffer, VkDescriptorSet globalDescriptorSet, VkDescriptorSet skyboxDescriptorSet, std::vector<VmcGameObject>& skyBoxes,
 								std::vector<VmcGameObject> &gameObjects, std::vector<SplineAnimator>& animators, 
 								std::vector<LSystem>& lsystems, std::vector<Skeleton2>& skeletons, std::vector<RigidBody>& rigids, std::vector<RigidBody>& collidables, const VmcCamera& camera,
-								const float frameDeltaTime, std::shared_ptr<VmcModel> pointModel, int camMode, VmcGameObject* viewerObj);
+								const float frameDeltaTime, std::shared_ptr<VmcModel> pointModel, VmcGameObject* viewerObj);
 
 	private:
 		void createPipelineLayout(VkDescriptorSetLayout globalSetLayout);

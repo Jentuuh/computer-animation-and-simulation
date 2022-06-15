@@ -76,7 +76,7 @@ namespace vae {
 
 	// TODO: State update of objects should be handled somewhere else!
 	// Render loop
-	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, VkDescriptorSet globalDescriptorSet, VkDescriptorSet skyboxDescriptorSet, std::vector<VmcGameObject>& skyBoxes, std::vector<VmcGameObject> &gameObjects, std::vector<SplineAnimator>& animators, std::vector<LSystem>& lsystems, std::vector<Skeleton2>& skeletons, std::vector<RigidBody>& rigids, std::vector<RigidBody>& collidables, const VmcCamera& camera, const float frameDeltaTime, std::shared_ptr<VmcModel> pointModel, int camMode, VmcGameObject* viewerObj)
+	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, VkDescriptorSet globalDescriptorSet, VkDescriptorSet skyboxDescriptorSet, std::vector<VmcGameObject>& skyBoxes, std::vector<VmcGameObject> &gameObjects, std::vector<SplineAnimator>& animators, std::vector<LSystem>& lsystems, std::vector<Skeleton2>& skeletons, std::vector<RigidBody>& rigids, std::vector<RigidBody>& collidables, const VmcCamera& camera, const float frameDeltaTime, std::shared_ptr<VmcModel> pointModel, VmcGameObject* viewerObj)
 	{
 		if (renderSkybox)
 		{
@@ -114,28 +114,28 @@ namespace vae {
 
 		for (int i = 0; i < animators.size(); i++)
 		{
-			// Draw spline control points
-			TestPushConstant pushSpline{};
-			for (auto& cpspline : animators[i].getControlPoints())
+			if (animators[i].drawCurve)
 			{
-				pushSpline.modelMatrix = cpspline.transform.mat4();
-				pushSpline.normalMatrix = cpspline.transform.normalMatrix();
-				pushSpline.color = cpspline.color;
+				// Draw spline control points
+				TestPushConstant pushSpline{};
+				for (auto& cpspline : animators[i].getControlPoints())
+				{
+					pushSpline.modelMatrix = cpspline.transform.mat4();
+					pushSpline.normalMatrix = cpspline.transform.normalMatrix();
+					pushSpline.color = cpspline.color;
 
-				vkCmdPushConstants(commandBuffer,
-					pipelineLayout,
-					VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-					0,
-					sizeof(TestPushConstant),
-					&pushSpline);
+					vkCmdPushConstants(commandBuffer,
+						pipelineLayout,
+						VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+						0,
+						sizeof(TestPushConstant),
+						&pushSpline);
 
-				cpspline.model->bind(commandBuffer);
-				cpspline.model->draw(commandBuffer);
-			}
+					cpspline.model->bind(commandBuffer);
+					cpspline.model->draw(commandBuffer);
+				}
 
-			// Draw spline curve points
-			if (camMode != 2)
-			{
+				// Draw spline curve points
 				pushSpline.color = { 1.0f, 1.0f, 1.0f };
 				for (auto& curvePoint : animators[i].getCurvePoints())
 				{
