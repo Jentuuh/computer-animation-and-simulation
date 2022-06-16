@@ -46,7 +46,18 @@ namespace vae {
 
 	void Bone::applyMatrix(glm::mat4 transformMatrix)
 	{
-		globalTransformationMatrix = transformMatrix * globalTransformationMatrix;
+		glm::mat4 trans = glm::translate(glm::mat4(1.0f), { 1.0f, 0.0f, 0.0f });
+		localTransformation = trans * transformMatrix;
+
+		if (parent_ != nullptr)
+			globalTransformationMatrix = parent_->globalTransformationMatrix * localTransformation;
+		else {
+			globalTransformationMatrix = localTransformation;
+		}
+		if (child_ != nullptr)
+			child_->updateRotation();
+
+		//globalTransformationMatrix = transformMatrix * globalTransformationMatrix;
 	}
 
 

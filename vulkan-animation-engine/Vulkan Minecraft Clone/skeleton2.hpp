@@ -33,7 +33,7 @@ namespace vae {
 		void render(VkCommandBuffer& commandBuffer, VkPipelineLayout& pipelineLayout, std::shared_ptr<VmcModel> pointModel);
 		
 		std::vector<glm::vec3> FK();
-		void solveIK_3D(int maxIterations = 1000, float errorMin = 0.1f);
+		void solveIK_3D(int maxIterations = 1000, float errorMin = 0.001f);
 		void rotateLinksIK_3D(int startIdx, float angle, glm::vec3 rotVec);
 
 		void solveIK_2D(int maxIterations= 1000, float errorMin=0.1f);

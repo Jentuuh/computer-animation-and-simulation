@@ -1087,9 +1087,13 @@ namespace vae {
 			}
 
 			ImGui::Text("Speed Control Function:"); ImGui::SameLine();
-			ImGui::RadioButton("Sine", &animators[i].speedControl, 0); ImGui::SameLine();
-			ImGui::RadioButton("Linear", &animators[i].speedControl, 1); ImGui::SameLine();
-			ImGui::RadioButton("Parabolic", &animators[i].speedControl, 2); 
+			std::string sineLabel = "Sine (";
+			std::string linLabel = "Linear (";
+			std::string parabolicLabel = "Parabolic (";
+
+			ImGui::RadioButton((sineLabel + std::to_string(i) + ")").c_str(), &animators[i].speedControl, 0); ImGui::SameLine();
+			ImGui::RadioButton((linLabel + std::to_string(i) + ")").c_str(), &animators[i].speedControl, 1); ImGui::SameLine();
+			ImGui::RadioButton((parabolicLabel + std::to_string(i) + ")").c_str(), &animators[i].speedControl, 2);
 
 			std::string animatorMoveLabel = "Pos anim ";
 			if (ImGui::DragFloat3((animatorMoveLabel + std::to_string(i)).c_str(), glm::value_ptr(animators[i].getPosition()), 1.0f, -20.0f, 20.0f))

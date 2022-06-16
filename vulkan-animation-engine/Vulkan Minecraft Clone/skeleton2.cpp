@@ -98,8 +98,15 @@ namespace vae {
 		return points;
 	}
 
+	/* Disclaimer: does not fully work yet */
 	void Skeleton2::solveIK_3D(int maxIterations, float errorMin)
 	{
+		for (auto b : boneData)
+		{
+			float rotZ = b->getRotation().z;
+			b->setRotation(glm::vec3{ 0.0f, 0.0f, 0.0f });
+		}
+
 		bool solved = false;
 		for (int j = 0; j < maxIterations; j++)
 		{	
@@ -110,6 +117,8 @@ namespace vae {
 				glm::vec3 baseToEndpointVec = glm::normalize(end - pointCoords[i]);
 				glm::vec3 baseToDestinationVec = glm::normalize(focusPoint - pointCoords[i]);
 
+				// Calculate the angle between the vector between the end effector and target, and the vector between the current joint and the end effector
+				// Apply this angle to the current joint, as well as all its children (according to rotation axis that is the result of the cross product of the 2 vectors)
 				float cosAlpha = glm::clamp(glm::dot(baseToDestinationVec, baseToEndpointVec), -1.0f, 1.0f);
 				float alpha = glm::acos(cosAlpha);
 				rotateLinksIK_3D(i + 1, alpha, glm::cross(baseToEndpointVec, baseToDestinationVec));
@@ -131,18 +140,15 @@ namespace vae {
 	{
 		std::vector<glm::vec3> pointCoords = FK();
 
-		// Translate to origin, rotate, translate back
-		glm::mat4 translationMat = glm::translate(-pointCoords[startIdx - 1]);
-		glm::mat4 inverseTranslationMat = glm::inverse(translationMat);
+		// Apply rotation locally to the joint and its children
 		glm::mat4 rotMatrix = glm::rotate(angle, rotVec);
 
 		for (int i = startIdx; i < boneData.size(); i++) {
-			boneData[i]->applyMatrix(translationMat);
+			//boneData[i]->applyMatrix(translationMat);
 			boneData[i]->applyMatrix(rotMatrix);
-			boneData[i]->applyMatrix(inverseTranslationMat);
+			//boneData[i]->applyMatrix(inverseTranslationMat);
 		}
 	}
-
 
 
 	void Skeleton2::solveIK_2D(int maxIterations, float errorMin)
