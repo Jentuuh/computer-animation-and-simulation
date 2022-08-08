@@ -1,4 +1,4 @@
-# computer-animation-and-simulation
+# Vulkan Animation Engine
 An animation engine created in Vulkan for my 'Computer Animation And Simulation' course.
 
 ## Features 
