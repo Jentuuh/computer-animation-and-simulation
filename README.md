@@ -1,2 +1,11 @@
 # computer-animation-and-simulation
 An animation engine created in Vulkan for my 'Computer Animation And Simulation' course.
+
+## Features 
+* Spline-based path animation (making use of Catmull-Rom splines)
+* Object deformation by manipulating a deformation grid
+* Particle system with collision detection + response
+* L-Systems
+* Forward + inverse (2D) kinematics
+* Save/load system
+* Storyboard manager
