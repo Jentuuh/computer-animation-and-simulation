@@ -9,4 +9,4 @@ An animation engine created in Vulkan for my 'Computer Animation And Simulation'
 * Forward + inverse (2D) kinematics
 * Game object manipulation (scale, rotation, translation)
 * Save/load system
-* Storyboard manager
+* Storyboard manager that allows to manage keyframes
