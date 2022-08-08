@@ -7,5 +7,6 @@ An animation engine created in Vulkan for my 'Computer Animation And Simulation'
 * Particle system with collision detection + response
 * L-Systems
 * Forward + inverse (2D) kinematics
+* Game object manipulation (scale, rotation, translation)
 * Save/load system
 * Storyboard manager
