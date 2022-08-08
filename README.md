@@ -1,5 +1,6 @@
 # Vulkan Animation Engine
 An animation engine created in Vulkan for my 'Computer Animation And Simulation' course.
+A demo can be found [here](https://youtu.be/0I7ySHTFjbY).
 
 ## Features 
 * Spline-based path animation governed by speed control functions (making use of Catmull-Rom splines)
