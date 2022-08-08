@@ -10,3 +10,4 @@ An animation engine created in Vulkan for my 'Computer Animation And Simulation'
 * Game object manipulation (scale, rotation, translation)
 * Save/load system
 * Storyboard manager that allows to manage keyframes
+* Skybox
