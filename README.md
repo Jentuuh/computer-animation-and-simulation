@@ -2,7 +2,7 @@
 An animation engine created in Vulkan for my 'Computer Animation And Simulation' course.
 
 ## Features 
-* Spline-based path animation (making use of Catmull-Rom splines)
+* Spline-based path animation governed by speed control functions (making use of Catmull-Rom splines)
 * Object deformation by manipulating a deformation grid
 * Particle system with collision detection + response
 * L-Systems
